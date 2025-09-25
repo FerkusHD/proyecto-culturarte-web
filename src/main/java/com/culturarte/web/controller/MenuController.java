@@ -8,11 +8,12 @@ public class MenuController {
 
     @GetMapping("/")
     public String index() {
-        return "index"; // /WEB-INF/jsp/index.jsp
+        return "index";
     }
 
     @GetMapping("/menu")
     public String menu() {
-        return "menu"; // /WEB-INF/jsp/menu.jsp
+        return "menu"; 
     }
 }
+
