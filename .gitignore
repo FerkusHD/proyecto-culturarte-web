@@ -40,4 +40,4 @@ nbdist/
 
 
 .DS_Store
-docker/docker/mysql/data
+/mysql/data
