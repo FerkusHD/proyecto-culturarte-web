@@ -1,0 +1,43 @@
+# ============================
+# Archivos compilados de Java
+# ============================
+*.class
+*.jar
+*.war
+*.ear
+
+# ============================
+# Directorios de build
+# ============================
+target/
+build/
+dist/
+out/
+
+# ============================
+# Archivos de NetBeans
+# ============================
+nbproject/private/
+nbbuild/
+nbdist/
+.nb-gradle/
+*.nb-gradle.xml
+
+# ============================
+# Archivos de configuración del IDE
+# ============================
+*.iml
+.idea/
+.vscode/
+
+# ============================
+# Archivos temporales / logs
+# ============================
+*.log
+*.tmp
+*.bak
+*.swp
+
+
+.DS_Store
+docker/docker/mysql/data
