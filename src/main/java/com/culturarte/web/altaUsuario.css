@@ -22,6 +22,20 @@ h1 {
   margin-bottom: 20px;
 }
 
+#culturarte {
+  background: linear-gradient(90deg, #ff6b6b, #ffd93d,blue);
+  -webkit-background-clip: text;   /* para Chrome/Safari */
+  background-clip: text;           /* estándar (puede no estar soportado en todos) */
+  -webkit-text-fill-color: transparent; /* necesario en WebKit/Blink */
+  color: transparent;              /* fallback */
+  font-family: 'Pacifico', cursive;
+  font-size: 2rem;
+  margin: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 .formulario {
   display: flex;
   flex-direction: column;
