@@ -1,0 +1,69 @@
+
+body {
+  font-family:cursive;
+  background: #f4f4f9;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f2f2f2;
+}
+
+.culturarte {
+  background: linear-gradient(90deg, #ff6b6b, #ffd93d,blue);
+  -webkit-background-clip: text;   /* para Chrome/Safari */
+  background-clip: text;           /* estándar (puede no estar soportado en todos) */
+  -webkit-text-fill-color: transparent; /* necesario en WebKit/Blink */
+  color: transparent;              /* fallback */
+  font-family: 'Pacifico', cursive;
+  font-size: 2rem;
+  margin: 0;
+  padding-left: 15px;
+}
+
+nav a {
+  margin: 0 10px;
+  text-decoration: none;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.tabs button {
+  margin: 0 5px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.tarjetas {
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+}
+
+.card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: 250px;
+  text-align: center;
+}
+
+.card img {
+  max-width: 100%;
+}
+
+.categorias {
+  margin: 20px;
+  text-align: center;
+}
+
+.categorias label {
+  margin: 0 10px;
+}

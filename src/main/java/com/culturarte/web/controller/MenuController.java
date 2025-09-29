@@ -11,9 +11,15 @@ public class MenuController {
         return "index";
     }
 
-    @GetMapping("/menu")
-    public String menu() {
-        return "menu"; 
+    @GetMapping("/inicioSesion")
+    public String inicioSesion() {
+        return "inicioSesion";
     }
+
+    @GetMapping("/altaUsuario")
+    public String altaUsuario() {
+        return "altaUsuario";
+    }
+
 }
 
