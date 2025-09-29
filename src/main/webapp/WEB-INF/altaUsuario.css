@@ -17,12 +17,7 @@ form {
   max-width: 400px; /* el formulario no se hace gigante */
 }
 
-h1 {
-  color: #333;
-  margin-bottom: 20px;
-}
-
-#culturarte {
+.culturarte {
   background: linear-gradient(90deg, #ff6b6b, #ffd93d,blue);
   -webkit-background-clip: text;   /* para Chrome/Safari */
   background-clip: text;           /* estándar (puede no estar soportado en todos) */
@@ -34,6 +29,7 @@ h1 {
   position: absolute;
   top: 0;
   left: 0;
+  padding-left: 15px;
 }
 
 .formulario {

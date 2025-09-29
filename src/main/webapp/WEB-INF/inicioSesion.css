@@ -5,8 +5,7 @@ body {
   font-family:cursive;
   background: #f4f4f9;
   margin: 0;
-  padding: 0;
-  
+  padding: 0; 
 }
 
 form {
@@ -17,26 +16,20 @@ form {
   max-width: 400px; /* el formulario no se hace gigante */
 }
 
-h1 {
-    font-family: cursive;
-    color: #333;
-    margin-bottom: 20px;
-}
-
-#culturarte {
+.culturarte {
   background: linear-gradient(90deg, #ff6b6b, #ffd93d,blue);
-  -webkit-background-clip: text;   /* para Chrome/Safari */
-  background-clip: text;           /* estándar (puede no estar soportado en todos) */
-  -webkit-text-fill-color: transparent; /* necesario en WebKit/Blink */
-  color: transparent;              /* fallback */
+  -webkit-background-clip: text;   
+  background-clip: text;           
+  -webkit-text-fill-color: transparent; 
+  color: transparent;             
   font-family: 'Pacifico', cursive;
   font-size: 2rem;
   margin: 0;
   position: absolute;
   top: 0;
   left: 0;
+  padding-left: 15px;
 }
-
 
 .formulario {
   display: flex;
