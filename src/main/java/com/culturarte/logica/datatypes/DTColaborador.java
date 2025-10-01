@@ -14,15 +14,17 @@ import java.util.ArrayList;
  */
 public class DTColaborador {
     private String nickname;
+    private String password;
     private String nombre;
     private String apellido;
     private String email;
     private LocalDate fechaNacimiento;
-    private File imagen;
+    private String imagen;
     private ArrayList<DTPropuesta> propuestas;
 
-    public DTColaborador(String nickname, String nombre, String apellido, String email, LocalDate fechaNacimiento, File imagen) {
+    public DTColaborador(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen) {
         this.nickname = nickname;
+        this.password = password;
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
@@ -51,7 +53,7 @@ public class DTColaborador {
         return fechaNacimiento;
     }
 
-    public File getImagen() {
+    public String getImagen() {
         return imagen;
     }
 

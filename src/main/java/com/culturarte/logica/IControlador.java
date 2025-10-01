@@ -31,13 +31,13 @@ public interface IControlador {
     // carga de datos
     public abstract void cargarDatosPrueba() throws CargaFallida;
     
-    public abstract void altaColaborador(String nickname, String nombre, String apellido, String email, LocalDate fechaNacimiento, File imagen) throws UsuarioYaExiste;
-    public abstract void altaProponente(String nickname, String nombre, String apellido, String email, LocalDate fechaNacimiento, File imagen, String direccion, String linkWeb, String bibliografia) throws UsuarioYaExiste;
+    public abstract void altaColaborador(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen) throws UsuarioYaExiste;
+    public abstract void altaProponente(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen, String direccion, String linkWeb, String bibliografia) throws UsuarioYaExiste;
     public abstract ArrayList<String> getNomProponentes();
     public abstract DTProponente getDTProponente(String nickname);
     public abstract void altaCategoria(String nombre, String catPadre) throws CategoriaYaExiste;
     public abstract DefaultTreeModel listarCategorias();
-    public abstract void altaPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, EnumSet<TipoRetorno> tipoRetornos, File imagen, String proponente, String categoria) throws PropuestaYaExiste;
+    public abstract void altaPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, EnumSet<TipoRetorno> tipoRetornos, String imagen, String proponente, String categoria) throws PropuestaYaExiste;
     public abstract ArrayList<String> getNickColaboradores();
     public abstract ArrayList<String> getNomColaboradores();
     public abstract DTColaborador getDTColaborador(String nickname);
@@ -56,6 +56,6 @@ public interface IControlador {
     public abstract ArrayList<DTColaboracion> getDTColaboraciones();//cu11
     public abstract DTUsuario getDTUsuario(String nickname);
     public abstract void nuevoEstadoPropuesta(String propuesta, TipoEstado estado, LocalDate fecha, LocalTime hora);
-    public abstract void modificarPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, File imagen, String proponente, String categoria, String nuevoEstado) throws DatosIncorrectos;
+    public abstract void modificarPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, String imagen, String proponente, String categoria, String nuevoEstado) throws DatosIncorrectos;
     
 }

@@ -18,7 +18,7 @@ public class DTPropuesta {
     private float precioEntrada;
     private float montoNecesario;
     private float montoRecaudado; // Calculado
-    private File imagen;
+    private String imagen;
     private ArrayList<String> colaboradores = new ArrayList<>();
     private TipoEstado estadoActual;
     private List<DTEstado> histEstados = new ArrayList();
@@ -27,7 +27,7 @@ public class DTPropuesta {
     
     public DTPropuesta(){}
     
-    public DTPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, float precioEntrada, float montoNecesario, File imagen, ArrayList<String> colaboradores, String nickProponente, TipoEstado estadoActual, String categoria, ArrayList<DTEstado> histEstados, float montoRecaudado){
+    public DTPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, float precioEntrada, float montoNecesario, String imagen, ArrayList<String> colaboradores, String nickProponente, TipoEstado estadoActual, String categoria, ArrayList<DTEstado> histEstados, float montoRecaudado){
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.lugar = lugar;
@@ -104,7 +104,7 @@ public class DTPropuesta {
         return montoRecaudado;
     }
 
-    public File getImagen() {
+    public String getImagen() {
         return imagen;
     }
 

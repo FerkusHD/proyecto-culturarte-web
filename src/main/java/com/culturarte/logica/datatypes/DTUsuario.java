@@ -15,17 +15,19 @@ import java.util.ArrayList;
  */
 public class DTUsuario {
     private String nickname;
+    private String password;
     private String nombre;
     private String apellido;
     private String email;
     private LocalDate fechaNacimiento;
     private ArrayList<String> usuariosSeguidos;
-    private File imagen;
+    private String imagen;
     
     public DTUsuario(){}
     
-    public DTUsuario(String nickname, String nombre, String apellido, String email, LocalDate fechaNacimiento, ArrayList<String> usuariosSeguidos, File imagen){
+    public DTUsuario(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, ArrayList<String> usuariosSeguidos, String imagen){
         this.nickname = nickname;
+        this.password = password;
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
@@ -40,11 +42,11 @@ public class DTUsuario {
         this.usuariosSeguidos = usuariosSeguidos;
     }
     
-    public File getImagen() {
+    public String getImagen() {
         return imagen;
     }
 
-    public void setImagen(File imagen) {
+    public void setImagen(String imagen) {
         this.imagen = imagen;
     }
 

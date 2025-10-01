@@ -5,7 +5,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.ManyToMany;
-import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +14,7 @@ import java.util.List;
 public abstract class Usuario {
     @Id
     private String nickname;
+    private String password;
     private String nombre;
     private String apellido;
     private String email;
@@ -23,12 +23,13 @@ public abstract class Usuario {
     private List<Propuesta> propuestasSeguidas;
     @ManyToMany
     private List<Usuario> usuariosSeguidos;
-    private File imagen;
+    private String imagen;
 
     public Usuario() { }
 
-    public Usuario(String nickname, String nombre, String apellido, String email, LocalDate fechaNacimiento, File imagen) {
+    public Usuario(String nickname,String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen) {
         this.nickname = nickname;
+        this.password = password;
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
@@ -38,11 +39,11 @@ public abstract class Usuario {
         this.usuariosSeguidos = new ArrayList<>();
     }
 
-    public File getImagen() {
+    public String getImagen() {
         return imagen;
     }
 
-    public void setImagen(File imagen) {
+    public void setImagen(String imagen) {
         this.imagen = imagen;
     }
 
@@ -97,6 +98,8 @@ public abstract class Usuario {
     public String getNickname() {
         return nickname;
     }
+
+    public String getPassword() {return password;}
 
     public void setNickname(String nickname) {
         this.nickname = nickname;

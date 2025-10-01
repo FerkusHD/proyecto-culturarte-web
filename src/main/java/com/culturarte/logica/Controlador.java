@@ -42,23 +42,23 @@ public class Controlador implements IControlador{
 
     
     @Override
-    public void altaColaborador(String nickname, String nombre, String apellido, String email, LocalDate fechaNacimiento, File imagen)
+    public void altaColaborador(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen)
             throws UsuarioYaExiste {
         Usuario u = mu.buscarUsuario(nickname);
         if (u != null) {
             throw new UsuarioYaExiste("El usuario con nickname " + nickname + " ya está registrado");
         }
-        mu.agregarUsuario(new Colaborador(nickname, nombre, apellido, email, fechaNacimiento, imagen));
+        mu.agregarUsuario(new Colaborador(nickname, password, nombre, apellido, email, fechaNacimiento, imagen));
     }
     
     @Override
-    public void altaProponente(String nickname, String nombre, String apellido, String email, LocalDate fechaNacimiento, File imagen, String direccion, String linkWeb, String bibliografia)
+    public void altaProponente(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen, String direccion, String linkWeb, String bibliografia)
             throws UsuarioYaExiste {
         Usuario u = mu.buscarUsuario(nickname);
         if (u != null) {
             throw new UsuarioYaExiste("El usuario con nickname " + nickname + " ya está registrado");
         }
-        mu.agregarUsuario(new Proponente(nickname, nombre, apellido, email, fechaNacimiento, imagen, direccion, linkWeb, bibliografia));
+        mu.agregarUsuario(new Proponente(nickname, password, nombre, apellido, email, fechaNacimiento, imagen, direccion, linkWeb, bibliografia));
     }
     
         
@@ -112,6 +112,7 @@ public class Controlador implements IControlador{
 
         DTColaborador dtc = new DTColaborador(
                 c.getNickname(),
+                c.getPassword(),
                 c.getNombre(),
                 c.getApellido(),
                 c.getEmail(),
@@ -146,7 +147,7 @@ public class Controlador implements IControlador{
        
         Proponente p = mu.getProponenteConPropuestas(nickname);
         
-        DTProponente dtp = new DTProponente(p.getNickname(), p.getNombre(), p.getApellido(), p.getEmail(), p.getFechaNacimiento(), p.getImagen(), p.getDireccion(), p.getLinkWeb(), p.getBiografia());
+        DTProponente dtp = new DTProponente(p.getNickname(), p.getPassword(), p.getNombre(), p.getApellido(), p.getEmail(), p.getFechaNacimiento(), p.getImagen(), p.getDireccion(), p.getLinkWeb(), p.getBiografia());
         
         for (Propuesta prop : p.getPropuestas()) {
             dtp.addPropuesta(new DTPropuesta(prop.getTitulo(), prop.getEstadoActual().getEstado() , prop.getNicknameColaboradores(), prop.getMontoRecaudado(), prop.getMontoNecesario()));
@@ -194,7 +195,7 @@ public class Controlador implements IControlador{
     }
 
     @Override
-    public void altaPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, EnumSet<TipoRetorno> tipoRetornos, File imagen, String proponente, String categoria)
+    public void altaPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, EnumSet<TipoRetorno> tipoRetornos, String imagen, String proponente, String categoria)
     throws PropuestaYaExiste {
 
         if (mp.getPropuesta(titulo) != null) {
@@ -426,7 +427,7 @@ public class Controlador implements IControlador{
     }
     
     public void modificarPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, 
-            Float montoNecesario, File imagen, String proponente, String categoria, String nuevoEstado) throws DatosIncorrectos {
+            Float montoNecesario, String imagen, String proponente, String categoria, String nuevoEstado) throws DatosIncorrectos {
         
         if(titulo.isEmpty()) throw new DatosIncorrectos("El titulo no puede ser vacío");
         if(lugar.isEmpty()) throw new DatosIncorrectos("El lugar no puede ser vacío");
@@ -478,7 +479,7 @@ public class Controlador implements IControlador{
         try {
             // Proponentes
             this.altaProponente(
-                    "hrubino", "Horacio", "Rubino",
+                    "hrubino","", "Horacio", "Rubino",
                     "horacio.rubino@guambia.com.uy", LocalDate.of(1962, 2, 25),
                     null, //new File(getClass().getClassLoader().getResource("Imagenes/HR.jpeg").toURI()),
                     "18 de Julio 1234",
@@ -486,7 +487,7 @@ public class Controlador implements IControlador{
                     "Actor y conductor"
             );
             this.altaProponente(
-                    "mbusca", "Martín", "Buscaglia",
+                    "mbusca", "","Martín", "Buscaglia",
                     "martin.bus@agadu.org.uy", LocalDate.of(1972, 6, 14),
                     null, //new File(getClass().getClassLoader().getResource("Imagenes/MB.jpg").toURI()),
                     "Colonia 4321",
@@ -494,7 +495,7 @@ public class Controlador implements IControlador{
                     "Músico uruguayo"
             );
             this.altaProponente(
-                    "hectorg", "Héctor", "Guido",
+                    "hectorg", "","Héctor", "Guido",
                     "hector.gui@elgalpon.org.uy", LocalDate.of(1954, 1, 7),
                     null,
                     "Gral. Flores 5645",
@@ -502,7 +503,7 @@ public class Controlador implements IControlador{
                     "Actor de teatro"
             );
             this.altaProponente(
-                    "tabarec", "Tabaré", "Cardozo",
+                    "tabarec", "","Tabaré", "Cardozo",
                     "tabare.car@agadu.org.uy", LocalDate.of(1971, 7, 24),
                     null,
                     "Santiago Rivas 1212",
@@ -510,7 +511,7 @@ public class Controlador implements IControlador{
                     "Cantante murguista"
             );
             this.altaProponente(
-                    "cachilas", "Waldemar \"Cachila\"", "Silva",
+                    "cachilas", "","Waldemar \"Cachila\"", "Silva",
                     "cachila.sil@c1080.org.uy", LocalDate.of(1947, 1, 1),
                     null,
                     "Br. Artigas 4567",
@@ -518,7 +519,7 @@ public class Controlador implements IControlador{
                     "Director comparsa"
             );
             this.altaProponente(
-                    "juliob", "Julio", "Bocca",
+                    "juliob", "","Julio", "Bocca",
                     "juliobocca@sodre.com.uy", LocalDate.of(1967, 3, 16),
                     null,
                     "Benito Blanco 4321",
@@ -526,7 +527,7 @@ public class Controlador implements IControlador{
                     "Bailarín"
             );
             this.altaProponente(
-                    "diegop", "Diego", "Parodi",
+                    "diegop", "","Diego", "Parodi",
                     "diego@efectocine.com", LocalDate.of(1975, 1, 1),
                     null,
                     "Emilio Frugoni 1138 Ap. 02",
@@ -534,7 +535,7 @@ public class Controlador implements IControlador{
                     "Cineasta"
             );
             this.altaProponente(
-                    "kairoh", "Kairo", "Herrera",
+                    "kairoh", "","Kairo", "Herrera",
                     "kairoher@pilsenrock.com.uy", LocalDate.of(1840, 4, 25),
                     null,
                     "Paraguay 1423",
@@ -542,7 +543,7 @@ public class Controlador implements IControlador{
                     "Organizador eventos"
             );
             this.altaProponente(
-                    "losBardo", "Los", "Bardo",
+                    "losBardo", "","Los", "Bardo",
                     "losbardo@bardocientifico.com", LocalDate.of(1980, 10, 31),
                     null, //new File(getClass().getClassLoader().getResource("Imagenes/LB.jpg").toURI()),
                     "8 de Octubre 1429",
@@ -551,57 +552,57 @@ public class Controlador implements IControlador{
             );
                 // Colaboradores
             this.altaColaborador(
-                    "robinh", "Robin", "Henderson",
+                    "robinh", "","Robin", "Henderson",
                     "robin.h@tinglesa.com.uy", LocalDate.of(1940, 8, 3),
                     null
             );
             this.altaColaborador(
-                    "marcelot", "Marcelo", "Tinelli",
+                    "marcelot", "","Marcelo", "Tinelli",
                     "marcelot@ideasdelsur.com.ar", LocalDate.of(1960, 4, 1),
                     null
             );
             this.altaColaborador(
-                    "novick", "Edgardo", "Novick",
+                    "novick", "","Edgardo", "Novick",
                     "edgardo@novick.com.uy", LocalDate.of(1952, 7, 17),
                     null
             );
             this.altaColaborador(
-                    "sergiop", "Sergio", "Puglia",
+                    "sergiop", "","Sergio", "Puglia",
                     "puglia@alpanpan.com.uy", LocalDate.of(1950, 1, 28),
                     null //new File(getClass().getClassLoader().getResource("Imagenes/SP.jpg").toURI())
             );
             this.altaColaborador(
-                    "chino", "Alvaro", "Recoba",
+                    "chino", "","Alvaro", "Recoba",
                     "chino@trico.org.uy", LocalDate.of(1976, 3, 17),
                     null
             );
             this.altaColaborador(
-                    "tonyp", "Antonio", "Pacheco",
+                    "tonyp", "","Antonio", "Pacheco",
                     "tonyp@manya.org.uy", LocalDate.of(1955, 2, 14),
-                    new File(getClass().getClassLoader().getResource("Imagenes/AP.jpg").toURI())
+                    null //new File(getClass().getClassLoader().getResource("Imagenes/AP.jpg").toURI())
             );
             this.altaColaborador(
-                    "nicoJ", "Nicolás", "Jodal",
+                    "nicoJ", "","Nicolás", "Jodal",
                     "jodal@artech.com.uy", LocalDate.of(1960, 8, 9),
-                    new File(getClass().getClassLoader().getResource("Imagenes/NJ.jpg").toURI())
+                    null //new File(getClass().getClassLoader().getResource("Imagenes/NJ.jpg").toURI())
             );
             this.altaColaborador(
-                    "juanP", "Juan", "Perez",
+                    "juanP", "","Juan", "Perez",
                     "juanp@elpueblo.com", LocalDate.of(1970, 1, 1),
                     null
             );
             this.altaColaborador(
-                    "Mengano", "Mengano", "Gómez",
+                    "Mengano", "","Mengano", "Gómez",
                     "menganog@elpueblo.com", LocalDate.of(1982, 2, 2),
                     null
             );
             this.altaColaborador(
-                    "Perengano", "Perengano", "López",
+                    "Perengano", "","Perengano", "López",
                     "pere@elpueblo.com", LocalDate.of(1985, 3, 3),
                     null
             );
             this.altaColaborador(
-                    "Tiajaci", "Tía", "Jacinta",
+                    "Tiajaci", "","Tía", "Jacinta",
                     "jacinta@elpueblo.com", LocalDate.of(1990, 4, 4),
                     null
             );
