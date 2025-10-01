@@ -1,104 +1,56 @@
 package com.culturarte.logica.manejadores;
 
 import com.culturarte.logica.clases.Propuesta;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-import jakarta.persistence.TypedQuery;
-import java.util.List;
+import jakarta.persistence.*;
 
+import java.util.List;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+@Repository
 public class ManejadorPropuesta {
 
-    private static ManejadorPropuesta instancia = null;
-    private EntityManagerFactory emf;
+    @PersistenceContext
+    private EntityManager em;
 
-    private ManejadorPropuesta() {
-        emf = Persistence.createEntityManagerFactory("DBculturarte");
-    }
-
-    public static ManejadorPropuesta getInstancia() {
-        if (instancia == null) {
-            instancia = new ManejadorPropuesta();
-        }
-        return instancia;
-    }
-
-    // Agregar propuesta
+    @Transactional
     public void agregarPropuesta(Propuesta propuesta) {
-        EntityManager em = emf.createEntityManager();
-        try {
-            em.getTransaction().begin();
-            em.persist(propuesta);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
-            throw e;
-        } finally {
-            em.close();
-        }
+        em.persist(propuesta);
     }
 
 
     public Propuesta getPropuesta(String titulo) {
         if (titulo == null) return null;
 
-        EntityManager em = emf.createEntityManager();
-        try {
-            Propuesta p = em.find(Propuesta.class, titulo);
-            if (p != null) {
-                forzarCargaLazy(p);
-            }
-            return p;
-        } finally {
-            em.close();
+        Propuesta p = em.find(Propuesta.class, titulo);
+        if (p != null) {
+            forzarCargaLazy(p);
         }
+        return p;
     }
 
     public List<Propuesta> getPropuestas() {
-        EntityManager em = emf.createEntityManager();
-        try {
-            TypedQuery<Propuesta> query = em.createQuery("SELECT p FROM Propuesta p", Propuesta.class);
-            List<Propuesta> propuestas = query.getResultList();
-            propuestas.forEach(this::forzarCargaLazy);
-            return propuestas;
-        } finally {
-            em.close();
-        }
+        TypedQuery<Propuesta> query = em.createQuery("SELECT p FROM Propuesta p", Propuesta.class);
+        List<Propuesta> propuestas = query.getResultList();
+        propuestas.forEach(this::forzarCargaLazy);
+        return propuestas;
     }
 
+    @Transactional
     public void sacarPropuesta(Propuesta propuesta) {
         if (propuesta == null || propuesta.getTitulo() == null) return;
 
-        EntityManager em = emf.createEntityManager();
-        try {
-            em.getTransaction().begin();
-            Propuesta p = em.find(Propuesta.class, propuesta.getTitulo());
-            if (p != null) {
-                em.remove(p);
-            }
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
-            throw e;
-        } finally {
-            em.close();
+        Propuesta p = em.find(Propuesta.class, propuesta.getTitulo());
+        if (p != null) {
+            em.remove(p);
         }
     }
-    
-        public void actualizarPropuesta(Propuesta p) {
-        EntityManager em = emf.createEntityManager();
-        try {
-            em.getTransaction().begin();
-            em.merge(p);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
-            throw e;
-        } finally {
-            em.close();
-        }
+
+    @Transactional
+    public void actualizarPropuesta(Propuesta p) {
+        em.merge(p);
     }
-    
+
     private void forzarCargaLazy(Propuesta propuesta) {
         if (propuesta == null) return;
         

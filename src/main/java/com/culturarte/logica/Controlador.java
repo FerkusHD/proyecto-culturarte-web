@@ -1,5 +1,5 @@
 package com.culturarte.logica;
-
+import org.springframework.stereotype.Service;
 import com.culturarte.exepciones.CargaFallida;
 import com.culturarte.exepciones.CategoriaYaExiste;
 import com.culturarte.exepciones.DatosIncorrectos;
@@ -20,25 +20,25 @@ import java.util.EnumSet;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 /**
  *
  * @author maicol
  */
+@Service
 public class Controlador implements IControlador{
     
     private final ManejadorPropuesta mp;
     private final ManejadorUsuario mu;
     private final ManejadorCategoria mc;
     private final ManejadorColaboracion mcol;
-    
-    
-    public Controlador() {
-        this.mp = ManejadorPropuesta.getInstancia();
-        this.mc = ManejadorCategoria.getInstancia();
-        this.mcol = ManejadorColaboracion.getInstancia();
-        this.mu = ManejadorUsuario.getInstance();
+
+    public Controlador(ManejadorPropuesta mp, ManejadorUsuario mu, ManejadorCategoria mc, ManejadorColaboracion mcol) {
+        this.mp = mp;
+        this.mu = mu;
+        this.mc = mc;
+        this.mcol = mcol;
     }
-    
 
     
     @Override
@@ -471,8 +471,8 @@ public class Controlador implements IControlador{
         mp.actualizarPropuesta(p);
         
     }
-  
-    
+
+    @Transactional
     public void cargarDatosPrueba() throws CargaFallida{
         System.out.println("Agregando datos de prueba: ...");
         try {
@@ -480,7 +480,7 @@ public class Controlador implements IControlador{
             this.altaProponente(
                     "hrubino", "Horacio", "Rubino",
                     "horacio.rubino@guambia.com.uy", LocalDate.of(1962, 2, 25),
-                    new File(getClass().getClassLoader().getResource("Imagenes/HR.jpeg").toURI()),
+                    null, //new File(getClass().getClassLoader().getResource("Imagenes/HR.jpeg").toURI()),
                     "18 de Julio 1234",
                     "https://twitter.com/horaciorubino",
                     "Actor y conductor"
@@ -488,7 +488,7 @@ public class Controlador implements IControlador{
             this.altaProponente(
                     "mbusca", "Martín", "Buscaglia",
                     "martin.bus@agadu.org.uy", LocalDate.of(1972, 6, 14),
-                    new File(getClass().getClassLoader().getResource("Imagenes/MB.jpg").toURI()),
+                    null, //new File(getClass().getClassLoader().getResource("Imagenes/MB.jpg").toURI()),
                     "Colonia 4321",
                     "http://www.martinbuscaglia.com/",
                     "Músico uruguayo"
@@ -496,7 +496,7 @@ public class Controlador implements IControlador{
             this.altaProponente(
                     "hectorg", "Héctor", "Guido",
                     "hector.gui@elgalpon.org.uy", LocalDate.of(1954, 1, 7),
-                    new File("imagenes/hg.png"),
+                    null,
                     "Gral. Flores 5645",
                     "",
                     "Actor de teatro"
@@ -504,7 +504,7 @@ public class Controlador implements IControlador{
             this.altaProponente(
                     "tabarec", "Tabaré", "Cardozo",
                     "tabare.car@agadu.org.uy", LocalDate.of(1971, 7, 24),
-                    new File("imagenes/tc.png"),
+                    null,
                     "Santiago Rivas 1212",
                     "https://www.facebook.com/Tabaré-Cardozo-55179094281/?ref=br_rs",
                     "Cantante murguista"
@@ -512,7 +512,7 @@ public class Controlador implements IControlador{
             this.altaProponente(
                     "cachilas", "Waldemar \"Cachila\"", "Silva",
                     "cachila.sil@c1080.org.uy", LocalDate.of(1947, 1, 1),
-                    new File("imagenes/cs.png"),
+                    null,
                     "Br. Artigas 4567",
                     "https://www.facebook.com/C1080?ref=br_rs",
                     "Director comparsa"
@@ -520,7 +520,7 @@ public class Controlador implements IControlador{
             this.altaProponente(
                     "juliob", "Julio", "Bocca",
                     "juliobocca@sodre.com.uy", LocalDate.of(1967, 3, 16),
-                    new File("imagenes/jb.png"),
+                    null,
                     "Benito Blanco 4321",
                     "",
                     "Bailarín"
@@ -528,7 +528,7 @@ public class Controlador implements IControlador{
             this.altaProponente(
                     "diegop", "Diego", "Parodi",
                     "diego@efectocine.com", LocalDate.of(1975, 1, 1),
-                    new File("imagenes/dp.png"),
+                    null,
                     "Emilio Frugoni 1138 Ap. 02",
                     "http://www.efectocine.com",
                     "Cineasta"
@@ -536,7 +536,7 @@ public class Controlador implements IControlador{
             this.altaProponente(
                     "kairoh", "Kairo", "Herrera",
                     "kairoher@pilsenrock.com.uy", LocalDate.of(1840, 4, 25),
-                    new File("imagenes/kh.png"),
+                    null,
                     "Paraguay 1423",
                     "",
                     "Organizador eventos"
@@ -544,7 +544,7 @@ public class Controlador implements IControlador{
             this.altaProponente(
                     "losBardo", "Los", "Bardo",
                     "losbardo@bardocientifico.com", LocalDate.of(1980, 10, 31),
-                    new File(getClass().getClassLoader().getResource("Imagenes/LB.jpg").toURI()),
+                    null, //new File(getClass().getClassLoader().getResource("Imagenes/LB.jpg").toURI()),
                     "8 de Octubre 1429",
                     "https://bardocientifico.com/",
                     "Divulgación científica"
@@ -553,22 +553,22 @@ public class Controlador implements IControlador{
             this.altaColaborador(
                     "robinh", "Robin", "Henderson",
                     "robin.h@tinglesa.com.uy", LocalDate.of(1940, 8, 3),
-                    new File("imagenes/rh.png")
+                    null
             );
             this.altaColaborador(
                     "marcelot", "Marcelo", "Tinelli",
                     "marcelot@ideasdelsur.com.ar", LocalDate.of(1960, 4, 1),
-                    new File("imagenes/mt.png")
+                    null
             );
             this.altaColaborador(
                     "novick", "Edgardo", "Novick",
                     "edgardo@novick.com.uy", LocalDate.of(1952, 7, 17),
-                    new File("imagenes/en.png")
+                    null
             );
             this.altaColaborador(
                     "sergiop", "Sergio", "Puglia",
                     "puglia@alpanpan.com.uy", LocalDate.of(1950, 1, 28),
-                    new File(getClass().getClassLoader().getResource("Imagenes/SP.jpg").toURI())
+                    null //new File(getClass().getClassLoader().getResource("Imagenes/SP.jpg").toURI())
             );
             this.altaColaborador(
                     "chino", "Alvaro", "Recoba",
@@ -745,7 +745,7 @@ public class Controlador implements IControlador{
                     LocalDate.of(2017, 10, 7),
                     (float)300, (float)300000,
                     EnumSet.of(TipoRetorno.ENTRADAGRATIS, TipoRetorno.PORCENTAJEGANANCIA),
-                    new File("imagenes/mom.png"),
+                    null,
                     "hrubino", "Parodistas"
             );
             
@@ -756,7 +756,7 @@ public class Controlador implements IControlador{
                     LocalDate.of(2017, 10, 19),
                     (float)400, (float)400000,
                     EnumSet.of(TipoRetorno.PORCENTAJEGANANCIA),
-                    new File(getClass().getClassLoader().getResource("Imagenes/PIM.jpg").toURI()),
+                    null, //new File(getClass().getClassLoader().getResource("Imagenes/PIM.jpg").toURI()),
                     "mbusca", "Concierto"
             );
             
@@ -767,7 +767,7 @@ public class Controlador implements IControlador{
                     LocalDate.of(2017, 10, 21),
                     (float)1000, (float)900000,
                     EnumSet.of(TipoRetorno.ENTRADAGRATIS, TipoRetorno.PORCENTAJEGANANCIA),
-                    new File(getClass().getClassLoader().getResource("Imagenes/PIL.jpg").toURI()),
+                    null, //new File(getClass().getClassLoader().getResource("Imagenes/PIL.jpg").toURI()),
                     "kairoh", "Festival"
             );
             
@@ -778,7 +778,7 @@ public class Controlador implements IControlador{
                     LocalDate.of(2017, 11, 5),
                     (float)800, (float)750000,
                     EnumSet.of(TipoRetorno.PORCENTAJEGANANCIA),
-                    new File("imagenes/ryj.png"),
+                    null,
                     "juliob", "Ballet"
             );
             
@@ -789,7 +789,7 @@ public class Controlador implements IControlador{
                     LocalDate.of(2017, 11, 16),
                     (float)650, (float)300000,
                     EnumSet.of(TipoRetorno.ENTRADAGRATIS, TipoRetorno.PORCENTAJEGANANCIA),
-                    new File(getClass().getClassLoader().getResource("Imagenes/UDJ.jpg").toURI()),
+                    null, //new File(getClass().getClassLoader().getResource("Imagenes/UDJ.jpg").toURI()),
                     "tabarec", "Murga"
             );
             
@@ -881,4 +881,5 @@ public class Controlador implements IControlador{
             throw new CargaFallida("Error al cargar datos de prueba: " + e);
         }
     }
+
 }
