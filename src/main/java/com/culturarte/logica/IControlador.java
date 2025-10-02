@@ -57,5 +57,5 @@ public interface IControlador {
     public abstract DTUsuario getDTUsuario(String nickname);
     public abstract void nuevoEstadoPropuesta(String propuesta, TipoEstado estado, LocalDate fecha, LocalTime hora);
     public abstract void modificarPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, String imagen, String proponente, String categoria, String nuevoEstado) throws DatosIncorrectos;
-    
+    public abstract ArrayList<DTPropuesta> getDTPropuestasWeb();
 }
