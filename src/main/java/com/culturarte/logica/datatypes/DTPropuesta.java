@@ -5,7 +5,6 @@
 package com.culturarte.logica.datatypes;
 
 import com.culturarte.logica.enums.TipoEstado;
-import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,7 @@ public class DTPropuesta {
     private String imagen;
     private ArrayList<String> colaboradores = new ArrayList<>();
     private TipoEstado estadoActual;
-    private List<DTEstado> histEstados = new ArrayList();
+    private List<DTEstado> histEstados = new ArrayList<>();
     private String categoria;
     private String nickProponente;
     
