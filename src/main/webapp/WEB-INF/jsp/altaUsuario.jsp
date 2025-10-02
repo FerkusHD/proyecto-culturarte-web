@@ -13,29 +13,29 @@
 <body>
     <h1>Bienvenido/a a Culturarte</h1>
     <div class="culturarte">Culturarte</div>
-    <form action="index.jsp" method="post">
+    <form action="${pageContext.request.contextPath}/usuarios/alta" method="post">
      <div class="formulario">
         <label for="nickname">Nickname</label>
         <input id="nickname" name="nickname" type="text" maxlength="30" placeholder="nickname" required>
      </div>
 
      <div class="formulario">
-        <label for="nombre">Nombre</label>            
+        <label for="nombre">Nombre</label>
         <input id="nombre"  name="nombre" type="text" placeholder="nombre" required>
      </div>
-       
+
      <div class="formulario">
-        <label for="apellido">Apellido</label>            
+        <label for="apellido">Apellido</label>
         <input id="apellido"  name="apellido" type="text" placeholder="apellido" required>
      </div>
 
      <div class="formulario">
-        <label for="password">Contraseña</label>            
+        <label for="password">Contraseña</label>
         <input id="password"  name="password" type="password" placeholder="contraseña" required>
      </div>
 
     <div class="formulario">
-        <label for="confirmar">Confirmar contraseña</label>            
+        <label for="confirmar">Confirmar contraseña</label>
         <input id="confirmar" name="confirmar" type="password" placeholder="confirmar" required>
      </div>
 
@@ -44,12 +44,12 @@
      </div>
 
      <div class="formulario">
-        <label for="email">Email</label>            
+        <label for="email">Email</label>
         <input id="email" name="email" type="email" placeholder="email" required>
      </div>
 
      <div class="formulario">
-        <label for="fecha">Fecha de nacimiento</label>            
+        <label for="fecha">Fecha de nacimiento</label>
         <input id="fecha"  name="fecha" type="date" required>
      </div>
 
@@ -61,27 +61,27 @@
      <fieldset class="checkbox-group">
       <legend>Selecciona tu rol</legend>
       <label>
-        <input id="colaborador" type="checkbox" name="rol[]" value="colaborador">
+        <input id="colaborador" type="radio" name="rol" value="colaborador" required>
         Colaborador
       </label>
       <label>
-        <input id="proponente" onclick="mostrar()" type="checkbox" name="rol[]" value="proponente">
+        <input id="proponente" onclick="mostrar()" type="radio" name="rol" value="proponente">
         Proponente
       </label>
     </fieldset>
-     
+
     <div class="campo-extra">
-        <label for="direccion">Dirección</label>            
+        <label for="direccion">Dirección</label>
         <input id="direccion" name="direccion" type="text" placeholder="direccion">
      </div>
 
      <div class="campo-extra">
-        <label for="biografia">Biografia</label>            
+        <label for="biografia">Biografia</label>
         <textarea id="biografia" name="biografia" type="textarea" placeholder="biografia"></textarea>
      </div>
 
      <div class="campo-extra">
-        <label for="web">Sitio web</label>            
+        <label for="web">Sitio web</label>
         <input id="web" name="web" type="text" placeholder="sitio web">
      </div>
 
@@ -91,14 +91,14 @@
 
      <button type="submit">Registrarse</button>
    </form>
-    
+
    <script>
    function mostrar() {
-   const checkbox = document.getElementById('proponente');
+   const radio = document.getElementById('proponente');
    const extras = document.querySelectorAll('.campo-extra');
 
    extras.forEach(div => {
-   div.style.display = checkbox.checked ? 'flex' : 'none';
+   div.style.display = radio.checked ? 'flex' : 'none';
    });
    }
 
@@ -109,7 +109,7 @@
    });
 </script>
 
-    <script src="${pageContext.request.contextPath}/js/validarContraseña.js"></script>
+<script src="${pageContext.request.contextPath}/js/validarContraseña.js"></script>
 
 </body>
 </html>
