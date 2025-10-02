@@ -39,7 +39,6 @@ public class Controlador implements IControlador{
         this.mc = mc;
         this.mcol = mcol;
     }
-
     
     @Override
     public void altaColaborador(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen)
@@ -232,8 +231,30 @@ public class Controlador implements IControlador{
                     p.getFechaPrevista(),
                     p.getPrecioEntrada(),
                     p.getMontoNecesario()
+
             );
             retorno.add(dtp);
+        }
+        return retorno;
+    }
+
+    @Override
+    public ArrayList<DTPropuesta> getDTPropuestasWeb(){
+        ArrayList<DTPropuesta> retorno = new ArrayList<>();
+        for(Propuesta p : mp.getPropuestas()){
+            if (p.getEstadoActual().getEstado() != TipoEstado.INGRESADA){
+                DTPropuesta dtp = new DTPropuesta( p.getTitulo(),
+                        p.getDescripcion(),
+                        p.getEstadoActual().getEstado(),
+                        p.getNicknameColaboradores().size(),
+                        p.getMontoRecaudado(),
+                        p.getMontoNecesario(),
+                        p.getFechaPrevista(),
+                        p.getImagen()
+
+                );
+                retorno.add(dtp);
+            }
         }
         return retorno;
     }
@@ -371,8 +392,7 @@ public class Controlador implements IControlador{
             throw new IllegalArgumentException("El colaborador no tiene colaboración en esta propuesta");
         }
     }
-    
-    
+
     @Override
     public ArrayList<DTColaboracion> getDTColaboracionesPropuestas(String nickColab){
         Colaborador c = (Colaborador) mu.buscarUsuario(nickColab);

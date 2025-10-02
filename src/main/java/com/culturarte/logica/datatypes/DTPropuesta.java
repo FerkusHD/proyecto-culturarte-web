@@ -24,6 +24,7 @@ public class DTPropuesta {
     private List<DTEstado> histEstados = new ArrayList();
     private String categoria;
     private String nickProponente;
+    private int cantColaboradores;
     
     public DTPropuesta(){}
     
@@ -49,6 +50,17 @@ public class DTPropuesta {
         this.colaboradores = colaboradores;
         this.montoRecaudado = montoRecaudado;
         this.montoNecesario = montoNecesario;
+    }
+
+    public DTPropuesta(String titulo, String descripcion, TipoEstado estado, int cantColaboradores, float montoRecaudado, float montoNecesario, LocalDate fechaPrevista, String imagen) {
+        this.titulo = titulo;
+        this.descripcion = descripcion;
+        this.estadoActual = estado;
+        this.cantColaboradores = cantColaboradores;
+        this.montoRecaudado = montoRecaudado;
+        this.montoNecesario = montoNecesario;
+        this.fechaPrevista = fechaPrevista;
+        this.imagen = imagen;
     }
     
     public DTPropuesta(String titulo, TipoEstado estado, String nickProponente, float montoRecaudado, float montoNecesario) {
