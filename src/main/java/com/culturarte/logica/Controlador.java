@@ -11,7 +11,6 @@ import com.culturarte.logica.clases.*;
 import com.culturarte.logica.datatypes.*;
 import com.culturarte.logica.enums.*;
 import com.culturarte.logica.manejadores.*;
-import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -266,7 +265,7 @@ public class Controlador implements IControlador{
         Propuesta p = mp.getPropuesta(titulo);
         String nombreCategoria = "Sin categoría"; 
         DTPropuesta dtp = new DTPropuesta();
-        ArrayList histEstado = new ArrayList();
+        ArrayList<DTEstado> histEstado = new ArrayList<>();
         if(p != null){
             if (p.getCategoria() != null) {
                 nombreCategoria = p.getCategoria().getNombreCompleto();

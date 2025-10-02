@@ -14,10 +14,7 @@ import com.culturarte.logica.datatypes.DTPropuesta;
 import com.culturarte.logica.datatypes.DTColaboracion;
 import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.logica.enums.*;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
-import java.io.File;
 import java.time.LocalTime;
 import java.util.EnumSet;
 import javax.swing.tree.DefaultTreeModel;

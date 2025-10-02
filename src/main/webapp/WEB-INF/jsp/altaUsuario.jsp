@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +13,7 @@
 <body>
     <h1>Bienvenido/a a Culturarte</h1>
     <div class="culturarte">Culturarte</div>
-    <form action="" method="post">
+    <form action="index.jsp" method="post">
      <div class="formulario">
         <label for="nickname">Nickname</label>
         <input id="nickname" name="nickname" type="text" maxlength="30" placeholder="nickname" required>
@@ -29,8 +30,8 @@
      </div>
 
      <div class="formulario">
-        <label for="contraseña">Contraseña</label>            
-        <input id="contraseña"  name="contraseña" type="password" placeholder="contraseña" required>
+        <label for="password">Contraseña</label>            
+        <input id="password"  name="password" type="password" placeholder="contraseña" required>
      </div>
 
     <div class="formulario">
@@ -84,8 +85,12 @@
         <input id="web" name="web" type="text" placeholder="sitio web">
      </div>
 
-    <button type="submit">Registrarse</button>
-    </form>
+   <c:if test="${not empty mensaje}">
+    <p>${mensaje}</p>
+   </c:if>
+
+     <button type="submit">Registrarse</button>
+   </form>
     
    <script>
    function mostrar() {

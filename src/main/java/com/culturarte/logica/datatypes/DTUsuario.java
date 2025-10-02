@@ -3,9 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.culturarte.logica.datatypes;
-
-import com.culturarte.logica.clases.Usuario;
-import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
