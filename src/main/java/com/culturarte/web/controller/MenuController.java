@@ -3,6 +3,8 @@ package com.culturarte.web.controller;
 import java.time.LocalDate;
 import java.util.Arrays;
 
+import com.culturarte.logica.datatypes.DTUsuario;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,14 +26,40 @@ public class MenuController {
         this.ctrl = ctrl;
     }
 
-    @GetMapping()
+    @GetMapping("/")
     public String index() {
         return "index";
     }
 
-    @GetMapping("/inicioSesion")
-    public String inicioSesion() {
-        return "inicioSesion";
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
+
+    @PostMapping("/login")
+    public String procesarLogin(@RequestParam String nickOemail,
+                                @RequestParam String password,
+                                HttpSession session,
+                                Model model) {
+        boolean existe = ctrl.verificarPassword(nickOemail, password);
+
+        if (!existe) {
+            model.addAttribute("mensaje", "⚠️ Contraseña o nickname/email incorrecto");
+            model.addAttribute("nickname", nickOemail);
+            return "login";
+        }
+
+        DTUsuario usuario = ctrl.getDTUsuario(nickOemail);
+        session.setAttribute("usuarioLogueado", usuario);
+
+        // Redirigimos a un único dashboard
+        return "redirect:/";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
     }
 
 

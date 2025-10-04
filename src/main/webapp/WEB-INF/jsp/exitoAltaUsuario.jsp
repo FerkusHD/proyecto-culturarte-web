@@ -9,6 +9,6 @@
 
     <p>Tu cuenta fue creada correctamente.</p>
 
-    <a href="login.jsp">Ir al login</a>
+    <a href="${pageContext.request.contextPath}/login">Ir al login</a>
 </body>
 </html>

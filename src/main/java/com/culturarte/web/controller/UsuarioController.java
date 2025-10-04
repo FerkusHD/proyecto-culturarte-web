@@ -52,7 +52,7 @@ public class UsuarioController {
             }
 
         } catch (UsuarioYaExiste e) {
-            model.addAttribute("mensaje", "⚠️ " + "El usuario ya existe");
+            model.addAttribute("mensaje", "⚠️ " + "Ese nickname ya está registrado");
         }
 
         // 🔑 Guardamos los datos para que vuelvan al JSP
