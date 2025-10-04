@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
-import java.util.Arrays;
-
 @Controller
 @RequestMapping("/usuarios")
 public class UsuarioController {
@@ -41,11 +38,11 @@ public class UsuarioController {
         try {
             if (rol.equals("proponente")) {
                 ctrl.altaProponente(nickname,password, nombre, apellido, email, fechaNac, null, direccion, web, biografia);
-                model.addAttribute("mensaje", "✅ Proponente registrado con éxito");
+                model.addAttribute("mensaje", "Proponente registrado con éxito");
                 return "exitoAltaUsuario";
             } else if (rol.equals("colaborador")) {
                 ctrl.altaColaborador(nickname,password, nombre, apellido, email, fechaNac, null);
-                model.addAttribute("mensaje", "✅ Colaborador registrado con éxito");
+                model.addAttribute("mensaje", "Colaborador registrado con éxito");
                 return "exitoAltaUsuario";
             } else {
                 model.addAttribute("mensaje", "⚠️ Debe seleccionar un rol");
