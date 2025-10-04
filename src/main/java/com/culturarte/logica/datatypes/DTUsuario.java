@@ -19,12 +19,23 @@ public class DTUsuario {
     private LocalDate fechaNacimiento;
     private ArrayList<String> usuariosSeguidos;
     private String imagen;
+    private String tipo;
     
     public DTUsuario(){}
     
     public DTUsuario(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, ArrayList<String> usuariosSeguidos, String imagen){
         this.nickname = nickname;
         this.password = password;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.email = email;
+        this.fechaNacimiento = fechaNacimiento;
+        this.imagen = imagen;
+        this.usuariosSeguidos = usuariosSeguidos;
+    }
+
+    public DTUsuario(String nickname, String nombre, String apellido, String email, LocalDate fechaNacimiento, ArrayList<String> usuariosSeguidos, String imagen){
+        this.nickname = nickname;
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
@@ -91,4 +102,23 @@ public class DTUsuario {
         this.nickname = nickname;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setUsuariosSeguidos(ArrayList<String> usuariosSeguidos) {
+        this.usuariosSeguidos = usuariosSeguidos;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
 }

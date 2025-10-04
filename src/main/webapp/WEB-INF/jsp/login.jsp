@@ -14,16 +14,20 @@
 <body>
     <h1>Iniciar sesión</h1>
     <div class="culturarte">Culturarte</div>
-    <form action="" method="post">
+    <form action="${pageContext.request.contextPath}/login" method="post">
      <div class="formulario">
         <label for="nickOemail">Nickname o email</label>
-        <input id="nickOemail" name="nickOemail" type="text" maxlength="30" placeholder="nickname o email" required>
+        <input id="nickOemail" name="nickOemail" type="text" maxlength="30" placeholder="nickname o email" value="${nickOemail}" required>
      </div>
 
      <div class="formulario">
-        <label for="contraseña">Contraseña</label>            
-        <input id="contraseña"  name="contraseña" type="password" placeholder="contraseña" required>
+        <label for="password">Contraseña</label>
+        <input id="password"  name="password" type="password" placeholder="contraseña" required>
      </div>
+
+     <c:if test="${not empty mensaje}">
+        <p style="color:red;">${mensaje}</p>
+     </c:if>
 
     <button type="submit">Registrarse</button>
     </form>

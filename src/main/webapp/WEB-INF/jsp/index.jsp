@@ -19,7 +19,7 @@
         <a href="#">Quiero ver Propuestas</a>
         <input type="text" placeholder="Título, descripción, lugar">
         <button>Buscar</button>
-        <a href="${pageContext.request.contextPath}/altaUsuario">Registrarse</a>
+        <a href="${pageContext.request.contextPath}/usuarios/alta">Registrarse</a>
         <a href="${pageContext.request.contextPath}/inicioSesion">Entrar</a>
     </nav>
 </header>

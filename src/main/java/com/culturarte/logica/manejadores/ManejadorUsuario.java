@@ -25,6 +25,23 @@ public class ManejadorUsuario {
         }
         return u;
     }
+
+    public Usuario buscarUsuarioPorEmail(String email) {
+        try {
+            Usuario u = em.createQuery("SELECT u FROM Usuario u WHERE u.email = :email", Usuario.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
+            // Inicializar la colección si es lazy
+            if (u != null) {
+                u.getUsuariosSeguidos().size();
+            }
+            return u;
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+
     
     public Proponente getProponenteConPropuestas(String nick) {
         Proponente p = em.find(Proponente.class, nick);

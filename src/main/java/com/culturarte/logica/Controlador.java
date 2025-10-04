@@ -359,15 +359,35 @@ public class Controlador implements IControlador{
     @Override
     public DTUsuario getDTUsuario(String nickname) {
         Usuario usu = mu.buscarUsuario(nickname);
-        
+
+        if (usu == null) usu = mu.buscarUsuarioPorEmail(nickname);
+        if (usu == null) return null;
+
         ArrayList<String> nickSeguidos = new ArrayList<>();
         for(Usuario u : usu.getUsuariosSeguidos()){
             nickSeguidos.add(u.getNickname());
         }
         
-        DTUsuario dtu = new DTUsuario(usu.getNickname(), usu.getNombre(), nickSeguidos);
-        
+        DTUsuario dtu = new DTUsuario(usu.getNickname(), usu.getNombre(), usu.getApellido(), usu.getEmail(), usu.getFechaNacimiento(), nickSeguidos, usu.getImagen());
+
+        if(usu instanceof Colaborador){
+            dtu.setTipo("colaborador");
+        } else if (usu instanceof  Proponente){
+            dtu.setTipo("proponente");
+        }
+
         return dtu;
+    }
+
+    public boolean verificarPassword(String password, String nick) {
+        Usuario usu = mu.buscarUsuario(nick);
+        if (usu == null) usu = mu.buscarUsuarioPorEmail(nick);
+        if (usu == null) {
+            return false;
+        } else {
+            return (usu.getPassword().equals(password));
+        }
+
     }
     
     @Override
@@ -498,7 +518,7 @@ public class Controlador implements IControlador{
         try {
             // Proponentes
             this.altaProponente(
-                    "hrubino","", "Horacio", "Rubino",
+                    "hrubino","a", "Horacio", "Rubino",
                     "horacio.rubino@guambia.com.uy", LocalDate.of(1962, 2, 25),
                     null, //new File(getClass().getClassLoader().getResource("Imagenes/HR.jpeg").toURI()),
                     "18 de Julio 1234",
