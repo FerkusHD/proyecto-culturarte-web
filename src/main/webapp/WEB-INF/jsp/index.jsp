@@ -19,8 +19,25 @@
         <a href="#">Quiero ver Propuestas</a>
         <input type="text" placeholder="Título, descripción, lugar">
         <button>Buscar</button>
-        <a href="${pageContext.request.contextPath}/usuarios/alta">Registrarse</a>
-        <a href="${pageContext.request.contextPath}/inicioSesion">Entrar</a>
+
+
+        <c:choose>
+            <c:when test="${not empty sessionScope.usuarioLogueado}">
+                Bienvenido ${sessionScope.usuarioLogueado.nombre} (${sessionScope.usuarioLogueado.tipo})
+            </c:when>
+            <c:otherwise>
+                <p>Estás viendo el contenido como visitante.</p>
+                <button onclick="window.location.href='${pageContext.request.contextPath}/login'">Iniciar sesión</button>
+                <button onclick="window.location.href='${pageContext.request.contextPath}/usuarios/alta'">Registrarse</button>
+            </c:otherwise>
+        </c:choose>
+
+
+
+        <c:if test="${not empty sessionScope.usuarioLogueado}">
+            <a href="${pageContext.request.contextPath}/logout">Cerrar sesión</a>
+        </c:if>
+
     </nav>
 </header>
 

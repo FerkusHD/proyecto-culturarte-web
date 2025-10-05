@@ -8,13 +8,10 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import com.culturarte.exepciones.UsuarioYaExiste;
 import com.culturarte.logica.IControlador;
-import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 @RequestMapping("/")
@@ -27,7 +24,7 @@ public class MenuController {
     }
 
     @GetMapping("/")
-    public String index() {
+    public String index(HttpSession session, Model model) {
         return "index";
     }
 
@@ -41,7 +38,7 @@ public class MenuController {
                                 @RequestParam String password,
                                 HttpSession session,
                                 Model model) {
-        boolean existe = ctrl.verificarPassword(nickOemail, password);
+        boolean existe = ctrl.verificarPassword(password, nickOemail);
 
         if (!existe) {
             model.addAttribute("mensaje", "⚠️ Contraseña o nickname/email incorrecto");
@@ -52,7 +49,6 @@ public class MenuController {
         DTUsuario usuario = ctrl.getDTUsuario(nickOemail);
         session.setAttribute("usuarioLogueado", usuario);
 
-        // Redirigimos a un único dashboard
         return "redirect:/";
     }
 
