@@ -28,6 +28,7 @@ public class UsuarioController {
             @RequestParam String email,
             @RequestParam String fecha,
             @RequestParam String rol,
+            @RequestParam(required = false) String imagen,
             @RequestParam(required=false) String direccion,
             @RequestParam(required=false) String biografia,
             @RequestParam(required=false) String web,
@@ -37,11 +38,11 @@ public class UsuarioController {
 
         try {
             if (rol.equals("proponente")) {
-                ctrl.altaProponente(nickname,password, nombre, apellido, email, fechaNac, null, direccion, web, biografia);
+                ctrl.altaProponente(nickname,password, nombre, apellido, email, fechaNac, imagen, direccion, web, biografia);
                 model.addAttribute("mensaje", "Proponente registrado con éxito");
                 return "exitoAltaUsuario";
             } else if (rol.equals("colaborador")) {
-                ctrl.altaColaborador(nickname,password, nombre, apellido, email, fechaNac, null);
+                ctrl.altaColaborador(nickname,password, nombre, apellido, email, fechaNac, imagen);
                 model.addAttribute("mensaje", "Colaborador registrado con éxito");
                 return "exitoAltaUsuario";
             } else {
