@@ -360,7 +360,7 @@ public class Controlador implements IControlador{
     public DTUsuario getDTUsuario(String nickname) {
         Usuario usu = mu.buscarUsuario(nickname);
 
-        if (usu == null) usu = mu.buscarUsuarioPorEmail(nickname);
+        // if (usu == null) usu = mu.buscarUsuarioPorEmail(nickname);
         if (usu == null) return null;
 
         ArrayList<String> nickSeguidos = new ArrayList<>();
@@ -381,7 +381,7 @@ public class Controlador implements IControlador{
 
     public boolean verificarPassword(String password, String nick) {
         Usuario usu = mu.buscarUsuario(nick);
-        if (usu == null) usu = mu.buscarUsuarioPorEmail(nick);
+        // if (usu == null) usu = mu.buscarUsuarioPorEmail(nick);
         if (usu == null) {
             return false;
         } else {
@@ -526,7 +526,7 @@ public class Controlador implements IControlador{
                     "Actor y conductor"
             );
             this.altaProponente(
-                    "mbusca", "","Martín", "Buscaglia",
+                    "mbusca", "m","Martín", "Buscaglia",
                     "martin.bus@agadu.org.uy", LocalDate.of(1972, 6, 14),
                     null, //new File(getClass().getClassLoader().getResource("Imagenes/MB.jpg").toURI()),
                     "Colonia 4321",
