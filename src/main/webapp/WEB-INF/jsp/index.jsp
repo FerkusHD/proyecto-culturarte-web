@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,19 +23,18 @@
 
 
         <c:choose>
-            <c:when test="${not empty sessionScope.usuarioLogueado}">
-                Bienvenido ${sessionScope.usuarioLogueado.nombre} (${sessionScope.usuarioLogueado.tipo})
-            </c:when>
-            <c:otherwise>
+            <c:when test="${sessionScope.usuarioLogueado.tipo eq 'visitante'}">
                 <p>Estás viendo el contenido como visitante.</p>
                 <button onclick="window.location.href='${pageContext.request.contextPath}/login'">Iniciar sesión</button>
                 <button onclick="window.location.href='${pageContext.request.contextPath}/usuarios/alta'">Registrarse</button>
-            </c:otherwise>
+            </c:when>
+            <c:otherwise>
+                      </c:otherwise>
         </c:choose>
 
 
 
-        <c:if test="${not empty sessionScope.usuarioLogueado}">
+        <c:if test="${sessionScope.usuarioLogueado.tipo eq 'proponente'}">
             <a href="${pageContext.request.contextPath}/logout">Cerrar sesión</a>
         </c:if>
 

@@ -25,6 +25,16 @@ public class MenuController {
 
     @GetMapping("/")
     public String index(HttpSession session, Model model) {
+
+        DTUsuario u = (DTUsuario) session.getAttribute("usuarioLogueado");
+        if (u == null) {
+            u = new DTUsuario();
+            u.setNickname("visitante");
+            u.setTipo("visitante");
+            session.setAttribute("usuarioLogueado", u);
+        }
+
+        model.addAttribute("usuario", u);
         return "index";
     }
 
@@ -49,7 +59,7 @@ public class MenuController {
         DTUsuario usuario = ctrl.getDTUsuario(nickOemail);
         session.setAttribute("usuarioLogueado", usuario);
 
-        return "redirect:/";
+        return "index";
     }
 
     @GetMapping("/logout")
