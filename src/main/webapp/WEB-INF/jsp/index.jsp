@@ -1,5 +1,4 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,18 +22,17 @@
 
 
         <c:choose>
-            <c:when test="${sessionScope.usuarioLogueado.tipo eq 'visitante'}">
+            <c:when test="${not empty sessionScope.usuarioLogueado}">
+                Bienvenido ${sessionScope.usuarioLogueado.nombre} (${sessionScope.usuarioLogueado.tipo})
+            </c:when>
+            <c:otherwise>
                 <p>Estás viendo el contenido como visitante.</p>
                 <button onclick="window.location.href='${pageContext.request.contextPath}/login'">Iniciar sesión</button>
                 <button onclick="window.location.href='${pageContext.request.contextPath}/usuarios/alta'">Registrarse</button>
-            </c:when>
-            <c:otherwise>
-                      </c:otherwise>
+            </c:otherwise>
         </c:choose>
 
-
-
-        <c:if test="${sessionScope.usuarioLogueado.tipo eq 'proponente'}">
+        <c:if test="${not empty sessionScope.usuarioLogueado}">
             <a href="${pageContext.request.contextPath}/logout">Cerrar sesión</a>
         </c:if>
 
@@ -50,43 +48,13 @@
     <button>Propuestas Canceladas</button>
 </div>
 
-<!-- Tarjetas -->
-<section class="tarjetas">
-    <div class="card">
-        <img src="evento1.jpg" alt="Evento 1">
-        <h3>Cirque du Soleil</h3>
-        <p>Escribí grupos de fans...</p>
-        <p><strong>Recaudado:</strong> $2.175.000 UYI</p>
-        <p>26 días | 350 aportes</p>
-    </div>
-
-    <div class="card">
-        <img src="evento2.jpg" alt="Evento 2">
-        <h3>La Vida Puerca en el MOVIE</h3>
-        <p>La banda como nunca la viste...</p>
-        <p><strong>Recaudado:</strong> $801.500 UYI</p>
-        <p>7 días | 450 aportes</p>
-    </div>
-
-    <div class="card">
-        <img src="evento3.jpg" alt="Evento 3">
-        <h3>El Perenne Infinito</h3>
-        <p>Una obra inmortal...</p>
-        <p><strong>Recaudado:</strong> $2.890.000 UYI</p>
-        <p>12 días | 2 aportes</p>
-    </div>
-</section>
+<!-- Lista las propuestas -->
+ <section id="tarjetas" class="tarjetas"></section>
 
 <!-- Categorías -->
-<section class="categorias">
-    <h4>Categorías</h4>
-    <label><input type="checkbox"> Teatro</label>
-    <label><input type="checkbox"> Comedia</label>
-    <label><input type="checkbox"> Literatura</label>
-    <label><input type="checkbox"> Música</label>
-    <label><input type="checkbox"> Cine</label>
-    <label><input type="checkbox"> Danza</label>
-    <label><input type="checkbox"> Carnaval</label>
-</section>
+<div id="categorias" class="categorias"></div>
+
+  <script src="${pageContext.request.contextPath}/js/propuestasAndCategorias.js"></script>
+
 </body>
 </html>

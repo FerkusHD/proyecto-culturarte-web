@@ -58,7 +58,6 @@ public class Controlador implements IControlador{
         }
         mu.agregarUsuario(new Proponente(nickname, password, nombre, apellido, email, fechaNacimiento, imagen, direccion, linkWeb, bibliografia));
     }
-    
         
     @Override
     public ArrayList<String> getNickColaboradores(){
@@ -74,8 +73,6 @@ public class Controlador implements IControlador{
         return retorno;   
     }
 
-
-     
     @Override
     public ArrayList<String> getNomProponentes(){
         ArrayList<String> retorno = new ArrayList<>();
@@ -89,8 +86,6 @@ public class Controlador implements IControlador{
         retorno.sort(String.CASE_INSENSITIVE_ORDER); // Ordena la lista
         return retorno;        
     }
-    
-
 
     @Override
     public ArrayList<String> getNomColaboradores(){
@@ -134,10 +129,6 @@ public class Controlador implements IControlador{
 
         return dtc;
     }
-
-
-
-
     
     @Override
     public DTProponente getDTProponente(String nickname){
@@ -167,6 +158,16 @@ public class Controlador implements IControlador{
         }
     }
     
+    @Override
+    public List<String> listarCategoriasWeb() {
+        List<Categoria> categoriasRaiz = mc.getCategoriasRaizConSubcategorias();
+        List<String> nombres = new ArrayList<>();
+        for (Categoria cat : categoriasRaiz) {
+            nombres.add(cat.getNombre());
+        }
+        return nombres;
+    }
+
     @Override
     public DefaultTreeModel listarCategorias() {
         DefaultMutableTreeNode raiz = new DefaultMutableTreeNode("Categorías");
@@ -249,8 +250,8 @@ public class Controlador implements IControlador{
                         p.getMontoRecaudado(),
                         p.getMontoNecesario(),
                         p.getFechaPrevista(),
-                        p.getImagen()
-
+                        p.getImagen(),
+                        p.getCategoria().getNombre()
                 );
                 retorno.add(dtp);
             }

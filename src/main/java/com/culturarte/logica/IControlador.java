@@ -7,8 +7,7 @@ package com.culturarte.logica;
 import com.culturarte.exepciones.*;
 import com.culturarte.logica.datatypes.DTProponente;
 import java.util.ArrayList;
-import com.culturarte.exepciones.PropuestaYaExiste;
-import com.culturarte.exepciones.UsuarioYaSeguido;
+
 import com.culturarte.logica.datatypes.DTColaborador;
 import com.culturarte.logica.datatypes.DTPropuesta;
 import com.culturarte.logica.datatypes.DTColaboracion;
@@ -17,6 +16,8 @@ import com.culturarte.logica.enums.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.EnumSet;
+import java.util.List;
+
 import javax.swing.tree.DefaultTreeModel;
 
 /**
@@ -56,4 +57,5 @@ public interface IControlador {
     public abstract void modificarPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, String imagen, String proponente, String categoria, String nuevoEstado) throws DatosIncorrectos;
     public abstract ArrayList<DTPropuesta> getDTPropuestasWeb();
     public abstract boolean verificarPassword(String password, String nick);
+    public abstract List<String> listarCategoriasWeb();
 }
