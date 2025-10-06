@@ -251,7 +251,7 @@ public class Controlador implements IControlador{
                         p.getMontoNecesario(),
                         p.getFechaPrevista(),
                         p.getImagen(),
-                        p.getCategoria().getNombre()
+                        p.getCategoria().getNombreCompleto()
                 );
                 retorno.add(dtp);
             }

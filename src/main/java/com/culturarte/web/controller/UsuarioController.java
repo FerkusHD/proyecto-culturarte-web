@@ -2,6 +2,8 @@ package com.culturarte.web.controller;
 
 import com.culturarte.exepciones.UsuarioYaExiste;
 import com.culturarte.logica.IControlador;
+import com.culturarte.logica.datatypes.DTUsuario;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -66,5 +68,23 @@ public class UsuarioController {
         model.addAttribute("web", web);
 
         return "altaUsuario";
+    }
+
+    @GetMapping("/perfil/{nick}")
+    public String mostrarPerfil(@PathVariable String nick, HttpSession httpSession, Model model) {
+
+        DTUsuario miUsuario = (DTUsuario) httpSession.getAttribute("usuarioLogeado");
+
+        DTUsuario perfilVisitado = ctrl.getDTUsuario(nick);
+
+        if (perfilVisitado == null) {
+            return "error/404";
+        }
+
+        boolean esMiPropioPerfil = (miUsuario != null && miUsuario.getNickname().equals(nick));
+
+        model.addAttribute("perfilVisitado", perfilVisitado);
+        model.addAttribute("esMiPropioPerfil", esMiPropioPerfil);
+        return "perfil";
     }
 }

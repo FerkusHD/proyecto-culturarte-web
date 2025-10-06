@@ -24,6 +24,7 @@ public class DTPropuesta {
     private String categoria;
     private String nickProponente;
     private int cantColaboradores;
+
     
     public DTPropuesta(){}
     
@@ -146,5 +147,14 @@ public class DTPropuesta {
         }
         retorno.sort(String.CASE_INSENSITIVE_ORDER);
         return retorno;
-    }   
+    }
+
+    public int getCantColaboradores() {
+        return cantColaboradores;
+    }
+
+    public void setCantColaboradores(int cantColaboradores) {
+        this.cantColaboradores = cantColaboradores;
+    }
+
 }

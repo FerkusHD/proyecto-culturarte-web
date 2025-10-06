@@ -35,6 +35,7 @@ public class MenuController {
         }
 
         model.addAttribute("usuario", u);
+
         return "index";
     }
 
