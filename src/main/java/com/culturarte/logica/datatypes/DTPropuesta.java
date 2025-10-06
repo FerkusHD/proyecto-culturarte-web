@@ -24,6 +24,7 @@ public class DTPropuesta {
     private String categoria;
     private String nickProponente;
     private int cantColaboradores;
+
     
     public DTPropuesta(){}
     
@@ -51,7 +52,7 @@ public class DTPropuesta {
         this.montoNecesario = montoNecesario;
     }
 
-    public DTPropuesta(String titulo, String descripcion, TipoEstado estado, int cantColaboradores, float montoRecaudado, float montoNecesario, LocalDate fechaPrevista, String imagen) {
+    public DTPropuesta(String titulo, String descripcion, TipoEstado estado, int cantColaboradores, float montoRecaudado, float montoNecesario, LocalDate fechaPrevista, String imagen, String categoria) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.estadoActual = estado;
@@ -60,6 +61,7 @@ public class DTPropuesta {
         this.montoNecesario = montoNecesario;
         this.fechaPrevista = fechaPrevista;
         this.imagen = imagen;
+        this.categoria= categoria;
     }
     
     public DTPropuesta(String titulo, TipoEstado estado, String nickProponente, float montoRecaudado, float montoNecesario) {
@@ -147,5 +149,12 @@ public class DTPropuesta {
         return retorno;
     }
 
-    
+    public int getCantColaboradores() {
+        return cantColaboradores;
+    }
+
+    public void setCantColaboradores(int cantColaboradores) {
+        this.cantColaboradores = cantColaboradores;
+    }
+
 }
