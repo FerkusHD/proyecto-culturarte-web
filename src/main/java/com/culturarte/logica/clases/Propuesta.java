@@ -125,7 +125,7 @@ public class Propuesta {
     }
 
     public Estado getEstadoActual() {
-        return historialEstados.get(historialEstados.size() - 1);
+        return historialEstados.getLast();
     }
 
     public void setEstadoActual(Estado estadoActual) {

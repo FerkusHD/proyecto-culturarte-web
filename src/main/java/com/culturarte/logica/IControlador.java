@@ -58,4 +58,5 @@ public interface IControlador {
     public abstract ArrayList<DTPropuesta> getDTPropuestasWeb();
     public abstract boolean verificarPassword(String password, String nick);
     public abstract List<String> listarCategoriasWeb();
+    public abstract List<DTPropuesta> buscarPropuestas(String texto);
 }

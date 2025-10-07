@@ -4,6 +4,7 @@
  */
 package com.culturarte.logica.datatypes;
 
+import com.culturarte.logica.clases.Propuesta;
 import com.culturarte.logica.enums.TipoEstado;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class DTPropuesta {
 
     
     public DTPropuesta(){}
-    
+
     public DTPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, float precioEntrada, float montoNecesario, String imagen, ArrayList<String> colaboradores, String nickProponente, TipoEstado estadoActual, String categoria, ArrayList<DTEstado> histEstados, float montoRecaudado){
         this.titulo = titulo;
         this.descripcion = descripcion;
@@ -79,6 +80,16 @@ public class DTPropuesta {
         this.fechaPrevista = fechaPrevista;
         this.precioEntrada = precioEntrada;
         this.montoNecesario = montoNecesario;
+    }
+
+    public DTPropuesta(Propuesta propuesta) {
+        this.titulo = propuesta.getTitulo();
+        this.descripcion = propuesta.getDescripcion();
+        this.lugar = propuesta.getLugar();
+        this.fechaPrevista = propuesta.getFechaPrevista();
+        this.montoNecesario = propuesta.getMontoNecesario();
+        this.imagen = propuesta.getImagen();
+        this.estadoActual= propuesta.getHistorialEstados().getLast().getEstado();
     }
 
     public List<DTEstado> getHistEstados() {

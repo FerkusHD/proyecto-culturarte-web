@@ -42,9 +42,11 @@
                     </li>
                 </ul>
 
-                <form class="d-flex me-3 flex-grow-1" style="max-width: 400px;">
-                    <input class="form-control form-control-sm me-2 w-100" type="search"
-                           placeholder="Título, descripción, lugar" aria-label="Buscar">
+                <form class="d-flex me-3 flex-grow-1" style="max-width: 400px;"
+                      action="${pageContext.request.contextPath}/propuestas/buscar" method="get">
+                    <input class="form-control form-control-sm me-2 w-100" type="search" name="query"
+                           placeholder="Título, descripción, lugar" aria-label="Buscar"
+                           value="${query != null ? query : ''}" />
                     <button class="btn btn-sm btn-outline-primary" type="submit">Buscar</button>
                 </form>
 

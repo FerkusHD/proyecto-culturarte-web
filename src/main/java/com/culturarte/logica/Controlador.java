@@ -19,6 +19,8 @@ import java.util.EnumSet;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.transaction.annotation.Transactional;
 /**
  *
@@ -465,7 +467,16 @@ public class Controlador implements IControlador{
         
         return p.getProponente().getNickname();
     }
-    
+
+    @Override
+    public List<DTPropuesta> buscarPropuestas(String texto) {
+        return mp.buscarPropuestas(texto)
+                .stream()
+                .map(DTPropuesta::new)
+                .collect(Collectors.toList());
+    }
+
+
     public void modificarPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, 
             Float montoNecesario, String imagen, String proponente, String categoria, String nuevoEstado) throws DatosIncorrectos {
         

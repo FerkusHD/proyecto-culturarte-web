@@ -4,6 +4,8 @@ import com.culturarte.logica.clases.Propuesta;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +68,25 @@ public class ManejadorPropuesta {
         if (propuesta.getCategoria() != null)
             propuesta.getCategoria().getNombre();
     }
-    
+
+    public List<Propuesta> buscarPropuestas(String texto) {
+        String jpql = "SELECT p FROM Propuesta p";
+
+        if (texto != null && !texto.trim().isEmpty()) {
+            jpql += " WHERE LOWER(p.titulo) LIKE :texto OR LOWER(p.descripcion) LIKE :texto OR LOWER(p.lugar) LIKE :texto";
+        }
+
+        TypedQuery<Propuesta> query = em.createQuery(jpql, Propuesta.class);
+
+        if (texto != null && !texto.trim().isEmpty()) {
+            query.setParameter("texto", "%" + texto.toLowerCase() + "%");
+        }
+
+        List<Propuesta> resultados = query.getResultList();
+        resultados.forEach(this::forzarCargaLazy);
+        return resultados;
+    }
+
+
 }
 
