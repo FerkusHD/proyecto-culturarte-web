@@ -20,7 +20,7 @@
            <h1 class="culturarte">Culturarte</h1>
            <h3>Crear Nueva Propuesta</h3>
        </div>
-   <form action="${pageContext.request.contextPath}/propuestas/alta" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow" style="max-width: 600px; margin:auto;">
+   <form action="${pageContext.request.contextPath}/propuestas/alta" method="post">
 
         <div class="mb-3">
             <label for="titulo" class="form-label">Título</label>
@@ -39,7 +39,7 @@
 
         <div class="mb-3">
         <label for="fecha">Fecha </label>
-        <input id="fecha"  name="fecha" type="date" class="form-control " value="${date}" required>
+        <input id="fecha"  name="fechaPrevista" type="date" class="form-control " value="${date}" required>
         </div>
 
         <div class="mb-3">
@@ -62,8 +62,8 @@
             <label for="Tipo de retorno" class="form-label">Tipo de retorno </label>
             <select id="tipoRetorno" name="tipoRetorno" class="form-select" required>
                 <option value="">Selecciona un tipo de retorno</option>
-                <option value="ENTRADA GRATIS" ${tipoRetorno == 'ENTRADA GRATIS' ? 'selected' : ''}>Entrada Gratis</option>
-                <option value="PORCENTAJE DE GANANCIAS" ${tipoRetorno == 'PORCENTAJE DE GANANCIAS' ? 'selected' : ''}>Porcentaje de Ganancias</option>
+                <option value="ENTRADAGRATIS" ${tipoRetorno == 'ENTRADAGRATIS' ? 'selected' : ''}>Entrada Gratis</option>
+                <option value="PORCENTAJEGANANCIAS" ${tipoRetorno == 'PORCENTAJEDEGANANCIAS' ? 'selected' : ''}>Porcentaje de Ganancias</option>
                 </select>
         </div>
 
@@ -79,7 +79,7 @@
 
         <div class="mb-3">
             <label for="imagen" class="form-label">Subir imagen:</label>
-            <input type="file" id="imagen" name="imagen" class="form-control sin-borde" accept="image/*">
+            <input type="file" id="imagen" name="imagen" accept="image/*">
             </div>
 
         <button type="submit" class="btn btn-success w-100">Crear Propuesta</button>
