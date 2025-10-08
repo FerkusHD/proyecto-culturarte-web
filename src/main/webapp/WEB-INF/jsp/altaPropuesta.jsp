@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Propuesta - Culturarte</title>
+
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/altaUsuario.css">
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
 
@@ -14,33 +15,36 @@
 
 </head>
 <body class="bg-light">
-    <h1>Crear Nueva Propuesta</h1>
-    <div class="culturarte">Culturarte</div>
-    <form action="${pageContext.request.contextPath}/propuestas/alta" method="post" enctype="multipart/form-data">
+   <div class="container my-5">
+       <div class="text-center mb-4">
+           <h1 class="culturarte">Culturarte</h1>
+           <h3>Crear Nueva Propuesta</h3>
+       </div>
+   <form action="${pageContext.request.contextPath}/propuestas/alta" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow" style="max-width: 600px; margin:auto;">
 
-        <div class="formulario">
-            <label for="titulo">Título de la Propuesta </label>
-            <input id="titulo" name="titulo" type="text" maxlength="100"
+        <div class="mb-3">
+            <label for="titulo" class="form-label">Título</label>
+            <input id="titulo" name="titulo" type="text" maxlength="50" class="form-control " value="${titulo != null ? titulo : ''}" required>
         </div>
 
-        <div class="formulario">
-            <label for="descripcion">Descripción </label>
-            <textarea id="descripcion" name="descripcion" maxlength="500" required>${descripcion != null ? descripcion : ''}</textarea>
+        <div class="mb-3">
+            <label for="descripcion" class="form-label"  >Descripción </label>
+            <textarea id="descripcion" name="descripcion" maxlength="500" class="form-control " required>${descripcion != null ? descripcion : ''}</textarea>
         </div>
 
-        <div class="formulario">
-            <label for="lugar">Lugar</label>
-            <input id="lugar" name="lugar" type="text" maxlength="100" value="${lugar != null ? lugar : ''}" required>
+        <div class="mb-3">
+            <label for="lugar" class="form-label">Lugar</label>
+            <input id="lugar" name="lugar" type="text" maxlength="100" class="form-control" value="${lugar != null ? lugar : ''}" required>
         </div>
 
-        <div class="formulario">
+        <div class="mb-3">
         <label for="fecha">Fecha </label>
-        <input id="fecha"  name="fecha" type="date" value="${date}" required>
+        <input id="fecha"  name="fecha" type="date" class="form-control " value="${date}" required>
         </div>
 
-        <div class="formulario">
-            <label for="categoria">Categoría </label>
-            <select id="categoria" name="categoria" required>
+        <div class="mb-3">
+            <label for="categoria" class="form-label">Categoría </label>
+            <select id="categoria" name="categoria" class="form-select" required>
                 <option value="">Selecciona una categoría</option>
                 <option value="CARNAVAL" ${categoria == 'CARNAVAL' ? 'selected' : ''}>Carnaval</option>
                 <option value="CINE" ${categoria == 'CINE' ? 'selected' : ''}>Cine</option>
@@ -54,33 +58,34 @@
             </select>
         </div>
 
-        <div class="formulario">
-            <label for="Tipo de retorno">Tipo de retorno </label>
-            <select id="tipoRetorno" name="tipoRetorno" required>
+        <div class="mb-3">
+            <label for="Tipo de retorno" class="form-label">Tipo de retorno </label>
+            <select id="tipoRetorno" name="tipoRetorno" class="form-select" required>
                 <option value="">Selecciona un tipo de retorno</option>
                 <option value="ENTRADA GRATIS" ${tipoRetorno == 'ENTRADA GRATIS' ? 'selected' : ''}>Entrada Gratis</option>
                 <option value="PORCENTAJE DE GANANCIAS" ${tipoRetorno == 'PORCENTAJE DE GANANCIAS' ? 'selected' : ''}>Porcentaje de Ganancias</option>
                 </select>
         </div>
 
-        <div class="formulario">
-            <label for="montoEntrada">Precio por Entrada (UYU) </label>
-            <input id="montoEntrada" name="montoEntrada" type="number" min="1" value="${montoEntrada != null ? montoEntrada : ''}" required>
+        <div class="mb-3">
+            <label for="montoEntrada" class="form-label">Precio por Entrada (UYU) </label>
+            <input id="montoEntrada" name="montoEntrada" type="number" min="1" class="form-control" value="${montoEntrada != null ? montoEntrada : ''}" required>
         </div>
 
-        <div class="formulario">
-            <label for="montoNecesario">Monto Total Necesario (UYU) </label>
-            <input id="montoNecesario" name="montoNecesario" type="number" min="1" value="${montoNecesario != null ? montoNecesario : ''}" required>
+        <div class="mb-3">
+            <label for="montoNecesario" class="form-label">Monto Total Necesario (UYU) </label>
+            <input id="montoNecesario" name="montoNecesario" type="number" min="1" class="form-control" value="${montoNecesario != null ? montoNecesario : ''}" required>
         </div>
 
-        <div class="formulario">
-            <label for="imagen">Subir imagen:</label>
-            <input type="file" id="imagen" name="imagen" accept="image/*">
+        <div class="mb-3">
+            <label for="imagen" class="form-label">Subir imagen:</label>
+            <input type="file" id="imagen" name="imagen" class="form-control sin-borde" accept="image/*">
             </div>
-        </div>
 
-        <button type="submit">Crear Propuesta</button>
+        <button type="submit" class="btn btn-success w-100">Crear Propuesta</button>
+
 
     </form>
+    </div>
 </body>
 </html>
