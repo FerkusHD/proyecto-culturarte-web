@@ -62,5 +62,9 @@ public class PropuestasController {
         return "busquedaPropuestas";
     }
 
+    @GetMapping("/alta")
+    public String mostrarFormularioAlta() {
+        return "altaPropuesta";
+    }
 
 }
