@@ -32,24 +32,11 @@
 
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link text-primary fw-normal"  href="${pageContext.request.contextPath}/usuarios/perfiles">Buscar usuarios</a>
+                        <a class="nav-link text-primary fw-normal"  href="#">Tengo una Propuesta</a>
                     </li>
-                    <c:if test="${sessionScope.usuarioLogueado.tipo eq 'proponente'}">
-                        <li class="nav-item d-flex align-items-center">
-                            <span class="px-2 text-dark">|</span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-primary fw-normal"  href="${pageContext.request.contextPath}/propuestas/alta">Tengo una propuesta</a>
-                        </li>
-                    </c:if>
-                    <c:if test="${sessionScope.usuarioLogueado.tipo eq 'colaborador'}">
-                        <li class="nav-item d-flex align-items-center">
-                            <span class="px-2 text-dark">|</span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-primary fw-normal" href="${pageContext.request.contextPath}/propuestas/registrarColaboracionProp">Quiero colaborar</a>
-                        </li>
-                    </c:if>
+                    <li class="nav-item d-flex align-items-center">
+                        <span class="px-2 text-dark">|</span>
+                    </li>
                 </ul>
 
                 <form class="d-flex me-3 flex-grow-1" style="max-width: 400px;"
@@ -96,45 +83,11 @@
     </nav>
 </header>
 
-<div class="tabs mb-0">
-    <ul class="nav nav-tabs border-bottom-0" role="tablist" id="proposalTabs">
-
-        <li class="nav-item" role="presentation">
-            <a class="nav-link active" data-bs-toggle="tab" href="#creadas" role="tab"
-               data-estado="PUBLICADA">Propuestas Creadas</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" data-bs-toggle="tab" href="#financiacion" role="tab"
-               data-estado="ENFINANCIACION">Propuestas en Financiación</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" data-bs-toggle="tab" href="#financiadas" role="tab"
-               data-estado="FINANCIADA">Propuestas Financiadas</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" data-bs-toggle="tab" href="#no-financiadas" role="tab"
-               data-estado="NOFINANCIADA">Propuestas NO Financiadas</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" data-bs-toggle="tab" href="#canceladas" role="tab"
-               data-estado="CANCELADA">Propuestas Canceladas</a>
-        </li>
-    </ul>
 </div>
-
-<hr class="mt-0 mb-4" style="border-top: 2px solid #ced4da; opacity: 1;">
-
-<div class="tab-content">
-</div>
-
 <!-- Lista las propuestas -->
  <section id="tarjetas" class="tarjetas"></section>
 
-<!-- Categorías -->
-<div id="categorias" class="categorias"></div>
-
-    <script src="${pageContext.request.contextPath}/js/propuestasAndCategorias.js"></script>
+    <script src="${pageContext.request.contextPath}/js/registrarColaboracion.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

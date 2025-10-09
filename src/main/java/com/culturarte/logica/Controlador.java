@@ -171,6 +171,33 @@ public class Controlador implements IControlador{
     }
 
     @Override
+    public List<String> listarCategoriasWebCompletas(){
+        List<Categoria> categoriasRaiz = mc.getCategoriasRaizConSubcategorias();
+        List<Categoria> subCategorias;
+        List<String> nombres = new ArrayList<>();
+        for (Categoria cat : categoriasRaiz) {
+            nombres.add(cat.getNombre());
+            subCategorias = cat.getSubCategorias();
+                for (Categoria subCat : subCategorias) {
+                    nombres.add(subCat.getNombre());
+                    nombres.addAll(getSubCategorias(subCat));
+                }
+        }
+        return nombres;
+    }
+
+    private List<String> getSubCategorias(Categoria cat) {
+        List<String> nombres = new ArrayList<>();
+        if (cat.getSubCategorias() != null) {
+            for (Categoria subCat : cat.getSubCategorias()) {
+                nombres.add(subCat.getNombre());
+                nombres.addAll(getSubCategorias(subCat));
+            }
+        }
+        return nombres;
+    }
+
+    @Override
     public DefaultTreeModel listarCategorias() {
         DefaultMutableTreeNode raiz = new DefaultMutableTreeNode("Categorías");
         DefaultTreeModel model = new DefaultTreeModel(raiz);
@@ -233,7 +260,6 @@ public class Controlador implements IControlador{
                     p.getFechaPrevista(),
                     p.getPrecioEntrada(),
                     p.getMontoNecesario()
-
             );
             retorno.add(dtp);
         }
@@ -253,7 +279,8 @@ public class Controlador implements IControlador{
                         p.getMontoNecesario(),
                         p.getFechaPrevista(),
                         p.getImagen(),
-                        p.getCategoria().getNombreCompleto()
+                        p.getCategoria().getNombreCompleto(),
+                        p.getProponenteNick()
                 );
                 retorno.add(dtp);
             }
@@ -476,7 +503,7 @@ public class Controlador implements IControlador{
                 .collect(Collectors.toList());
     }
 
-
+    @Override
     public void modificarPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, 
             Float montoNecesario, String imagen, String proponente, String categoria, String nuevoEstado) throws DatosIncorrectos {
         
@@ -521,7 +548,15 @@ public class Controlador implements IControlador{
         }
         
         mp.actualizarPropuesta(p);
-        
+    }
+
+    @Override
+    public String[] getTiposRetorno() {
+        String[] retorno = new String[TipoRetorno.values().length];
+        for (int i = 0; i < TipoRetorno.values().length; i++) {
+            retorno[i] = TipoRetorno.values()[i].toString();
+        }
+        return retorno;
     }
 
     @Transactional
@@ -603,7 +638,7 @@ public class Controlador implements IControlador{
             );
                 // Colaboradores
             this.altaColaborador(
-                    "robinh", "","Robin", "Henderson",
+                    "robinh", "r","Robin", "Henderson",
                     "robin.h@tinglesa.com.uy", LocalDate.of(1940, 8, 3),
                     null
             );

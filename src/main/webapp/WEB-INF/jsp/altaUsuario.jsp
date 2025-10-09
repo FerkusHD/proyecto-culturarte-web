@@ -64,7 +64,7 @@
             Colaborador
           </label>
           <label>
-            <input id="proponente" onclick="cambiarPanelProponente()" type="radio" name="rol" value="colaborador"
+            <input id="proponente" onclick="cambiarPanelProponente()" type="radio" name="rol" value="proponente"
             ${rol == 'proponente' ? 'checked' : ''}>
             Proponente
           </label>
