@@ -90,6 +90,7 @@ public class DTPropuesta {
         this.montoNecesario = propuesta.getMontoNecesario();
         this.imagen = propuesta.getImagen();
         this.estadoActual= propuesta.getHistorialEstados().getLast().getEstado();
+        this.categoria=propuesta.getCategoria().getNombre();
     }
 
     public List<DTEstado> getHistEstados() {

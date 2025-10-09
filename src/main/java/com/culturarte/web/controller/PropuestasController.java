@@ -53,6 +53,7 @@ public class PropuestasController {
     public String buscar(
             @RequestParam(value = "query", required = false, defaultValue = "") String query,
             @RequestParam(value = "estado", required = false) String estado,
+            @RequestParam(value = "categoria", required = false) String categoria,
             @RequestParam(value = "orden", required = false) String orden,
             Model model) {
 
@@ -75,11 +76,17 @@ public class PropuestasController {
                     .sorted((p1, p2) -> p2.getFechaPrevista().compareTo(p1.getFechaPrevista()))
                     .toList();
         }
-
+        if (categoria != null && !categoria.isBlank()) {
+            resultados = resultados.stream()
+                    .filter(p -> p.getCategoria().equalsIgnoreCase(categoria))
+                    .toList();
+        }
         model.addAttribute("resultados", resultados);
         model.addAttribute("query", query);
         model.addAttribute("estado", estado);
         model.addAttribute("orden", orden);
+        model.addAttribute("categoria", categoria);
+        model.addAttribute("categorias", ctrl.listarCategoriasWebCompletas());
 
         return "busquedaPropuestas";
     }

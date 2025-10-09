@@ -112,7 +112,7 @@
             <select name="categoria" id="categoria" class="form-select">
                 <option value="">-- Filtrar por categoría --</option>
                 <c:forEach var="cat" items="${categorias}">
-                    <option value="${cat.nombre}" ${categoria == cat.nombre ? 'selected' : ''}>${cat.nombre}</option>
+                    <option value="${cat}" ${categoria == cat ? 'selected' : ''}>${cat}</option>
                 </c:forEach>
             </select>
         </div>
@@ -157,6 +157,7 @@
             </div>
         </c:otherwise>
     </c:choose>
+
 </main>
 
 <script src="${pageContext.request.contextPath}/js/busquedaAjax.js"></script>
