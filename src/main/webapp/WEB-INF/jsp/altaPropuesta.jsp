@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 
 </head>
 <body class="bg-light">
@@ -45,26 +45,21 @@
         <div class="mb-3">
             <label for="categoria" class="form-label">Categoría </label>
             <select id="categoria" name="categoria" class="form-select" required>
-                <option value="">Selecciona una categoría</option>
-                <option value="CARNAVAL" ${categoria == 'CARNAVAL' ? 'selected' : ''}>Carnaval</option>
-                <option value="CINE" ${categoria == 'CINE' ? 'selected' : ''}>Cine</option>
-                <option value="DANZA" ${categoria == 'DANZA' ? 'selected' : ''}>Danza</option>
-                <option value="LITERATURA"${categoria == 'LITERATURA' ? 'selected' : ''}>Literatura</option>
-                <option value="MUSICA" ${categoria == 'MUSICA' ? 'selected' : ''}>Música</option>
-                <option value="TEATRO" ${categoria == 'TEATRO' ? 'selected' : ''}>Teatro</option>
-
-
-
+                <option value="" selected disabled >Selecciona una categoría</option>
+                <c:forEach var="cat" items="${categorias}">
+                    <option value="${cat}">${cat}</option>
+                </c:forEach>
             </select>
         </div>
 
         <div class="mb-3">
             <label for="Tipo de retorno" class="form-label">Tipo de retorno </label>
-            <select id="tipoRetorno" name="tipoRetorno" class="form-select" required>
-                <option value="">Selecciona un tipo de retorno</option>
-                <option value="ENTRADAGRATIS" ${tipoRetorno == 'ENTRADAGRATIS' ? 'selected' : ''}>Entrada Gratis</option>
-                <option value="PORCENTAJEGANANCIAS" ${tipoRetorno == 'PORCENTAJEDEGANANCIAS' ? 'selected' : ''}>Porcentaje de Ganancias</option>
-                </select>
+            <select class="form-select" id="tiposRetorno" name="tiposRetorno[]" multiple required>
+                <option value="" selected disabled >Selecciona un tipo de retorno</option>
+                <c:forEach var="tipo" items="${tiposRetorno}">
+                    <option value="${tipo}">${tipo}</option>
+                </c:forEach>
+            </select>
         </div>
 
         <div class="mb-3">
@@ -82,10 +77,16 @@
             <input type="file" id="imagen" name="imagen" accept="image/*">
             </div>
 
+       <c:if test="${not empty mensaje}">
+           <p>${mensaje}</p>
+       </c:if>
+
         <button type="submit" class="btn btn-success w-100">Crear Propuesta</button>
 
 
     </form>
     </div>
+
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
