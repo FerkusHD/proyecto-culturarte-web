@@ -189,7 +189,6 @@ function aplicarFiltrosCombinados() {
         listaFiltrada = listaFiltrada.filter(p => p.estadoActual === estadoActivo);
     }
 
-    // B. Filtrar por Categoría (Checkboxes) - ¡ESTE ES EL CAMBIO!
     if (categoriasSeleccionadas.length > 0) {
         listaFiltrada = listaFiltrada.filter(p => {
 
@@ -204,3 +203,4 @@ function aplicarFiltrosCombinados() {
 function filtrarPropuestas() {
     aplicarFiltrosCombinados();
 }
+

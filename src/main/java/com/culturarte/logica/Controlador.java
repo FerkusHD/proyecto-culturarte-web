@@ -233,7 +233,6 @@ public class Controlador implements IControlador{
                     p.getFechaPrevista(),
                     p.getPrecioEntrada(),
                     p.getMontoNecesario()
-
             );
             retorno.add(dtp);
         }
@@ -253,7 +252,8 @@ public class Controlador implements IControlador{
                         p.getMontoNecesario(),
                         p.getFechaPrevista(),
                         p.getImagen(),
-                        p.getCategoria().getNombreCompleto()
+                        p.getCategoria().getNombreCompleto(),
+                        p.getProponenteNick()
                 );
                 retorno.add(dtp);
             }

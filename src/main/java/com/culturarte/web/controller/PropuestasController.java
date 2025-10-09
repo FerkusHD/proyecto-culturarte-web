@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+
 @Controller
 @RequestMapping("/propuestas")
 public class PropuestasController {
@@ -25,6 +26,16 @@ public class PropuestasController {
     @GetMapping("/listar/{titulo}")
     DTPropuesta propuestas(@PathVariable String titulo) {
         return ctrl.getDTPropuesta(titulo);
+    }
+
+    @GetMapping("/registrarColaboracionProp")
+    public String registrarColaboracionProp() {
+        return "registrarColaboracionProp";
+    }
+
+     @GetMapping("/registroColaboracion")
+    public String registroCol() {
+        return "registroColaboracion";
     }
 
     @GetMapping("/buscar")
