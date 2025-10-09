@@ -147,4 +147,11 @@ public class PropuestasController {
         }
     }
 
+    @GetMapping("/{titulo}")
+    public String mostrarPropuesta(Model model, @PathVariable String titulo){
+        // Verifiacar que existe
+        model.addAttribute("propuesta", ctrl.getDTPropuesta(titulo));
+        return  "consultarPropuesta";
+    }
+
 }

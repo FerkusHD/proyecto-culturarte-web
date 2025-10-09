@@ -112,17 +112,16 @@ function mostrarPropuestas(lista) {
     }
 
     lista.forEach(p => {
-        // --- CÁLCULOS DENTRO DEL BUCLE ---
         const porcentaje = (p.montoRecaudado / p.montoNecesario) * 100;
         const porcentajeRedondeado = Math.min(Math.round(porcentaje), 100);
         const diasRestantes = calcularDiasRestantes(p.fechaPrevista);
 
-        // El 'card' ahora es solo el contenedor de la columna
         const col = document.createElement('div');
         col.classList.add('col');
 
         col.innerHTML = `
-            <div class="card h-100 border p-2">
+        <a href="/propuestas/${p.titulo}" class="text-decoration-none text-dark">
+            <div class="card h-100 border p-2 shadow-sm hover-shadow">
                 <img src="${p.imagen}" class="card-img-top" alt="${p.titulo}" style="height: 150px; object-fit: cover;">
                 <div class="card-body p-2">
                     <h6 class="card-title fw-bold mb-1" style="font-size: 14px;">${p.titulo}</h6>
@@ -135,8 +134,8 @@ function mostrarPropuestas(lista) {
 
                     <div class="progress mb-2" style="height: 18px; border: 1px solid #000;">
                         <div class="progress-bar bg-dark" role="progressbar"
-                             style="width: ${porcentajeRedondeado}%;"
-                             aria-valuenow="${porcentajeRedondeado}" aria-valuemin="0" aria-valuemax="100">
+                            style="width: ${porcentajeRedondeado}%;"
+                            aria-valuenow="${porcentajeRedondeado}" aria-valuemin="0" aria-valuemax="100">
                         </div>
                         <span class="position-absolute start-0 w-100 text-center text-white" style="font-size: 10px;">
                             ${porcentajeRedondeado}%
@@ -155,9 +154,11 @@ function mostrarPropuestas(lista) {
                     </div>
                 </div>
             </div>
-        `;
+        </a>
+    `;
         row.appendChild(col);
     });
+
 
     contenedor.appendChild(row);
 }
