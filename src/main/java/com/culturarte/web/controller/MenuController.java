@@ -1,16 +1,9 @@
 package com.culturarte.web.controller;
-
-import java.time.LocalDate;
-import java.util.Arrays;
-
 import com.culturarte.logica.datatypes.DTUsuario;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import com.culturarte.exepciones.UsuarioYaExiste;
 import com.culturarte.logica.IControlador;
 
 @Controller
@@ -68,7 +61,6 @@ public class MenuController {
         session.invalidate();
         return "redirect:/";
     }
-
 
 
 }

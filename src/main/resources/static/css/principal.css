@@ -45,3 +45,20 @@
     background-color: #000;
     border-color: #000;
 }
+
+#sugerencias {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+#sugerencias .list-group-item {
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#sugerencias .list-group-item:hover {
+    background-color: #f8f9fa;
+}

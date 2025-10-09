@@ -48,6 +48,7 @@ public class PropuestasController {
         return "registroColaboracion";
     }
 
+
     @GetMapping("/buscar")
     public String buscar(
             @RequestParam(value = "query", required = false, defaultValue = "") String query,
@@ -58,7 +59,7 @@ public class PropuestasController {
         List<DTPropuesta> resultados = ctrl.buscarPropuestas(query);
         if (resultados == null) resultados = List.of();
 
-        // 🔹 Aplicar filtros secundarios
+        // Aplicar filtros secundarios
         if (estado != null && !estado.isBlank()) {
             resultados = resultados.stream()
                     .filter(p -> p.getEstadoActual().toString().equalsIgnoreCase(estado))
@@ -153,5 +154,28 @@ public class PropuestasController {
         model.addAttribute("propuesta", ctrl.getDTPropuesta(titulo));
         return  "consultarPropuesta";
     }
+
+    @GetMapping("/buscar/sugerencias")
+    @ResponseBody
+    public List<String> sugerencias(@RequestParam("q") String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return List.of();
+        }
+
+        List<DTPropuesta> resultados = ctrl.buscarPropuestas(query);
+        if (resultados == null) return List.of();
+
+        // Filtrar: solo coincidencias en el título
+        String qLower = query.toLowerCase();
+
+        return resultados.stream()
+                .map(DTPropuesta::getTitulo)
+                .filter(titulo -> titulo != null && titulo.toLowerCase().contains(qLower))
+                .distinct()
+                .limit(10)
+                .toList();
+    }
+
+
 
 }

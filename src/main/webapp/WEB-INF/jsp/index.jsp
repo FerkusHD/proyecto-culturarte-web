@@ -52,13 +52,19 @@
                     </c:if>
                 </ul>
 
-                <form class="d-flex me-3 flex-grow-1" style="max-width: 400px;"
+                <form class="d-flex me-3 flex-grow-1 position-relative" style="max-width: 400px;"
                       action="${pageContext.request.contextPath}/propuestas/buscar" method="get">
-                    <input class="form-control form-control-sm me-2 w-100" type="search" name="query"
+                    <input class="form-control form-control-sm me-2 w-100" type="search"
+                           id="buscador" name="query"
                            placeholder="Título, descripción, lugar" aria-label="Buscar"
-                           value="${query != null ? query : ''}" />
+                           autocomplete="off" value="${query != null ? query : ''}" />
                     <button class="btn btn-sm btn-outline-primary" type="submit">Buscar</button>
+                    <!-- Contenedor de sugerencias -->
+                    <div id="sugerencias"
+                         class="list-group position-absolute w-100"
+                         style="top: 38px; z-index: 1000;"></div>
                 </form>
+
 
                 <c:choose>
                     <c:when test="${sessionScope.usuarioLogueado.tipo ne 'visitante'}">
@@ -135,6 +141,7 @@
 
     <script src="${pageContext.request.contextPath}/js/propuestasAndCategorias.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="${pageContext.request.contextPath}/js/busquedaAjax.js"></script>
 
 </body>
 </html>
