@@ -137,6 +137,8 @@ public class PropuestasController {
             model.addAttribute("descripcion", descripcion);
             model.addAttribute("lugar", lugar);
             model.addAttribute("fechaPrevista", fechaPrevista);
+            model.addAttribute("categorias", ctrl.listarCategoriasWebCompletas());
+            model.addAttribute("tiposRetorno" , ctrl.getTiposRetorno());
             // TODO : Hacer que se seleccione aca el tipoRetorno y categoria
             model.addAttribute("montoEntrada", montoEntrada);
             model.addAttribute("montoNecesario", montoNecesario);

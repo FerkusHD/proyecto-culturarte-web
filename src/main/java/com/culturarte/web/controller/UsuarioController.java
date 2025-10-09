@@ -70,7 +70,7 @@ public class UsuarioController {
         return "altaUsuario";
     }
 
-    @GetMapping("/perfil/{nick}")
+    @GetMapping("/{nick}")
     public String mostrarPerfil(@PathVariable String nick, HttpSession httpSession, Model model) {
 
         DTUsuario usuarioLogeado = (DTUsuario) httpSession.getAttribute("usuarioLogeado");

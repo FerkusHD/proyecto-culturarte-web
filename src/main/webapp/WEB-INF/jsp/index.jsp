@@ -32,7 +32,7 @@
 
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link text-primary fw-normal"  href="${pageContext.request.contextPath}/">Buscar usuarios</a>
+                        <a class="nav-link text-primary fw-normal"  href="${pageContext.request.contextPath}/usuarios/perfiles">Buscar usuarios</a>
                     </li>
                     <c:if test="${sessionScope.usuarioLogueado.tipo eq 'proponente'}">
                         <li class="nav-item d-flex align-items-center">
