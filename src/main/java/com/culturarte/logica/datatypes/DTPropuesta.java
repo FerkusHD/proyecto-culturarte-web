@@ -168,4 +168,6 @@ public class DTPropuesta {
         this.cantColaboradores = cantColaboradores;
     }
 
+
 }
+

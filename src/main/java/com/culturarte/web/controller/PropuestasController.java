@@ -116,8 +116,6 @@ public class PropuestasController {
                 return "redirect:/login";
             }
 
-
-
             String proponente = usuario.getNickname();
 
             //Convierte tipoRetorno de String a EnumSet
@@ -149,9 +147,22 @@ public class PropuestasController {
 
     @GetMapping("/{titulo}")
     public String mostrarPropuesta(Model model, @PathVariable String titulo){
-        // Verifiacar que existe
+        if(ctrl.getDTPropuesta(titulo) == null){
+            model.addAttribute("mensaje", "⚠️ La propuesta no existe");
+            return "redirect:/propuestas/buscar";
+        }
         model.addAttribute("propuesta", ctrl.getDTPropuesta(titulo));
         return  "consultarPropuesta";
+    }
+
+    @PostMapping("/cancelar/{titulo}")
+    public String cancelarPropuesta(Model model, @PathVariable String titulo, HttpSession session) {
+        DTUsuario usuario = (DTUsuario) session.getAttribute("usuarioLogueado");
+        if (usuario == null || "visitante".equals(usuario.getTipo())) {
+            model.addAttribute("mensaje", "⚠️ Debe estar logueado para cancelar una propuesta");
+            return "redirect:/login";
+        }
+
     }
 
 }

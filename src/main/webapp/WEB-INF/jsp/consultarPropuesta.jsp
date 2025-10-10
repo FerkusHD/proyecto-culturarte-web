@@ -1,14 +1,252 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Propuesta Creada - Culturarte</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${propuesta.titulo} - Culturarte</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/altaUsuario.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 <body class="bg-light">
-<p>${propuesta.titulo}</p>
+    <div class="container-fluid py-4">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h1 class="culturarte display-4">Culturarte</h1>
+                <h2 class="text-muted">Info de la Propuesta</h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-4 col-md-5 mb-4">
+                <c:if test="${not empty propuesta.imagen}">
+                    <div class="card shadow-sm">
+                        <img src="data:image/jpeg;base64,${propuesta.imagen}"
+                             class="card-img-top propuesta-img"
+                             alt="${propuesta.titulo}">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">${propuesta.titulo}</h5>
+                            <span class="badge
+                                <c:choose>
+                                    <c:when test="${propuesta.estadoActual == 'CONFIRMADA'}">bg-success</c:when>
+                                    <c:when test="${propuesta.estadoActual == 'PUBLICADA'}">bg-primary</c:when>
+                                    <c:when test="${propuesta.estadoActual == 'FINALIZADA'}">bg-secondary</c:when>
+                                    <c:when test="${propuesta.estadoActual == 'CANCELADA'}">bg-danger</c:when>
+                                    <c:otherwise>bg-warning</c:otherwise>
+                                </c:choose> rounded-pill">
+                                ${propuesta.estadoActual}
+                            </span>
+                        </div>
+                    </div>
+                </c:if>
+
+                <div class="card mt-3 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0">Información General</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="bi bi-calendar-event text-primary"></i> Fecha:</span>
+                            <strong>${propuesta.fechaPrevista}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="bi bi-geo-alt text-primary"></i> Lugar:</span>
+                            <strong>${propuesta.lugar}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="bi bi-ticket-perforated text-primary"></i> Entrada:</span>
+                            <strong>$${propuesta.precioEntrada}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span><i class="bi bi-tags text-primary"></i> Categoría:</span>
+                            <strong>${propuesta.categoria}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8 col-md-7">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <ul class="nav nav-tabs card-header-tabs" id="propuestaTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="descripcion-tab" data-bs-toggle="tab"
+                                        data-bs-target="#descripcion" type="button" role="tab">Descripción
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="detalles-tab" data-bs-toggle="tab"
+                                        data-bs-target="#detalles" type="button" role="tab">Detalles
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="financiacion-tab" data-bs-toggle="tab"
+                                        data-bs-target="#financiacion" type="button" role="tab">Financiación
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="tab-content" id="propuestaTabsContent">
+
+                            <div class="tab-pane fade show active" id="descripcion" role="tabpanel">
+                                <h4 class="text-primary mb-3">Descripción de la Propuesta</h4>
+                                <div class="p-3 rounded bg-light border-start border-4 border-primary">
+                                    <p class="mb-0 lh-base">${propuesta.descripcion}</p>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="detalles" role="tabpanel">
+                                <h4 class="text-primary mb-3">Detalles de la Propuesta</h4>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100 border-0 shadow-sm">
+                                            <div class="card-body">
+                                                <h6 class="card-title text-muted">
+                                                    <i class="bi bi-geo-alt-fill"></i> Lugar
+                                                </h6>
+                                                <p class="card-text fs-5">${propuesta.lugar}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100 border-0 shadow-sm">
+                                            <div class="card-body">
+                                                <h6 class="card-title text-muted">
+                                                    <i class="bi bi-calendar-check-fill"></i> Fecha Prevista
+                                                </h6>
+                                                <p class="card-text fs-5">${propuesta.fechaPrevista}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100 border-0 shadow-sm">
+                                            <div class="card-body">
+                                                <h6 class="card-title text-muted">
+                                                    <i class="bi bi-tags-fill"></i> Categoría
+                                                </h6>
+                                                <p class="card-text fs-5">${propuesta.categoria}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100 border-0 shadow-sm">
+                                            <div class="card-body">
+                                                <h6 class="card-title text-muted">
+                                                    <i class="bi bi-ticket-perforated"></i> Precio Entrada
+                                                </h6>
+                                                <p class="card-text fs-5">$${propuesta.precioEntrada}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="financiacion" role="tabpanel">
+                                <h4 class="text-primary mb-3">Estado de Financiación</h4>
+                                <div class="row text-center">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body">
+                                                <h6 class="text-muted">Monto Solicitado</h6>
+                                                <h3 class="text-dark">$${propuesta.montoNecesario}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card border-0 bg-success text-white">
+                                            <div class="card-body">
+                                                <h6>Monto Recaudado</h6>
+                                                <h3>$${propuesta.montoRecaudado}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card border-0 bg-info text-white">
+                                            <div class="card-body">
+                                                <h6>Progreso</h6>
+                                                <h3>
+                                                    <c:set var="porcentaje" value="${(propuesta.montoRecaudado / propuesta.montoNecesario) * 100}"/>
+                                                    <fmt:formatNumber value="${porcentaje}" pattern="#.##"/>%
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar bg-success"
+                                             role="progressbar"
+                                             style="width: ${porcentaje}%;"
+                                             aria-valuenow="${porcentaje}"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100">
+                                            <fmt:formatNumber value="${porcentaje}" pattern="#.##"/>% Completado
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-people"></i> Colaboradores</h5>
+                    </div>
+                    <div class="card-body">
+                        <c:choose>
+                            <c:when test="${not empty propuesta.colaboradores && propuesta.colaboradores.size() > 0}">
+                                <div class="row">
+                                    <c:forEach var="colaborador" items="${propuesta.colaboradores}">
+                                        <div class="col-md-6 col-lg-4 mb-3">
+                                            <div class="card border-0 shadow-sm">
+                                                <div class="card-body text-center">
+                                                    <i class="bi bi-person-circle fs-1 text-primary"></i>
+                                                    <h6 class="mt-2">${colaborador}</h6>
+                                                    <small class="text-muted">Colaborador</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="text-center py-4">
+                                    <i class="bi bi-people fs-1 text-muted"></i>
+                                    <p class="text-muted mt-2">Aún no hay colaboradores para esta propuesta</p>
+                                    <p class="text-muted">Sé el primero en colaborar</p>
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </div>
+
+                <c:if test="${sessionScope.usuarioLogueado.tipo eq 'proponente' && sessionScope.usuarioLogueado.nickname eq propuesta.proponente}">
+                    <div class="text-center">
+                        <button class="btn btn-danger btn-lg"
+                                onclick="cancelarPropuesta('${propuesta.titulo}')">
+                            <i class="bi bi-x-circle"></i> Cancelar Propuesta
+                        </button>
+                    </div>
+                </c:if>
+                <c:if test="${sessionScope.usuarioLogueado.tipo eq 'proponente' && sessionScope.usuarioLogueado.nickname eq propuesta.proponente}">
+                                    <div class="text-center mt-3">
+                                        <button class="btn btn-primary btn-lg"
+                                                onclick="cancelarPropuesta('${propuesta.titulo}')">
+                                            <i class="bi bi-x-circle"></i> Extender Financiacion </button>
+                                    </div>
+                                </c:if>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
