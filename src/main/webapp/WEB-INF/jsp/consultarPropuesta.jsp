@@ -32,10 +32,10 @@
                             <h5 class="card-title">${propuesta.titulo}</h5>
                             <span class="badge
                                 <c:choose>
-                                    <c:when test="${propuesta.estadoActual == 'CONFIRMADA'}">bg-success</c:when>
-                                    <c:when test="${propuesta.estadoActual == 'PUBLICADA'}">bg-primary</c:when>
-                                    <c:when test="${propuesta.estadoActual == 'FINALIZADA'}">bg-secondary</c:when>
-                                    <c:when test="${propuesta.estadoActual == 'CANCELADA'}">bg-danger</c:when>
+                                    <c:when test="${propuesta.estadoActual.toString() == 'CONFIRMADA'}">bg-success</c:when>
+                                    <c:when test="${propuesta.estadoActual.toString() == 'PUBLICADA'}">bg-primary</c:when>
+                                    <c:when test="${propuesta.estadoActual.toString() == 'FINALIZADA'}">bg-secondary</c:when>
+                                    <c:when test="${propuesta.estadoActual.toString() == 'CANCELADA'}">bg-danger</c:when>
                                     <c:otherwise>bg-warning</c:otherwise>
                                 </c:choose> rounded-pill">
                                 ${propuesta.estadoActual}
@@ -58,6 +58,10 @@
                             <strong>${propuesta.lugar}</strong>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
+                                                    <span><i class="bi bi-geo-alt text-primary"></i> Estado:</span>
+                                                    <strong>${propuesta.estadoActual}</strong>
+                                                </div>
+                        <div class="d-flex justify-content-between mb-2">
                             <span><i class="bi bi-ticket-perforated text-primary"></i> Entrada:</span>
                             <strong>$${propuesta.precioEntrada}</strong>
                         </div>
@@ -65,6 +69,38 @@
                             <span><i class="bi bi-tags text-primary"></i> Categoría:</span>
                             <strong>${propuesta.categoria}</strong>
                         </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-people"></i> Colaboradores</h5>
+                    </div>
+                    <div class="card-body">
+                        <c:choose>
+                            <c:when test="${not empty propuesta.colaboradores && propuesta.colaboradores.size() > 0}">
+                                <div class="row">
+                                    <c:forEach var="colaborador" items="${propuesta.colaboradores}">
+                                        <div class="col-md-12 mb-2">
+                                            <div class="d-flex align-items-center p-2 border rounded">
+                                                <i class="bi bi-person-circle fs-4 text-primary me-3"></i>
+                                                <div>
+                                                    <h6 class="mb-0">${colaborador}</h6>
+                                                    <small class="text-muted">Colaborador</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="text-center py-3">
+                                    <i class="bi bi-people fs-1 text-muted"></i>
+                                    <p class="text-muted mt-2 mb-0">Aún no hay colaboradores para esta propuesta</p>
+                                    <p class="text-muted">Sé el primero en colaborar</p>
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
             </div>
@@ -195,53 +231,35 @@
                     </div>
                 </div>
 
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="bi bi-people"></i> Colaboradores</h5>
-                    </div>
-                    <div class="card-body">
-                        <c:choose>
-                            <c:when test="${not empty propuesta.colaboradores && propuesta.colaboradores.size() > 0}">
-                                <div class="row">
-                                    <c:forEach var="colaborador" items="${propuesta.colaboradores}">
-                                        <div class="col-md-6 col-lg-4 mb-3">
-                                            <div class="card border-0 shadow-sm">
-                                                <div class="card-body text-center">
-                                                    <i class="bi bi-person-circle fs-1 text-primary"></i>
-                                                    <h6 class="mt-2">${colaborador}</h6>
-                                                    <small class="text-muted">Colaborador</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </c:forEach>
-                                </div>
-                            </c:when>
-                            <c:otherwise>
-                                <div class="text-center py-4">
-                                    <i class="bi bi-people fs-1 text-muted"></i>
-                                    <p class="text-muted mt-2">Aún no hay colaboradores para esta propuesta</p>
-                                    <p class="text-muted">Sé el primero en colaborar</p>
-                                </div>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
-                </div>
-
-                <c:if test="${sessionScope.usuarioLogueado.tipo eq 'proponente' && sessionScope.usuarioLogueado.nickname eq propuesta.proponente}">
-                    <div class="text-center">
-                        <button class="btn btn-danger btn-lg"
-                                onclick="cancelarPropuesta('${propuesta.titulo}')">
-                            <i class="bi bi-x-circle"></i> Cancelar Propuesta
-                        </button>
+                <c:if test="${sessionScope.usuarioLogueado.tipo eq 'colaborador' && propuesta.estadoActual ne 'CANCELADA'}">
+                    <div class="text-center mb-3">
+                        <a href="/colaboraciones/nueva?propuesta=${propuesta.titulo}" class="btn btn-success btn-lg">
+                            <i class="bi"></i> Colaborar con esta Propuesta
+                        </a>
                     </div>
                 </c:if>
-                <c:if test="${sessionScope.usuarioLogueado.tipo eq 'proponente' && sessionScope.usuarioLogueado.nickname eq propuesta.proponente}">
-                                    <div class="text-center mt-3">
-                                        <button class="btn btn-primary btn-lg"
-                                                onclick="cancelarPropuesta('${propuesta.titulo}')">
-                                            <i class="bi bi-x-circle"></i> Extender Financiacion </button>
-                                    </div>
-                                </c:if>
+
+
+
+
+                <c:if test="${sessionScope.usuarioLogueado.tipo eq 'proponente' && sessionScope.usuarioLogueado.nickname eq propuesta.proponente && propuesta.estadoActual ne 'CANCELADA'}">
+                    <div class="text-center mb-3">
+                        <form method="post" action="/propuestas/cancelar/${propuesta.titulo}">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-danger btn-lg"
+                                    onclick="return confirm('¿Estás seguro de cancelar ${propuesta.titulo}?')">
+                                <i class="bi bi-x-circle"></i> Cancelar Propuesta
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="text-center">
+                         <button type="button" class="btn btn-primary btn-lg"
+                                 onclick="extender('${propuesta.titulo}')">
+                             <i class="bi bi-arrow-clockwise"></i> Extender Financiación
+                         </button>
+                     </div>
+                </c:if>
             </div>
         </div>
     </div>

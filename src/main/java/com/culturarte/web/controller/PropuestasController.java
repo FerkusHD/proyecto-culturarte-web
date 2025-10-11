@@ -120,7 +120,7 @@ public class PropuestasController {
 
             //Convierte tipoRetorno de String a EnumSet
             EnumSet<TipoRetorno> tiposRet = Arrays.stream(tiposRetorno)
-                    .map(TipoRetorno::valueOf) // convierte String → Enum
+                    .map(TipoRetorno::valueOf)
                     .collect(Collectors.toCollection(() -> EnumSet.noneOf(TipoRetorno.class)));
 
             ctrl.altaPropuesta(titulo, descripcion, lugar, fecha, montoEntrada, montoNecesario, tiposRet, imagen, proponente, categoria);
@@ -145,6 +145,24 @@ public class PropuestasController {
         }
     }
 
+    @PostMapping("/cancelar/{titulo}")
+    public String cancelarPropuesta(Model model, @PathVariable String titulo, HttpSession session) {
+        DTUsuario usuario = (DTUsuario) session.getAttribute("usuarioLogueado");
+        if (usuario == null || "visitante".equals(usuario.getTipo())) {
+            model.addAttribute("mensaje", "⚠️ Debe estar logueado para cancelar una propuesta");
+            return "redirect:/login";
+        }
+        try{
+            ctrl.nuevoEstadoPropuesta(titulo, TipoEstado.CANCELADA, LocalDate.now(), LocalTime.now());
+            model.addAttribute("mensaje", "Propuesta cancelada con éxito");
+            return "exitoCancelarPropuesta";
+        }
+        catch(Exception e){
+            model.addAttribute("mensaje", "⚠️ No se pudo cancelar la propuesta");
+            return "redirect:/propuestas/" + titulo;
+        }
+    }
+
     @GetMapping("/{titulo}")
     public String mostrarPropuesta(Model model, @PathVariable String titulo){
         if(ctrl.getDTPropuesta(titulo) == null){
@@ -155,14 +173,22 @@ public class PropuestasController {
         return  "consultarPropuesta";
     }
 
-    @PostMapping("/cancelar/{titulo}")
-    public String cancelarPropuesta(Model model, @PathVariable String titulo, HttpSession session) {
+    @PostMapping("/extender/{titulo}")
+    public String extenderFinanciacion(Model model, @PathVariable String titulo, @RequestParam String nuevaFecha, HttpSession session) {
         DTUsuario usuario = (DTUsuario) session.getAttribute("usuarioLogueado");
         if (usuario == null || "visitante".equals(usuario.getTipo())) {
-            model.addAttribute("mensaje", "⚠️ Debe estar logueado para cancelar una propuesta");
+            model.addAttribute("mensaje", "⚠️ Debe estar logueado para extender la financiación de una propuesta");
             return "redirect:/login";
         }
-
-    }
+        try{
+            LocalDate fecha = LocalDate.parse(nuevaFecha);
+            ctrl.extenderFinanciacion(titulo, fecha);
+            model.addAttribute("mensaje", "Financiación extendida con éxito");
+            return "exitoExtenderFinanciacion";
+        }
+        catch(Exception e){
+            model.addAttribute("mensaje", "⚠️ No se pudo extender la financiación de la propuesta");
+            return "redirect:/propuestas/" + titulo;
+        }
 
 }

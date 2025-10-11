@@ -29,7 +29,7 @@
             <p style="color:red;">${mensaje}</p>
          </c:if>
 
-        <button type="submit">Registrarse</button>
+        <button type="submit">Entrar</button>
 
     </form>
     
