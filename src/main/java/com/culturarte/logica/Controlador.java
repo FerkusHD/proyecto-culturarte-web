@@ -559,6 +559,13 @@ public class Controlador implements IControlador{
         return retorno;
     }
 
+    @Override
+    public void extenderFinanciacion(String tituloPropuesta, LocalDate nuevaFecha){
+        Propuesta p = mp.getPropuesta(tituloPropuesta);
+        p.setFechaPrevista(nuevaFecha);
+        mp.actualizarPropuesta(p);
+    }
+
     @Transactional
     public void cargarDatosPrueba() throws CargaFallida{
         System.out.println("Agregando datos de prueba: ...");

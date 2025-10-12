@@ -124,13 +124,11 @@ public class PropuestasController {
                 return "redirect:/login";
             }
 
-
-
             String proponente = usuario.getNickname();
 
             //Convierte tipoRetorno de String a EnumSet
             EnumSet<TipoRetorno> tiposRet = Arrays.stream(tiposRetorno)
-                    .map(TipoRetorno::valueOf) // convierte String → Enum
+                    .map(TipoRetorno::valueOf)
                     .collect(Collectors.toCollection(() -> EnumSet.noneOf(TipoRetorno.class)));
 
             ctrl.altaPropuesta(titulo, descripcion, lugar, fecha, montoEntrada, montoNecesario, tiposRet, imagen, proponente, categoria);
@@ -155,9 +153,30 @@ public class PropuestasController {
         }
     }
 
+    @PostMapping("/cancelar/{titulo}")
+    public String cancelarPropuesta(Model model, @PathVariable String titulo, HttpSession session) {
+        DTUsuario usuario = (DTUsuario) session.getAttribute("usuarioLogueado");
+        if (usuario == null || "visitante".equals(usuario.getTipo())) {
+            model.addAttribute("mensaje", "⚠️ Debe estar logueado para cancelar una propuesta");
+            return "redirect:/login";
+        }
+        try{
+            ctrl.nuevoEstadoPropuesta(titulo, TipoEstado.CANCELADA, LocalDate.now(), LocalTime.now());
+            model.addAttribute("mensaje", "Propuesta cancelada con éxito");
+            return "exitoCancelarPropuesta";
+        }
+        catch(Exception e){
+            model.addAttribute("mensaje", "⚠️ No se pudo cancelar la propuesta");
+            return "redirect:/propuestas/" + titulo;
+        }
+    }
+
     @GetMapping("/{titulo}")
     public String mostrarPropuesta(Model model, @PathVariable String titulo){
-        // Verifiacar que existe
+        if(ctrl.getDTPropuesta(titulo) == null){
+            model.addAttribute("mensaje", "⚠️ La propuesta no existe");
+            return "redirect:/propuestas/buscar";
+        }
         model.addAttribute("propuesta", ctrl.getDTPropuesta(titulo));
         return  "consultarPropuesta";
     }
@@ -183,6 +202,24 @@ public class PropuestasController {
                 .toList();
     }
 
+    @PostMapping("/extender/{titulo}")
+    public String extenderFinanciacion(Model model, @PathVariable String titulo, HttpSession session) {
+        DTUsuario usuario = (DTUsuario) session.getAttribute("usuarioLogueado");
+        if (usuario == null || "visitante".equals(usuario.getTipo())) {
+            model.addAttribute("mensaje", "⚠️ Debe estar logueado para extender la financiación de una propuesta");
+            return "redirect:/login";
+        }
+        try {
+            // Calcular la fecha 30 días desde hoy
+            LocalDate fecha = LocalDate.now().plusDays(30);
+            ctrl.extenderFinanciacion(titulo, fecha);
+
+            return "redirect:/propuestas/" + titulo + "?mensaje=Financiacion extendida con exito hasta " + fecha;
+
+        } catch (Exception e) {
+            return "redirect:/propuestas/" + titulo + "?error=No se pudo extender la financiacion: " + e.getMessage();
+        }
+    }
 
 
 }
