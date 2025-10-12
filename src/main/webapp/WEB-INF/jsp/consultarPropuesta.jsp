@@ -16,8 +16,8 @@
     <div class="container-fluid py-4">
         <div class="row mb-4">
             <div class="col-12 text-center">
-                <h1 class="culturarte display-4">Culturarte</h1>
-                <h2 class="text-muted">Info de la Propuesta</h2>
+                <h1 class="culturarte display-5">Culturarte</h1>
+                <h2 class="fw-bold" style="text-decoration: underline;">${propuesta.titulo}</h2>
             </div>
         </div>
 
@@ -233,10 +233,15 @@
 
                 <c:if test="${sessionScope.usuarioLogueado.tipo eq 'colaborador' && propuesta.estadoActual ne 'CANCELADA'}">
                     <div class="text-center mb-3">
-                        <a href="/colaboraciones/nueva?propuesta=${propuesta.titulo}" class="btn btn-success btn-lg">
+                        <a class="btn btn-success btn-lg">
                             <i class="bi"></i> Colaborar con esta Propuesta
                         </a>
                     </div>
+                        <div class="text-center mb-3">
+                            <a class="btn btn-primary btn-lg">
+                                <i class="bi"></i> Agregar comentario
+                            </a>
+                        </div>
                 </c:if>
 
 
@@ -253,13 +258,22 @@
                         </form>
                     </div>
 
+ <c:if test="${propuesta.estadoActual.toString() eq 'PUBLICADA' || propuesta.estadoActual.toString() eq 'EN_FINANCIACION'}">
                     <div class="text-center">
-                         <button type="button" class="btn btn-primary btn-lg"
-                                 onclick="extender('${propuesta.titulo}')">
-                             <i class="bi bi-arrow-clockwise"></i> Extender Financiación
-                         </button>
+                         <form method="post" action="/propuestas/extender/${propuesta.titulo}">
+                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                             <button type="submit" class="btn btn-warning btn-lg"
+                                     onclick="return confirm('¿Estás seguro de extender la fecha prevista de ${propuesta.titulo} por 30 días?')">
+                                 <i class="bi bi-clock-history"></i> Extender Financiacion 30 dias </button>
+                         </form>
                      </div>
+                   </c:if>
                 </c:if>
+
+             <div class="text-center mb-3">
+                    <a class="btn btn-outline-danger">
+                        <i class="bi bi-heart"></i> Agregar a Favoritos
+                    </a>
             </div>
         </div>
     </div>

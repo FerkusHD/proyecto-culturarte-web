@@ -174,21 +174,23 @@ public class PropuestasController {
     }
 
     @PostMapping("/extender/{titulo}")
-    public String extenderFinanciacion(Model model, @PathVariable String titulo, @RequestParam String nuevaFecha, HttpSession session) {
+    public String extenderFinanciacion(Model model, @PathVariable String titulo, HttpSession session) {
         DTUsuario usuario = (DTUsuario) session.getAttribute("usuarioLogueado");
         if (usuario == null || "visitante".equals(usuario.getTipo())) {
             model.addAttribute("mensaje", "⚠️ Debe estar logueado para extender la financiación de una propuesta");
             return "redirect:/login";
         }
-        try{
-            LocalDate fecha = LocalDate.parse(nuevaFecha);
+        try {
+            // Calcular la fecha 30 días desde hoy
+            LocalDate fecha = LocalDate.now().plusDays(30);
             ctrl.extenderFinanciacion(titulo, fecha);
-            model.addAttribute("mensaje", "Financiación extendida con éxito");
-            return "exitoExtenderFinanciacion";
+
+            return "redirect:/propuestas/" + titulo + "?mensaje=Financiacion extendida con exito hasta " + fecha;
+
+        } catch (Exception e) {
+            return "redirect:/propuestas/" + titulo + "?error=No se pudo extender la financiacion: " + e.getMessage();
         }
-        catch(Exception e){
-            model.addAttribute("mensaje", "⚠️ No se pudo extender la financiación de la propuesta");
-            return "redirect:/propuestas/" + titulo;
-        }
+    }
+
 
 }
