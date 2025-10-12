@@ -14,10 +14,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
 </head>
 
-
-</head>
-
 <body>
+    <div class="container mt-3">
+    <c:if test="${not empty mensajeExito}">
+        <div class="alert alert-success" role="alert">${mensajeExito}</div>
+    </c:if>
+
+    <c:if test="${not empty mensajeError}">
+        <div class="alert alert-danger" role="alert">${mensajeError}</div>
+    </c:if>
+    </div>
 <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
         <div class="container-fluid">
@@ -83,11 +89,32 @@
     </nav>
 </header>
 
-</div>
-<!-- Lista las propuestas -->
- <section id="tarjetas" class="tarjetas"></section>
+<form class="row g-3 mt-3 mb-3" 
+      action="${pageContext.request.contextPath}/propuestas/altaColaboracion" 
+      method="post">
 
-    <script src="${pageContext.request.contextPath}/js/registrarColaboracion.js"></script>
+    <div class="col-md-6">
+        <label for="inputRetorno" class="form-label">Tipo de retorno</label>
+        <select class="form-select" id="inputRetorno" name="tipoRetorno" required>
+            <option value="" selected disabled>Seleccione un tipo de retorno</option>
+            <option value="ENTRADAGRATIS">Entradas</option>
+            <option value="PORCENTAJEGANANCIA">Porcentaje de ganancias</option>
+        </select>
+    </div>
+
+    <div class="col-md-6">
+        <label for="inputMonto" class="form-label">Monto</label>
+        <input type="number" class="form-control" id="inputMonto" name="monto" required>
+    </div>
+
+    <input type="hidden" name="tituloPropuesta" value="${tituloPropuesta}">
+    <input type="hidden" name="nickColaborador" value="${sessionScope.usuarioLogueado.nickname}">
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Registrar Colaboración</button>
+    </div>
+    </form>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
