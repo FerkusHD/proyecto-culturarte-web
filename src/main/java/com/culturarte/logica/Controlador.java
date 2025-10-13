@@ -390,7 +390,9 @@ public class Controlador implements IControlador{
         Usuario seguido = mu.buscarUsuario(nickSeguido);
         if(seguidor.getUsuariosSeguidos().contains(seguido)){
             seguidor.getUsuariosSeguidos().remove(seguido);
+            seguido.getUsuariosSeguidores().remove(seguidor);
             mu.actualizarUsuario(seguidor);
+            mu.actualizarUsuario(seguido);
         }else{
             throw new UsuarioNoSeguido("El usuario con nickname: " + nickSeguidor + ", no sigue al usuario con nickname: " + nickSeguido);
         }

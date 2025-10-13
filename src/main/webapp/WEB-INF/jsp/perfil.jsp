@@ -26,7 +26,7 @@
 
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link text-primary fw-normal"  href="${pageContext.request.contextPath}/usuarios/perfiles">Buscar usuarios</a>
+                        <a class="nav-link text-primary fw-normal"  href="${pageContext.request.contextPath}/usuarios/buscar">Buscar usuarios</a>
                     </li>
                     <c:if test="${sessionScope.usuarioLogueado.tipo eq 'proponente'}">
                         <li class="nav-item d-flex align-items-center">
@@ -71,7 +71,7 @@
                                 <span style="font-size: 16px; color: #333;">${sessionScope.usuarioLogueado.nombre} ${sessionScope.usuarioLogueado.apellido}</span>
 
                                 <div class="d-flex align-items-center" style="font-size: 13px;">
-                                    <a href="${pageContext.request.contextPath}/usuarios/perfil/${sessionScope.usuarioLogueado.nickname}" class="text-primary text-decoration-underline me-1">Perfil</a>
+                                    <a href="${pageContext.request.contextPath}/usuarios/${sessionScope.usuarioLogueado.nickname}" class="text-primary text-decoration-underline me-1">Perfil</a>
 
                                     <span class="text-muted">|</span>
 
@@ -134,8 +134,24 @@
                     <p class="text-secondary">Nacido el: ${perfilVisitado.fechaNacimiento}</p>
 
                     <!-- Botón de seguir -->
-                    <c:if test="${usuarioLogueado.tipo ne 'visitante' && usuarioLogueado.nickname ne perfilVisitado.nickname}">
-                        <c:if test="${not usuarioLogueado.usuariosSeguidos.contains(perfilVisitado)}">
+                    <c:choose>
+                        <c:when test="${usuarioLogueado.tipo eq 'visitante' || esMiPropioPerfil}">
+                            <button type="button" class="btn btn-secondary btn-sm mt-2" disabled>
+                                <i class="bi bi-person-plus"></i> Seguir
+                            </button>
+                        </c:when>
+
+                        <c:when test="${loSigo}">
+                            <form action="${pageContext.request.contextPath}/usuarios/dejarDeSeguir" method="post" class="d-inline-block mt-2">
+                                <input type="hidden" name="nickSeguido" value="${perfilVisitado.nickname}"/>
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-person-dash"></i> Dejar de seguir
+                                </button>
+                            </form>
+                        </c:when>
+
+                        <c:otherwise>
                             <form action="${pageContext.request.contextPath}/usuarios/seguir" method="post" class="d-inline-block mt-2">
                                 <input type="hidden" name="nickSeguido" value="${perfilVisitado.nickname}"/>
                                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
@@ -143,8 +159,9 @@
                                     <i class="bi bi-person-plus"></i> Seguir
                                 </button>
                             </form>
-                        </c:if>
-                    </c:if>
+                        </c:otherwise>
+                    </c:choose>
+
                 </div>
 
                 <hr>
@@ -179,6 +196,35 @@
                                                 <i class="bi bi-person-circle me-2 text-primary"></i>
                                                 <span class="fw-semibold">${seguidor.nickname}</span>
                                             </a>
+
+                                            <!-- Botón de seguir -->
+                                            <c:choose>
+                                                <c:when test="${usuarioLogueado.tipo eq 'visitante' || usuarioLogueado.nickname eq seguidor.nickname}">
+                                                    <button type="button" class="btn btn-secondary btn-sm mt-2" disabled>
+                                                        <i class="bi bi-person-plus"></i> Seguir
+                                                    </button>
+                                                </c:when>
+
+                                                <c:when test="${usuarioLogueado.buscarUsuarioSeguido(seguidor.nickname)}">
+                                                    <form action="${pageContext.request.contextPath}/usuarios/dejarDeSeguir" method="post" class="d-inline-block mt-2">
+                                                        <input type="hidden" name="nickSeguido" value="${seguidor.nickname}"/>
+                                                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                            <i class="bi bi-person-dash"></i> Dejar de seguir
+                                                        </button>
+                                                    </form>
+                                                </c:when>
+
+                                                <c:otherwise>
+                                                    <form action="${pageContext.request.contextPath}/usuarios/seguir" method="post" class="d-inline-block mt-2">
+                                                        <input type="hidden" name="nickSeguido" value="${seguidor.nickname}"/>
+                                                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                                        <button type="submit" class="btn btn-primary btn-sm">
+                                                            <i class="bi bi-person-plus"></i> Seguir
+                                                        </button>
+                                                    </form>
+                                                </c:otherwise>
+                                            </c:choose>
                                             <span class="badge bg-secondary">${seguidor.tipo}</span>
                                         </li>
                                     </c:forEach>
@@ -211,6 +257,34 @@
                                                 <i class="bi bi-person-circle me-2 text-primary"></i>
                                                 <span class="fw-semibold">${seguido.nickname}</span>
                                             </a>
+                                            <!-- Botón de seguir -->
+                                            <c:choose>
+                                                <c:when test="${usuarioLogueado.tipo eq 'visitante' || usuarioLogueado.nickname eq seguido.nickname}">
+                                                    <button type="button" class="btn btn-secondary btn-sm mt-2" disabled>
+                                                        <i class="bi bi-person-plus"></i> Seguir
+                                                    </button>
+                                                </c:when>
+
+                                                <c:when test="${usuarioLogueado.buscarUsuarioSeguido(seguido.nickname)}">
+                                                    <form action="${pageContext.request.contextPath}/usuarios/dejarDeSeguir" method="post" class="d-inline-block mt-2">
+                                                        <input type="hidden" name="nickSeguido" value="${seguido.nickname}"/>
+                                                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                            <i class="bi bi-person-dash"></i> Dejar de seguir
+                                                        </button>
+                                                    </form>
+                                                </c:when>
+
+                                                <c:otherwise>
+                                                    <form action="${pageContext.request.contextPath}/usuarios/seguir" method="post" class="d-inline-block mt-2">
+                                                        <input type="hidden" name="nickSeguido" value="${seguido.nickname}"/>
+                                                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                                        <button type="submit" class="btn btn-primary btn-sm">
+                                                            <i class="bi bi-person-plus"></i> Seguir
+                                                        </button>
+                                                    </form>
+                                                </c:otherwise>
+                                            </c:choose>
                                             <span class="badge bg-secondary">${seguido.tipo}</span>
                                         </li>
                                     </c:forEach>

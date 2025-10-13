@@ -171,4 +171,13 @@ public class DTUsuario {
     public void setPropuestasSeguidas(ArrayList<DTPropuesta> propuestasSeguidas) {
         this.propuestasSeguidas = propuestasSeguidas;
     }
+
+    public boolean buscarUsuarioSeguido(String seguido) {
+        for (DTUsuario u : usuariosSeguidos) {
+            if (u.getNickname().equals(seguido)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
