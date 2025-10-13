@@ -64,7 +64,28 @@ public class ManejadorUsuario {
     public void actualizarUsuario(Usuario usuario) {
         em.merge(usuario);
     }
-    
+
+    public List<Usuario> buscarUsuarios(String nombre) {
+        String jpql = "SELECT u FROM Usuario u";
+        TypedQuery<Usuario> query;
+
+        if (nombre != null && !nombre.trim().isEmpty()) {
+            jpql += " WHERE LOWER(u.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')) " +
+                    "OR LOWER(u.nickname) LIKE LOWER(CONCAT('%', :nombre, '%'))";
+            query = em.createQuery(jpql, Usuario.class);
+            query.setParameter("nombre", nombre);
+        } else {
+            query = em.createQuery(jpql, Usuario.class);
+        }
+
+        List<Usuario> usuarios = query.getResultList();
+
+        usuarios.forEach(u -> u.getUsuariosSeguidos().size());
+
+        return usuarios;
+    }
+
+
 }
 
 

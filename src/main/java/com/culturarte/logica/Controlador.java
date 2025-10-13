@@ -503,6 +503,15 @@ public class Controlador implements IControlador{
     }
 
     @Override
+    public List<DTUsuario> buscarUsuarios(String nombre) {
+        return mu.buscarUsuarios(nombre)
+                .stream()
+                .map(DTUsuario::new)
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
     public void modificarPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, 
             Float montoNecesario, String imagen, String proponente, String categoria, String nuevoEstado) throws DatosIncorrectos {
         
