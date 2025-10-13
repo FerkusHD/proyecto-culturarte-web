@@ -147,7 +147,7 @@
         <c:otherwise>
             <div class="list-group">
                 <c:forEach var="p" items="${resultados}">
-                    <a href="${pageContext.request.contextPath}/propuestas/listar/${p.titulo}"
+                    <a href="${pageContext.request.contextPath}/propuestas/${p.titulo}"
                        class="list-group-item list-group-item-action">
                         <h5 class="mb-1">${p.titulo}</h5>
                         <small class="text-muted">${p.lugar} — ${p.estadoActual}</small>
