@@ -75,34 +75,34 @@ public class UsuarioController {
 
     @GetMapping("/{nick}")
     public String mostrarPerfil(@PathVariable String nick, HttpSession session, Model model) {
-
-
-        DTUsuario u = (DTUsuario) session.getAttribute("usuarioLogueado");
-        if (u == null) {
-            u = new DTUsuario();
-            u.setNickname("visitante");
-            u.setTipo("visitante");
-            session.setAttribute("usuarioLogueado", u);
+        DTUsuario usuarioLogueado = (DTUsuario) session.getAttribute("usuarioLogueado");
+        if (usuarioLogueado == null) {
+            usuarioLogueado = new DTUsuario();
+            usuarioLogueado.setTipo("visitante");
+            usuarioLogueado.setNickname("visitante");
+            session.setAttribute("usuarioLogueado", usuarioLogueado);
         }
-
-        model.addAttribute("usuarioLogueado", u);
+        model.addAttribute("usuarioLogueado", usuarioLogueado);
 
         DTUsuario perfilVisitado = ctrl.getDTUsuario(nick);
-
         if (perfilVisitado == null) {
             return "error/404";
         }
+        model.addAttribute("perfilVisitado", perfilVisitado);
 
-        boolean esMiPerfil = false;
-        if (perfilVisitado.getNickname().equals(u.getNickname())) {
-            esMiPerfil = true;
+        model.addAttribute("esMiPropioPerfil", perfilVisitado.getNickname().equals(usuarioLogueado.getNickname()));
+
+        if (perfilVisitado.getTipo().equals("proponente")) {
+            model.addAttribute("proponente", ctrl.getDTProponente(nick));
         }
 
-        model.addAttribute("esMiPropioPerfil", esMiPerfil);
-        model.addAttribute("perfilVisitado", perfilVisitado);
+        if (perfilVisitado.getTipo().equals("colaborador")) {
+            model.addAttribute("colaborador", ctrl.getDTColaborador(nick));
+        }
 
         return "perfil";
     }
+
 
     @GetMapping("/buscar")
     public String buscarUsuarios(@RequestParam(required = false) String nombre, Model model) {

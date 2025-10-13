@@ -62,16 +62,12 @@ public class DTUsuario {
 
     public DTUsuario(com.culturarte.logica.clases.Usuario u) {
         this.nickname = u.getNickname();
-        this.password = u.getPassword();
         this.nombre = u.getNombre();
         this.apellido = u.getApellido();
         this.email = u.getEmail();
         this.fechaNacimiento = u.getFechaNacimiento();
         this.imagen = u.getImagen();
         this.usuariosSeguidos = new ArrayList<>();
-        if (u.getUsuariosSeguidos() != null) {
-            u.getUsuariosSeguidos().forEach(seg -> this.usuariosSeguidos.add(seg.getNickname()));
-        }
         if (u instanceof com.culturarte.logica.clases.Proponente) {
             this.tipo = "proponente";
         } else{

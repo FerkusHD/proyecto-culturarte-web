@@ -115,20 +115,16 @@ public class Controlador implements IControlador{
                 c.getImagen()
         );
 
+        ArrayList<DTColaboracion> colaboraciones = new ArrayList<>();
         for (Colaboracion colab : c.getColaboraciones()) {
             Propuesta prop = mp.getPropuesta(colab.getPropuesta().getTitulo());
             if (prop != null) {
-                DTPropuesta dtp = new DTPropuesta(
-                        prop.getTitulo(),
-                        prop.getEstadoActual().getEstado(),
-                        prop.getProponente().getNickname(),
-                        prop.getMontoRecaudado(),
-                        prop.getMontoNecesario()
-                );
-                dtc.addPropuesta(dtp);
+                DTPropuesta dtp = new DTPropuesta(prop);
+                colaboraciones.add(new DTColaboracion(colab.getMonto(), colab.getFechaAporte(), colab.getTipoRetorno(), dtp));
             }
         }
 
+        dtc.setColaboraciones(colaboraciones);
         return dtc;
     }
     
@@ -141,7 +137,7 @@ public class Controlador implements IControlador{
         DTProponente dtp = new DTProponente(p.getNickname(), p.getPassword(), p.getNombre(), p.getApellido(), p.getEmail(), p.getFechaNacimiento(), p.getImagen(), p.getDireccion(), p.getLinkWeb(), p.getBiografia());
         
         for (Propuesta prop : p.getPropuestas()) {
-            dtp.addPropuesta(new DTPropuesta(prop.getTitulo(), prop.getEstadoActual().getEstado() , prop.getNicknameColaboradores(), prop.getMontoRecaudado(), prop.getMontoNecesario()));
+            dtp.addPropuesta(new DTPropuesta(prop));
         }
        
         return dtp;
@@ -317,7 +313,7 @@ public class Controlador implements IControlador{
                 }
             }
 
-            dtp = new DTPropuesta(p.getTitulo(), p.getDescripcion(), p.getLugar(), p.getFechaPrevista(), p.getPrecioEntrada(), p.getMontoNecesario(), p.getImagen(), p.getNicknameColaboradores(), p.getProponenteNick(), p.getEstadoActual().getEstado(), nombreCategoria, histEstado, p.getMontoRecaudado());
+            dtp = new DTPropuesta(p.getTitulo(), p.getDescripcion(), p.getLugar(), p.getFechaPrevista(), p.getPrecioEntrada(), p.getMontoNecesario(), p.getImagen(), p.getNicknameColaboradores(), p.getProponenteNick(), p.getEstadoActual().getEstado(), nombreCategoria, histEstado, p.getMontoRecaudado(), comentariosDT);
         }
         return dtp;
     }
