@@ -152,38 +152,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="card mt-3 shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-people"></i> Colaboradores</h5>
-                </div>
-                <div class="card-body">
-                    <c:choose>
-                        <c:when test="${not empty propuesta.colaboradores && propuesta.colaboradores.size() > 0}">
-                            <div class="row">
-                                <c:forEach var="colaborador" items="${propuesta.colaboradores}">
-                                    <div class="col-md-12 mb-2">
-                                        <div class="d-flex align-items-center p-2 border rounded">
-                                            <i class="bi bi-person-circle fs-4 text-primary me-3"></i>
-                                            <div>
-                                                <h6 class="mb-0">${colaborador}</h6>
-                                                <small class="text-muted">Colaborador</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </c:forEach>
-                            </div>
-                        </c:when>
-                        <c:otherwise>
-                            <div class="text-center py-3">
-                                <i class="bi bi-people fs-1 text-muted"></i>
-                                <p class="text-muted mt-2 mb-0">Aún no hay colaboradores para esta propuesta</p>
-                                <p class="text-muted">Sé el primero en colaborar</p>
-                            </div>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-            </div>
         </div>
 
         <div class="col-lg-8 col-md-7">
@@ -196,8 +164,8 @@
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="detalles-tab" data-bs-toggle="tab"
-                                    data-bs-target="#detalles" type="button" role="tab">Detalles
+                            <button class="nav-link" id="colaboradores-tab" data-bs-toggle="tab"
+                                    data-bs-target="#colaboradores" type="button" role="tab">Colaboradores
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -217,50 +185,38 @@
                             </div>
                         </div>
 
-                        <div class="tab-pane fade" id="detalles" role="tabpanel">
-                            <h4 class="text-primary mb-3">Detalles de la Propuesta</h4>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <div class="card border-0 shadow-sm">
-                                        <div class="card-body">
-                                            <h6 class="card-title text-muted">
-                                                <i class="bi bi-geo-alt-fill"></i> Lugar
-                                            </h6>
-                                            <p class="card-text fs-5">${propuesta.lugar}</p>
-                                        </div>
+                        <div class="tab-pane fade" id="colaboradores" role="tabpanel">
+                            <h4 class="text-primary mb-3">Colaboradores de la Propuesta</h4>
+                            <c:choose>
+                                <c:when test="${not empty propuesta.colaboradores && propuesta.colaboradores.size() > 0}">
+                                    <div class="row">
+                                        <c:forEach var="colaborador" items="${propuesta.colaboradores}">
+                                            <div class="col-md-6 mb-3">
+                                                <div class="card border-0 shadow-sm h-100">
+                                                    <div class="card-body text-center">
+                                                        <i class="bi bi-person-circle fs-1 text-primary mb-3"></i>
+                                                        <h5 class="card-title">${colaborador}</h5>
+                                                        <p class="card-text text-muted">Colaborador</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
                                     </div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <div class="card border-0 shadow-sm">
-                                        <div class="card-body">
-                                            <h6 class="card-title text-muted">
-                                                <i class="bi bi-calendar-check-fill"></i> Fecha Prevista
-                                            </h6>
-                                            <p class="card-text fs-5">${propuesta.fechaPrevista}</p>
-                                        </div>
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="text-center py-5">
+                                        <i class="bi bi-people fs-1 text-muted mb-3"></i>
+                                        <h5 class="text-muted">Aún no hay colaboradores para esta propuesta</h5>
+                                        <p class="text-muted">Sé el primero en colaborar</p>
+                                        <c:if test="${sessionScope.usuarioLogueado.tipo eq 'colaborador'}">
+                                            <a href="${pageContext.request.contextPath}/propuestas/registroColaboracion?titulo=${propuesta.titulo}"
+                                               class="btn btn-success btn-lg mt-3">
+                                                Ser el primer colaborador
+                                            </a>
+                                        </c:if>
                                     </div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <div class="card border-0 shadow-sm">
-                                        <div class="card-body">
-                                            <h6 class="card-title text-muted">
-                                                <i class="bi bi-tags-fill"></i> Categoría
-                                            </h6>
-                                            <p class="card-text fs-5">${propuesta.categoria}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <div class="card border-0 shadow-sm">
-                                        <div class="card-body">
-                                            <h6 class="card-title text-muted">
-                                                <i class="bi bi-ticket-perforated"></i> Precio Entrada
-                                            </h6>
-                                            <p class="card-text fs-5">$${propuesta.precioEntrada}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
 
                         <div class="tab-pane fade" id="financiacion" role="tabpanel">
