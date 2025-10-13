@@ -168,7 +168,5 @@ public class DTPropuesta {
     public void setCantColaboradores(int cantColaboradores) {
         this.cantColaboradores = cantColaboradores;
     }
-
-
 }
 

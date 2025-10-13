@@ -326,7 +326,6 @@ public class Controlador implements IControlador{
     @Override 
     public void altaColaboracion( float monto, LocalDate fecha, LocalTime hora, TipoRetorno tipoRetorno, String tituloPropuesta, String nickColaborador){
 
-
         // 🔑 Cargar propuesta con sus colaboraciones
         Propuesta p = mp.getPropuesta(tituloPropuesta);
         if (p == null) throw new IllegalArgumentException("No existe la propuesta: " + tituloPropuesta);
@@ -345,7 +344,7 @@ public class Controlador implements IControlador{
         // Persistir colaboración
         mcol.agregarColaboracion(colab);
     }
-    
+
     @Override 
     public  ArrayList<String> getNickUsuarios() {
         ArrayList<String> retorno = new ArrayList<>();

@@ -1,7 +1,9 @@
 package com.culturarte.web.controller;
 
+import com.culturarte.exepciones.ColaboracionYaExiste;
 import com.culturarte.exepciones.PropuestaYaExiste;
 import com.culturarte.logica.IControlador;
+import com.culturarte.logica.datatypes.DTColaboracion;
 import com.culturarte.logica.datatypes.DTPropuesta;
 import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.logica.enums.TipoEstado;
@@ -10,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -17,6 +21,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 
 @Controller
@@ -38,14 +43,44 @@ public class PropuestasController {
         return ctrl.getDTPropuesta(titulo);
     }
 
-    @GetMapping("/registrarColaboracionProp")
-    public String registrarColaboracionProp() {
-        return "registrarColaboracionProp";
+    @GetMapping("/registroColaboracion")
+    public String registroCol(
+        @RequestParam("titulo") String tituloPropuesta,
+        Model model) {
+
+    model.addAttribute("tituloPropuesta", tituloPropuesta);
+    return "registroColaboracion";
     }
 
-     @GetMapping("/registroColaboracion")
-    public String registroCol() {
-        return "registroColaboracion";
+
+    @PostMapping("/altaColaboracion")
+    public String altaColaboracion(
+        @RequestParam("monto") float monto,
+        @RequestParam("tipoRetorno") String retorno,
+        @RequestParam("tituloPropuesta") String tituloPropuesta,
+        @RequestParam("nickColaborador") String nickColaborador,
+        RedirectAttributes redirectAttributes) throws ColaboracionYaExiste {
+
+            DTColaboracion existeColab = ctrl.getDTColaboracionPropuesta(nickColaborador, tituloPropuesta);
+            DTPropuesta propuesta = ctrl.getDTPropuesta(tituloPropuesta);
+
+            if (existeColab != null) {
+                redirectAttributes.addFlashAttribute("mensajeError",
+                "Ya existe una colaboración para este usuario y propuesta (" + nickColaborador + ", " + tituloPropuesta + ")");
+                return "redirect:/"; 
+            }
+
+    LocalDate fecha = LocalDate.now();
+    LocalTime hora = LocalTime.now();
+
+    TipoRetorno tipoRetorno = TipoRetorno.valueOf(retorno.toUpperCase());
+      if (TipoEstado.INGRESADA.equals(propuesta.getEstadoActual())){
+            ctrl.nuevoEstadoPropuesta(tituloPropuesta, TipoEstado.ENFINANCIACION, fecha, hora);
+        }
+
+    ctrl.altaColaboracion(monto, fecha, hora, tipoRetorno, tituloPropuesta, nickColaborador);
+    redirectAttributes.addFlashAttribute("mensajeExito", "Colaboración registrada correctamente!");
+    return "redirect:/";
     }
 
 
