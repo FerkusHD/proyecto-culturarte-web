@@ -317,11 +317,6 @@
                         <a href="${pageContext.request.contextPath}/propuestas/registroColaboracion?titulo=${propuesta.titulo}"
                         class="btn btn-success btn-lg">Colaborar con esta propuesta</a>
                     </div>
-                        <div class="text-center mb-3">
-                            <a class="btn btn-primary btn-lg">
-                                <i class="bi"></i> Agregar comentario
-                            </a>
-                        </div>
                 </c:if>
 
                 <c:if test="${sessionScope.usuarioLogueado.tipo eq 'proponente' && sessionScope.usuarioLogueado.nickname eq propuesta.proponente && propuesta.estadoActual ne 'CANCELADA'}">
