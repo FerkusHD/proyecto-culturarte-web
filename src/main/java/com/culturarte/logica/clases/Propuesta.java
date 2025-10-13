@@ -43,6 +43,9 @@ public class Propuesta {
     @ManyToOne
     private Categoria categoria;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comentario> comentarios;
+
     public Propuesta() {
     }
 
@@ -59,6 +62,7 @@ public class Propuesta {
         this.categoria = categoria;
         this.colaboraciones = new ArrayList<>();
         this.historialEstados = new ArrayList<>();
+        this.comentarios = new ArrayList<>();
 
     }
 
@@ -187,5 +191,16 @@ public class Propuesta {
     public void agregarEstado(Estado estado) {
         this.historialEstados.add(estado);
         this.estadoActual = estado;
+    }
+
+    public void agregarComentario(Comentario comentario) {
+        if (this.comentarios == null) {
+            this.comentarios = new ArrayList<>();
+        }
+        this.comentarios.add(comentario);
+    }
+
+    public List<Comentario> getComentarios() {
+        return comentarios;
     }
 }

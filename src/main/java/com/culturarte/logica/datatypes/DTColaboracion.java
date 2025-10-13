@@ -6,6 +6,7 @@ package com.culturarte.logica.datatypes;
 import com.culturarte.logica.enums.TipoRetorno;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 /**
  *
@@ -19,6 +20,7 @@ public class DTColaboracion {
     private TipoRetorno tipoRetorno;
     private String tituloPropuesta;
     private String nickColaborador;
+    private DTPropuesta propuesta;
     
     public DTColaboracion(String nickColaborador,String tituloPropuesta, LocalDate fecha, LocalTime hora, float monto, TipoRetorno tipoRetorno) {
         this.tituloPropuesta = tituloPropuesta;
@@ -27,6 +29,13 @@ public class DTColaboracion {
         this.tipoRetorno = tipoRetorno;
         this.nickColaborador = nickColaborador;
         this.hora = hora;
+    }
+
+    public DTColaboracion(float monto, LocalDate fecha, TipoRetorno tipoRetorno, DTPropuesta propuesta) {
+        this.monto = monto;
+        this.fecha = fecha;
+        this.tipoRetorno = tipoRetorno;
+        this.propuesta = propuesta;
     }
 
     public LocalTime getHora() {
@@ -56,7 +65,37 @@ public class DTColaboracion {
     public TipoRetorno getTipoRetorno() {
         return tipoRetorno;
     }
-    
-    
+
+    public void setMonto(float monto) {
+        this.monto = monto;
+    }
+
+    public void setFecha(LocalDate fecha) {
+        this.fecha = fecha;
+    }
+
+    public void setHora(LocalTime hora) {
+        this.hora = hora;
+    }
+
+    public void setTipoRetorno(TipoRetorno tipoRetorno) {
+        this.tipoRetorno = tipoRetorno;
+    }
+
+    public void setTituloPropuesta(String tituloPropuesta) {
+        this.tituloPropuesta = tituloPropuesta;
+    }
+
+    public void setNickColaborador(String nickColaborador) {
+        this.nickColaborador = nickColaborador;
+    }
+
+    public DTPropuesta getPropuesta() {
+        return propuesta;
+    }
+
+    public void setPropuesta(DTPropuesta propuesta) {
+        this.propuesta = propuesta;
+    }
 }
 

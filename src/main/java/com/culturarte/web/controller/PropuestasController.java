@@ -256,5 +256,59 @@ public class PropuestasController {
         }
     }
 
+    @PostMapping("/agregarComentario")
+    public String agregarComentario(
+            @RequestParam String tituloPropuesta,
+            @RequestParam(required = false) String texto,  // ← Hacerlo opcional
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        System.out.println("=== DEBUG AGREGAR COMENTARIO ===");
+        System.out.println("tituloPropuesta: " + tituloPropuesta);
+        System.out.println("texto: " + texto);
+
+        try {
+            DTUsuario usuario = (DTUsuario) session.getAttribute("usuarioLogueado");
+
+            // Validaciones
+            if (usuario == null) {
+                redirectAttributes.addFlashAttribute("mensajeError", "Debes estar logueado para comentar");
+                return "redirect:/propuestas/" + tituloPropuesta;
+            }
+
+            if (!"colaborador".equals(usuario.getTipo())) {
+                redirectAttributes.addFlashAttribute("mensajeError", "Solo los colaboradores pueden comentar");
+                return "redirect:/propuestas/" + tituloPropuesta;
+            }
+
+            // Esta validación ahora va después porque texto puede ser null
+            if (texto == null || texto.trim().isEmpty()) {
+                redirectAttributes.addFlashAttribute("mensajeError", "El comentario no puede estar vacío");
+                return "redirect:/propuestas/" + tituloPropuesta;
+            }
+
+            // Verificar que el colaborador haya colaborado con esta propuesta
+            DTPropuesta propuesta = ctrl.getDTPropuesta(tituloPropuesta);
+            if (propuesta == null) {
+                redirectAttributes.addFlashAttribute("mensajeError", "La propuesta no existe");
+                return "redirect:/propuestas/buscar";
+            }
+
+            if (!propuesta.getColaboradores().contains(usuario.getNickname())) {
+                redirectAttributes.addFlashAttribute("mensajeError", "Debes ser colaborador de esta propuesta para comentar");
+                return "redirect:/propuestas/" + tituloPropuesta;
+            }
+
+            // Llamar a tu método ya implementado
+            ctrl.agregarComentario(texto, usuario.getNickname(), tituloPropuesta);
+
+            redirectAttributes.addFlashAttribute("mensajeExito", "Comentario agregado correctamente");
+            return "redirect:/propuestas/" + tituloPropuesta;
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("mensajeError", "Error al agregar comentario: " + e.getMessage());
+            return "redirect:/propuestas/" + tituloPropuesta;
+        }
+    }
 
 }

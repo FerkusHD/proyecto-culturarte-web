@@ -115,20 +115,16 @@ public class Controlador implements IControlador{
                 c.getImagen()
         );
 
+        ArrayList<DTColaboracion> colaboraciones = new ArrayList<>();
         for (Colaboracion colab : c.getColaboraciones()) {
             Propuesta prop = mp.getPropuesta(colab.getPropuesta().getTitulo());
             if (prop != null) {
-                DTPropuesta dtp = new DTPropuesta(
-                        prop.getTitulo(),
-                        prop.getEstadoActual().getEstado(),
-                        prop.getProponente().getNickname(),
-                        prop.getMontoRecaudado(),
-                        prop.getMontoNecesario()
-                );
-                dtc.addPropuesta(dtp);
+                DTPropuesta dtp = new DTPropuesta(prop);
+                colaboraciones.add(new DTColaboracion(colab.getMonto(), colab.getFechaAporte(), colab.getTipoRetorno(), dtp));
             }
         }
 
+        dtc.setColaboraciones(colaboraciones);
         return dtc;
     }
     
@@ -141,7 +137,7 @@ public class Controlador implements IControlador{
         DTProponente dtp = new DTProponente(p.getNickname(), p.getPassword(), p.getNombre(), p.getApellido(), p.getEmail(), p.getFechaNacimiento(), p.getImagen(), p.getDireccion(), p.getLinkWeb(), p.getBiografia());
         
         for (Propuesta prop : p.getPropuestas()) {
-            dtp.addPropuesta(new DTPropuesta(prop.getTitulo(), prop.getEstadoActual().getEstado() , prop.getNicknameColaboradores(), prop.getMontoRecaudado(), prop.getMontoNecesario()));
+            dtp.addPropuesta(new DTPropuesta(prop));
         }
        
         return dtp;
@@ -303,8 +299,21 @@ public class Controlador implements IControlador{
             for (Estado est : p.getHistorialEstados()) {
                 histEstado.add(new DTEstado(est.getEstado().toString(), est.getFecha().toString(), est.getHora().format(formatter)));
             }
-    
-            dtp = new DTPropuesta(p.getTitulo(), p.getDescripcion(), p.getLugar(), p.getFechaPrevista(), p.getPrecioEntrada(), p.getMontoNecesario(), p.getImagen(), p.getNicknameColaboradores(), p.getProponenteNick(), p.getEstadoActual().getEstado(), nombreCategoria, histEstado, p.getMontoRecaudado());
+            ArrayList<DTComentario> comentariosDT = new ArrayList<>();
+
+            if (p.getComentarios() != null) {
+                for (Comentario comentario : p.getComentarios()) {
+                    DTComentario dtComentario = new DTComentario(
+                            comentario.getTexto(),
+                            comentario.getColaborador(),
+                            comentario.getPropuesta(),
+                            LocalDate.now()
+                    );
+                    comentariosDT.add(dtComentario);
+                }
+            }
+
+            dtp = new DTPropuesta(p.getTitulo(), p.getDescripcion(), p.getLugar(), p.getFechaPrevista(), p.getPrecioEntrada(), p.getMontoNecesario(), p.getImagen(), p.getNicknameColaboradores(), p.getProponenteNick(), p.getEstadoActual().getEstado(), nombreCategoria, histEstado, p.getMontoRecaudado(), comentariosDT);
         }
         return dtp;
     }
@@ -370,7 +379,9 @@ public class Controlador implements IControlador{
         }
         
         seguidor.addUsuariosSeguidos(seguido);
+        seguido.addUsuarioSeguidor(seguidor);
         mu.actualizarUsuario(seguidor);
+        mu.actualizarUsuario(seguido);
     }
     
     @Override 
@@ -379,7 +390,9 @@ public class Controlador implements IControlador{
         Usuario seguido = mu.buscarUsuario(nickSeguido);
         if(seguidor.getUsuariosSeguidos().contains(seguido)){
             seguidor.getUsuariosSeguidos().remove(seguido);
+            seguido.getUsuariosSeguidores().remove(seguidor);
             mu.actualizarUsuario(seguidor);
+            mu.actualizarUsuario(seguido);
         }else{
             throw new UsuarioNoSeguido("El usuario con nickname: " + nickSeguidor + ", no sigue al usuario con nickname: " + nickSeguido);
         }
@@ -392,18 +405,41 @@ public class Controlador implements IControlador{
         // if (usu == null) usu = mu.buscarUsuarioPorEmail(nickname);
         if (usu == null) return null;
 
-        ArrayList<String> nickSeguidos = new ArrayList<>();
+        ArrayList<DTUsuario> usuariosSeguidos = new ArrayList<>();
         for(Usuario u : usu.getUsuariosSeguidos()){
-            nickSeguidos.add(u.getNickname());
+            String tipo = null;
+            if(u instanceof Colaborador){
+                tipo = "colaborador";
+            } else if (u instanceof  Proponente){
+                tipo = "proponente";
+            }
+            usuariosSeguidos.add(new DTUsuario(u.getNickname(), tipo, u.getImagen()));
         }
-        
-        DTUsuario dtu = new DTUsuario(usu.getNickname(), usu.getNombre(), usu.getApellido(), usu.getEmail(), usu.getFechaNacimiento(), nickSeguidos, usu.getImagen());
 
-        if(usu instanceof Colaborador){
-            dtu.setTipo("colaborador");
-        } else if (usu instanceof  Proponente){
-            dtu.setTipo("proponente");
+        ArrayList<DTUsuario> usuariosSeguidores = new ArrayList<>();
+        for(Usuario u : usu.getUsuariosSeguidores()){
+            String tipo = null;
+            if(u instanceof Colaborador){
+                tipo = "colaborador";
+            } else if (u instanceof  Proponente){
+                tipo = "proponente";
+            }
+            usuariosSeguidores.add(new DTUsuario(u.getNickname(), tipo, u.getImagen()));
         }
+
+        ArrayList<DTPropuesta> propuestasSeguidas = new ArrayList<>();
+        for(Propuesta p : usu.getPropuestasSeguidas()) {
+            propuestasSeguidas.add(getDTPropuesta(p.getTitulo()));
+        }
+
+        String tipo = null;
+        if(usu instanceof Colaborador){
+            tipo = "colaborador";
+        } else if (usu instanceof  Proponente){
+            tipo = "proponente";
+        }
+
+        DTUsuario dtu = new DTUsuario(usu.getNickname(), usu.getNombre(), usu.getApellido(), usu.getEmail(), usu.getFechaNacimiento(), usuariosSeguidos, usuariosSeguidores, tipo, usu.getImagen(), propuestasSeguidas);
 
         return dtu;
     }
@@ -510,6 +546,19 @@ public class Controlador implements IControlador{
                 .collect(Collectors.toList());
     }
 
+
+    @Override
+    public void agregarComentario(String texto, String nickColaborador, String tituloPropuesta) {
+        Colaborador c = (Colaborador) mu.buscarUsuario(nickColaborador);
+        Propuesta p = mp.getPropuesta(tituloPropuesta);
+        if (c == null || p == null) {
+            throw new IllegalArgumentException("Colaborador o Propuesta no encontrados");
+        }
+        Comentario comentario = new Comentario(texto, c, p, LocalDate.now());
+        p.agregarComentario(comentario);
+        c.agregarComentario(comentario);
+        mp.actualizarPropuesta(p);
+    }
 
     @Override
     public void modificarPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, 

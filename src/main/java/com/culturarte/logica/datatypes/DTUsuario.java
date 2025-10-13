@@ -17,21 +17,25 @@ public class DTUsuario {
     private String apellido;
     private String email;
     private LocalDate fechaNacimiento;
-    private ArrayList<String> usuariosSeguidos;
+    private ArrayList<DTUsuario> usuariosSeguidos;
+    private ArrayList<DTUsuario> usuariosSeguidores;
+    private ArrayList<DTPropuesta> propuestasSeguidas;
     private String imagen;
     private String tipo;
     
     public DTUsuario(){}
     
-    public DTUsuario(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, ArrayList<String> usuariosSeguidos, String imagen){
+    public DTUsuario(String nickname, String nombre, String apellido, String email, LocalDate fechaNacimiento, ArrayList<DTUsuario> usuariosSeguidos, ArrayList<DTUsuario> usuariosSeguidores, String tipo, String imagen, ArrayList<DTPropuesta> propuestasSeguidas) {
         this.nickname = nickname;
-        this.password = password;
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
         this.fechaNacimiento = fechaNacimiento;
         this.imagen = imagen;
         this.usuariosSeguidos = usuariosSeguidos;
+        this.usuariosSeguidores = usuariosSeguidores;
+        this.propuestasSeguidas = propuestasSeguidas;
+        this.tipo = tipo;
     }
 
     public DTUsuario(String nickname, String nombre, String apellido, String email, LocalDate fechaNacimiento, ArrayList<String> usuariosSeguidos, String imagen){
@@ -41,27 +45,29 @@ public class DTUsuario {
         this.email = email;
         this.fechaNacimiento = fechaNacimiento;
         this.imagen = imagen;
-        this.usuariosSeguidos = usuariosSeguidos;
+        //this.usuariosSeguidos = usuariosSeguidos;
     }
     
     public DTUsuario(String nickname, String nombre, ArrayList<String> usuariosSeguidos){
         this.nickname = nickname;
         this.nombre = nombre;
-        this.usuariosSeguidos = usuariosSeguidos;
+        //this.usuariosSeguidos = usuariosSeguidos;
+    }
+
+    public DTUsuario(String nickname, String tipo, String imagen){
+        this.nickname = nickname;
+        this.tipo = tipo;
+        this.imagen = imagen;
     }
 
     public DTUsuario(com.culturarte.logica.clases.Usuario u) {
         this.nickname = u.getNickname();
-        this.password = u.getPassword();
         this.nombre = u.getNombre();
         this.apellido = u.getApellido();
         this.email = u.getEmail();
         this.fechaNacimiento = u.getFechaNacimiento();
         this.imagen = u.getImagen();
         this.usuariosSeguidos = new ArrayList<>();
-        if (u.getUsuariosSeguidos() != null) {
-            u.getUsuariosSeguidos().forEach(seg -> this.usuariosSeguidos.add(seg.getNickname()));
-        }
         if (u instanceof com.culturarte.logica.clases.Proponente) {
             this.tipo = "proponente";
         } else{
@@ -78,7 +84,7 @@ public class DTUsuario {
         this.imagen = imagen;
     }
 
-    public ArrayList<String> getUsuariosSeguidos() {
+    public ArrayList<DTUsuario> getUsuariosSeguidos() {
         return usuariosSeguidos;
     }
 
@@ -130,7 +136,7 @@ public class DTUsuario {
         this.password = password;
     }
 
-    public void setUsuariosSeguidos(ArrayList<String> usuariosSeguidos) {
+    public void setUsuariosSeguidos(ArrayList<DTUsuario> usuariosSeguidos) {
         this.usuariosSeguidos = usuariosSeguidos;
     }
 
@@ -140,5 +146,38 @@ public class DTUsuario {
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
+    }
+
+    public void addUsuariosSeguidos(DTUsuario seguido){
+        this.usuariosSeguidos.add(seguido);
+    }
+
+    public void addUsuariosSeguidores(DTUsuario seguidor){
+        this.usuariosSeguidores.add(seguidor);
+    }
+
+    public ArrayList<DTUsuario> getUsuariosSeguidores() {
+        return usuariosSeguidores;
+    }
+
+    public void setUsuariosSeguidores(ArrayList<DTUsuario> usuariosSeguidores) {
+        this.usuariosSeguidores = usuariosSeguidores;
+    }
+
+    public ArrayList<DTPropuesta> getPropuestasSeguidas() {
+        return propuestasSeguidas;
+    }
+
+    public void setPropuestasSeguidas(ArrayList<DTPropuesta> propuestasSeguidas) {
+        this.propuestasSeguidas = propuestasSeguidas;
+    }
+
+    public boolean buscarUsuarioSeguido(String seguido) {
+        for (DTUsuario u : usuariosSeguidos) {
+            if (u.getNickname().equals(seguido)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

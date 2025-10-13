@@ -19,6 +19,7 @@ public class DTColaborador {
     private LocalDate fechaNacimiento;
     private String imagen;
     private ArrayList<DTPropuesta> propuestas;
+    private ArrayList<DTColaboracion> colaboraciones;
 
     public DTColaborador(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen) {
         this.nickname = nickname;
@@ -62,7 +63,48 @@ public class DTColaborador {
     public void addPropuesta(DTPropuesta p) {
         this.propuestas.add(p);
     }
-    
-    
-    
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
+
+    public void setPropuestas(ArrayList<DTPropuesta> propuestas) {
+        this.propuestas = propuestas;
+    }
+
+    public ArrayList<DTColaboracion> getColaboraciones() {
+        return colaboraciones;
+    }
+
+    public void setColaboraciones(ArrayList<DTColaboracion> colaboraciones) {
+        this.colaboraciones = colaboraciones;
+    }
 }

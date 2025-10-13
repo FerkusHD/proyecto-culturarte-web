@@ -118,7 +118,7 @@
         <c:otherwise>
             <div class="list-group">
                 <c:forEach var="u" items="${resultados}">
-                    <a href="${pageContext.request.contextPath}/usuarios/perfil/${u.nickname}"
+                    <a href="${pageContext.request.contextPath}/usuarios/${u.nickname}"
                        class="list-group-item list-group-item-action d-flex align-items-center">
                         <c:choose>
                             <c:when test="${not empty u.imagen}">
