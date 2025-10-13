@@ -71,9 +71,18 @@ public class UsuarioController {
     }
 
     @GetMapping("/{nick}")
-    public String mostrarPerfil(@PathVariable String nick, HttpSession httpSession, Model model) {
+    public String mostrarPerfil(@PathVariable String nick, HttpSession session, Model model) {
 
-        DTUsuario usuarioLogeado = (DTUsuario) httpSession.getAttribute("usuarioLogeado");
+
+        DTUsuario u = (DTUsuario) session.getAttribute("usuarioLogueado");
+        if (u == null) {
+            u = new DTUsuario();
+            u.setNickname("visitante");
+            u.setTipo("visitante");
+            session.setAttribute("usuarioLogueado", u);
+        }
+
+        model.addAttribute("usuarioLogueado", u);
 
         DTUsuario perfilVisitado = ctrl.getDTUsuario(nick);
 
@@ -81,8 +90,14 @@ public class UsuarioController {
             return "error/404";
         }
 
+        boolean esMiPerfil = false;
+        if (perfilVisitado.getNickname().equals(u.getNickname())) {
+            esMiPerfil = true;
+        }
+
+        model.addAttribute("esMiPropioPerfil", esMiPerfil);
         model.addAttribute("perfilVisitado", perfilVisitado);
-        model.addAttribute("usuarioLogeado", usuarioLogeado);
+
         return "perfil";
     }
 }

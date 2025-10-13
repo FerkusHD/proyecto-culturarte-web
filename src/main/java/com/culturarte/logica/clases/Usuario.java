@@ -23,6 +23,8 @@ public abstract class Usuario {
     private List<Propuesta> propuestasSeguidas;
     @ManyToMany
     private List<Usuario> usuariosSeguidos;
+    @ManyToMany
+    private List<Usuario> usuariosSeguidores;
     private String imagen;
 
     public Usuario() { }
@@ -37,6 +39,7 @@ public abstract class Usuario {
         this.imagen = imagen;
         this.propuestasSeguidas = new ArrayList<>();
         this.usuariosSeguidos = new ArrayList<>();
+        this.usuariosSeguidores = new ArrayList<>();
     }
 
     public String getImagen() {
@@ -104,7 +107,27 @@ public abstract class Usuario {
     public void setNickname(String nickname) {
         this.nickname = nickname;
     }
-    
+
+    public void setUsuariosSeguidos(List<Usuario> usuariosSeguidos) {
+        this.usuariosSeguidos = usuariosSeguidos;
+    }
+
+    public void setPropuestasSeguidas(List<Propuesta> propuestasSeguidas) {
+        this.propuestasSeguidas = propuestasSeguidas;
+    }
+
+    public List<Usuario> getUsuariosSeguidores() {
+        return usuariosSeguidores;
+    }
+
+    public void setUsuariosSeguidores(List<Usuario> usuariosSeguidores) {
+        this.usuariosSeguidores = usuariosSeguidores;
+    }
+
+    public void addUsuarioSeguidor(Usuario usuario) {
+        this.usuariosSeguidores.add(usuario);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

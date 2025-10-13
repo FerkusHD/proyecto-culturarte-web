@@ -370,7 +370,9 @@ public class Controlador implements IControlador{
         }
         
         seguidor.addUsuariosSeguidos(seguido);
+        seguido.addUsuarioSeguidor(seguidor);
         mu.actualizarUsuario(seguidor);
+        mu.actualizarUsuario(seguido);
     }
     
     @Override 
@@ -392,18 +394,41 @@ public class Controlador implements IControlador{
         // if (usu == null) usu = mu.buscarUsuarioPorEmail(nickname);
         if (usu == null) return null;
 
-        ArrayList<String> nickSeguidos = new ArrayList<>();
+        ArrayList<DTUsuario> usuariosSeguidos = new ArrayList<>();
         for(Usuario u : usu.getUsuariosSeguidos()){
-            nickSeguidos.add(u.getNickname());
+            String tipo = null;
+            if(u instanceof Colaborador){
+                tipo = "colaborador";
+            } else if (u instanceof  Proponente){
+                tipo = "proponente";
+            }
+            usuariosSeguidos.add(new DTUsuario(u.getNickname(), tipo, u.getImagen()));
         }
-        
-        DTUsuario dtu = new DTUsuario(usu.getNickname(), usu.getNombre(), usu.getApellido(), usu.getEmail(), usu.getFechaNacimiento(), nickSeguidos, usu.getImagen());
 
-        if(usu instanceof Colaborador){
-            dtu.setTipo("colaborador");
-        } else if (usu instanceof  Proponente){
-            dtu.setTipo("proponente");
+        ArrayList<DTUsuario> usuariosSeguidores = new ArrayList<>();
+        for(Usuario u : usu.getUsuariosSeguidores()){
+            String tipo = null;
+            if(u instanceof Colaborador){
+                tipo = "colaborador";
+            } else if (u instanceof  Proponente){
+                tipo = "proponente";
+            }
+            usuariosSeguidores.add(new DTUsuario(u.getNickname(), tipo, u.getImagen()));
         }
+
+        ArrayList<DTPropuesta> propuestasSeguidas = new ArrayList<>();
+        for(Propuesta p : usu.getPropuestasSeguidas()) {
+            propuestasSeguidas.add(getDTPropuesta(p.getTitulo()));
+        }
+
+        String tipo = null;
+        if(usu instanceof Colaborador){
+            tipo = "colaborador";
+        } else if (usu instanceof  Proponente){
+            tipo = "proponente";
+        }
+
+        DTUsuario dtu = new DTUsuario(usu.getNickname(), usu.getNombre(), usu.getApellido(), usu.getEmail(), usu.getFechaNacimiento(), usuariosSeguidos, usuariosSeguidores, tipo, usu.getImagen(), propuestasSeguidas);
 
         return dtu;
     }
