@@ -1,23 +1,21 @@
-package com.culturarte.logica.clases;
+package com.culturarte.logica.datatypes;
 
+import com.culturarte.logica.clases.Colaborador;
+import com.culturarte.logica.clases.Propuesta;
 import jakarta.persistence.*;
+
 import java.time.LocalDate;
 
-@Entity
-public class Comentario {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class DTComentario {
     private int id;
     private String texto;
-    @ManyToOne(fetch = FetchType.EAGER)
     private Colaborador colaborador;
-    @ManyToOne(fetch = FetchType.EAGER)
     private Propuesta propuesta;
     private LocalDate fecha;
 
-    public Comentario() {}
+    public DTComentario() {}
 
-    public Comentario(String texto, Colaborador colaborador, Propuesta propuesta, LocalDate fecha) {
+    public DTComentario(String texto, Colaborador colaborador, Propuesta propuesta, LocalDate fecha) {
         this.texto = texto;
         this.colaborador = colaborador;
         this.propuesta = propuesta;

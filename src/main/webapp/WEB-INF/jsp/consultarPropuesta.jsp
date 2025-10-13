@@ -95,6 +95,21 @@
     </nav>
 </header>
 
+<!-- Alertas para mensajes de éxito/error -->
+<c:if test="${not empty mensajeExito}">
+    <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>${mensajeExito}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</c:if>
+
+<c:if test="${not empty mensajeError}">
+    <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>${mensajeError}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</c:if>
+
 <div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-12 text-center">
@@ -171,6 +186,11 @@
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="financiacion-tab" data-bs-toggle="tab"
                                     data-bs-target="#financiacion" type="button" role="tab">Financiación
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="comentarios-tab" data-bs-toggle="tab"
+                                    data-bs-target="#comentarios" type="button" role="tab">Comentarios
                             </button>
                         </li>
                     </ul>
@@ -263,6 +283,63 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="tab-pane fade" id="comentarios" role="tabpanel">
+                            <h4 class="text-primary mb-3">Comentarios</h4>
+
+                            <!-- Formulario para agregar comentario -->
+                            <c:if test="${sessionScope.usuarioLogueado.tipo eq 'colaborador' && propuesta.colaboradores.contains(sessionScope.usuarioLogueado.nickname)}">
+                                <div class="card mb-4 border-primary">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0"><i class="bi bi-chat-left-text"></i> Agregar Comentario</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <form action="${pageContext.request.contextPath}/propuestas/agregarComentario" method="post">
+                                            <input type="hidden" name="tituloPropuesta" value="${propuesta.titulo}">
+                                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                            <div class="mb-3">
+                                                <label for="comentarioTexto" class="form-label">Tu comentario:</label>
+                                                <textarea class="form-control" id="comentarioTexto" name="texto" rows="3" maxlength="500" placeholder="Escribe tu comentario aquí..." required></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-send"></i> Publicar Comentario
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </c:if>
+
+                            <!-- Lista de comentarios -->
+                            <div class="comentarios-lista">
+                                <c:choose>
+                                    <c:when test="${not empty propuesta.comentarios && propuesta.comentarios.size() > 0}">
+                                        <c:forEach var="comentario" items="${propuesta.comentarios}">
+                                            <div class="card mb-3 border-light shadow-sm">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="bi bi-person-circle text-primary me-2 fs-5"></i>
+                                                            <strong class="me-2">${comentario.colaborador}</strong>
+                                                            <span class="text-muted small">
+                                                                ${comentario.fecha}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <p class="card-text mb-0">${comentario.texto}</p>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="text-center py-5">
+                                            <i class="bi bi-chat-left-text fs-1 text-muted mb-3"></i>
+                                            <h5 class="text-muted">Aún no hay comentarios</h5>
+                                            <p class="text-muted">Sé el primero en comentar sobre esta propuesta</p>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -271,11 +348,6 @@
                 <div class="text-center mb-3">
                     <a href="${pageContext.request.contextPath}/propuestas/registroColaboracion?titulo=${propuesta.titulo}"
                     class="btn btn-success btn-lg">Colaborar con esta propuesta</a>
-                </div>
-                <div class="text-center mb-3">
-                    <a class="btn btn-primary btn-lg">
-                        <i class="bi bi-chat-left-text"></i> Agregar comentario
-                    </a>
                 </div>
             </c:if>
 

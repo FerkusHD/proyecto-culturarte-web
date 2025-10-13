@@ -62,4 +62,5 @@ public interface IControlador {
     public abstract List<DTPropuesta> buscarPropuestas(String texto);
     public abstract String[] getTiposRetorno();
     public abstract void extenderFinanciacion(String tituloPropuesta, LocalDate nuevaFecha);
+    public abstract void agregarComentario(String texto, String nickColaborador, String tituloPropuesta);
 }
