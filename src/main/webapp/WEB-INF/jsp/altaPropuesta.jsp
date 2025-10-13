@@ -94,77 +94,88 @@
         </div>
     </nav>
 </header>
-   <div class="container my-5">
-       <div class="text-center mb-4">
-           <h1>Crear Nueva Propuesta</h1>
-       </div>
-   <form action="${pageContext.request.contextPath}/propuestas/alta" method="post">
 
-        <div class="mb-3">
-            <label for="titulo" class="form-label">Título</label>
-            <input id="titulo" name="titulo" type="text" maxlength="50" class="form-control " value="${titulo != null ? titulo : ''}" required>
-        </div>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <h1 class="h3">Crear Nueva Propuesta</h1>
+                        <p class="text-muted">Complete todos los campos para crear su propuesta</p>
+                    </div>
 
-        <div class="mb-3">
-            <label for="descripcion" class="form-label"  >Descripción </label>
-            <textarea id="descripcion" name="descripcion" maxlength="500" class="form-control " required>${descripcion != null ? descripcion : ''}</textarea>
-        </div>
+                    <form action="${pageContext.request.contextPath}/propuestas/alta" method="post">
+                        <div class="mb-3">
+                            <label for="titulo" class="form-label">Título</label>
+                            <input id="titulo" name="titulo" type="text" maxlength="50" class="form-control" value="${titulo != null ? titulo : ''}" required>
+                        </div>
 
-        <div class="mb-3">
-            <label for="lugar" class="form-label">Lugar</label>
-            <input id="lugar" name="lugar" type="text" maxlength="100" class="form-control" value="${lugar != null ? lugar : ''}" required>
-        </div>
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <textarea id="descripcion" name="descripcion" maxlength="500" class="form-control" rows="4" required>${descripcion != null ? descripcion : ''}</textarea>
+                        </div>
 
-        <div class="mb-3">
-        <label for="fecha">Fecha </label>
-        <input id="fecha"  name="fechaPrevista" type="date" class="form-control " value="${date}" required>
-        </div>
+                        <div class="mb-3">
+                            <label for="lugar" class="form-label">Lugar</label>
+                            <input id="lugar" name="lugar" type="text" maxlength="100" class="form-control" value="${lugar != null ? lugar : ''}" required>
+                        </div>
 
-        <div class="mb-3">
-            <label for="categoria" class="form-label">Categoría </label>
-            <select id="categoria" name="categoria" class="form-select" required>
-                <option value="" selected disabled >Selecciona una categoría</option>
-                <c:forEach var="cat" items="${categorias}">
-                    <option value="${cat}">${cat}</option>
-                </c:forEach>
-            </select>
-        </div>
+                        <div class="mb-3">
+                            <label for="fecha" class="form-label">Fecha</label>
+                            <input id="fecha" name="fechaPrevista" type="date" class="form-control" value="${date}" required>
+                        </div>
 
-        <div class="mb-3">
-            <label for="Tipo de retorno" class="form-label">Tipo de retorno </label>
-            <select class="form-select" id="tiposRetorno" name="tiposRetorno[]" multiple required>
-                <option value="" selected disabled >Selecciona un tipo de retorno</option>
-                <c:forEach var="tipo" items="${tiposRetorno}">
-                    <option value="${tipo}">${tipo}</option>
-                </c:forEach>
-            </select>
-        </div>
+                        <div class="mb-3">
+                            <label for="categoria" class="form-label">Categoría</label>
+                            <select id="categoria" name="categoria" class="form-select" required>
+                                <option value="" selected disabled>Selecciona una categoría</option>
+                                <c:forEach var="cat" items="${categorias}">
+                                    <option value="${cat}">${cat}</option>
+                                </c:forEach>
+                            </select>
+                        </div>
 
-        <div class="mb-3">
-            <label for="montoEntrada" class="form-label">Precio por Entrada (UYU) </label>
-            <input id="montoEntrada" name="montoEntrada" type="number" min="1" class="form-control" value="${montoEntrada != null ? montoEntrada : ''}" required>
-        </div>
+                        <div class="mb-3">
+                            <label for="tiposRetorno" class="form-label">Tipo de retorno</label>
+                            <select class="form-select" id="tiposRetorno" name="tiposRetorno[]" multiple required>
+                                <option value="" selected disabled>Selecciona un tipo de retorno</option>
+                                <c:forEach var="tipo" items="${tiposRetorno}">
+                                    <option value="${tipo}">${tipo}</option>
+                                </c:forEach>
+                            </select>
+                            <div class="form-text">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar múltiples opciones</div>
+                        </div>
 
-        <div class="mb-3">
-            <label for="montoNecesario" class="form-label">Monto Total Necesario (UYU) </label>
-            <input id="montoNecesario" name="montoNecesario" type="number" min="1" class="form-control" value="${montoNecesario != null ? montoNecesario : ''}" required>
-        </div>
+                        <div class="mb-3">
+                            <label for="montoEntrada" class="form-label">Precio por Entrada (UYU)</label>
+                            <input id="montoEntrada" name="montoEntrada" type="number" min="1" class="form-control" value="${montoEntrada != null ? montoEntrada : ''}" required>
+                        </div>
 
-        <div class="mb-3">
-            <label for="imagen" class="form-label">Subir imagen:</label>
-            <input type="file" id="imagen" name="imagen" accept="image/*">
+                        <div class="mb-3">
+                            <label for="montoNecesario" class="form-label">Monto Total Necesario (UYU)</label>
+                            <input id="montoNecesario" name="montoNecesario" type="number" min="1" class="form-control" value="${montoNecesario != null ? montoNecesario : ''}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="imagen" class="form-label">Subir imagen:</label>
+                            <input type="file" id="imagen" name="imagen" accept="image/*" class="form-control">
+                        </div>
+
+                        <c:if test="${not empty mensaje}">
+                            <div class="alert alert-info" role="alert">
+                                ${mensaje}
+                            </div>
+                        </c:if>
+
+                        <button type="submit" class="btn btn-success w-100 py-2">Crear Propuesta</button>
+                    </form>
+                </div>
             </div>
-
-       <c:if test="${not empty mensaje}">
-           <p>${mensaje}</p>
-       </c:if>
-
-        <button type="submit" class="btn btn-success w-100">Crear Propuesta</button>
-
-
-    </form>
+        </div>
     </div>
+</div>
 
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

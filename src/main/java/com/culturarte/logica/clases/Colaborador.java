@@ -1,6 +1,8 @@
 package com.culturarte.logica.clases;
 import java.time.LocalDate;
 import java.util.ArrayList;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
@@ -10,6 +12,8 @@ import java.util.List;
 public class Colaborador extends Usuario {
     @OneToMany(mappedBy="colaborador", fetch = FetchType.EAGER)
     private List<Colaboracion> colaboraciones;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comentario> comentarios;
 
     public Colaborador() {}
 
@@ -24,6 +28,13 @@ public class Colaborador extends Usuario {
 
     public void addColaboracion(Colaboracion colaboracion) {
         this.colaboraciones.add(colaboracion);
+    }
+
+    public void agregarComentario(Comentario comentario) {
+        if (this.comentarios == null) {
+            this.comentarios = new ArrayList<>();
+        }
+        this.comentarios.add(comentario);
     }
 
 }

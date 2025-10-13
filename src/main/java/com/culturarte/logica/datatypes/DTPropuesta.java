@@ -4,6 +4,7 @@
  */
 package com.culturarte.logica.datatypes;
 
+import com.culturarte.logica.clases.Comentario;
 import com.culturarte.logica.clases.Propuesta;
 import com.culturarte.logica.enums.TipoEstado;
 import java.time.LocalDate;
@@ -25,11 +26,11 @@ public class DTPropuesta {
     private String categoria;
     private String nickProponente;
     private int cantColaboradores;
-
+    private List<DTComentario> comentarios = new ArrayList<>();
     
     public DTPropuesta(){}
 
-    public DTPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, float precioEntrada, float montoNecesario, String imagen, ArrayList<String> colaboradores, String nickProponente, TipoEstado estadoActual, String categoria, ArrayList<DTEstado> histEstados, float montoRecaudado){
+    public DTPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, float precioEntrada, float montoNecesario, String imagen, ArrayList<String> colaboradores, String nickProponente, TipoEstado estadoActual, String categoria, ArrayList<DTEstado> histEstados, float montoRecaudado, List<DTComentario> comentarios) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.lugar = lugar;
@@ -43,6 +44,7 @@ public class DTPropuesta {
         this.nickProponente = nickProponente;
         this.histEstados = histEstados;
         this.montoRecaudado = montoRecaudado;
+        this.comentarios = comentarios;
     }
     
     public DTPropuesta(String titulo, TipoEstado estado, ArrayList<String> colaboradores, float montoRecaudado, float montoNecesario) {
@@ -167,6 +169,24 @@ public class DTPropuesta {
 
     public void setCantColaboradores(int cantColaboradores) {
         this.cantColaboradores = cantColaboradores;
+    }
+
+    public List<DTComentario> getComentarios() {
+        if (this.comentarios == null) {
+            this.comentarios = new ArrayList<>();
+        }
+        return comentarios;
+    }
+
+    public void setComentarios(List<DTComentario> comentarios) {
+        this.comentarios = comentarios;
+    }
+
+    public void agregarComentario(DTComentario comentario) {
+        if (this.comentarios == null) {
+            this.comentarios = new ArrayList<>();
+        }
+        this.comentarios.add(comentario);
     }
 }
 

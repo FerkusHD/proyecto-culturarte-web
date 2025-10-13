@@ -303,7 +303,20 @@ public class Controlador implements IControlador{
             for (Estado est : p.getHistorialEstados()) {
                 histEstado.add(new DTEstado(est.getEstado().toString(), est.getFecha().toString(), est.getHora().format(formatter)));
             }
-    
+            ArrayList<DTComentario> comentariosDT = new ArrayList<>();
+
+            if (p.getComentarios() != null) {
+                for (Comentario comentario : p.getComentarios()) {
+                    DTComentario dtComentario = new DTComentario(
+                            comentario.getTexto(),
+                            comentario.getColaborador(),
+                            comentario.getPropuesta(),
+                            LocalDate.now()
+                    );
+                    comentariosDT.add(dtComentario);
+                }
+            }
+
             dtp = new DTPropuesta(p.getTitulo(), p.getDescripcion(), p.getLugar(), p.getFechaPrevista(), p.getPrecioEntrada(), p.getMontoNecesario(), p.getImagen(), p.getNicknameColaboradores(), p.getProponenteNick(), p.getEstadoActual().getEstado(), nombreCategoria, histEstado, p.getMontoRecaudado());
         }
         return dtp;
@@ -535,6 +548,19 @@ public class Controlador implements IControlador{
                 .collect(Collectors.toList());
     }
 
+
+    @Override
+    public void agregarComentario(String texto, String nickColaborador, String tituloPropuesta) {
+        Colaborador c = (Colaborador) mu.buscarUsuario(nickColaborador);
+        Propuesta p = mp.getPropuesta(tituloPropuesta);
+        if (c == null || p == null) {
+            throw new IllegalArgumentException("Colaborador o Propuesta no encontrados");
+        }
+        Comentario comentario = new Comentario(texto, c, p, LocalDate.now());
+        p.agregarComentario(comentario);
+        c.agregarComentario(comentario);
+        mp.actualizarPropuesta(p);
+    }
 
     @Override
     public void modificarPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, 
