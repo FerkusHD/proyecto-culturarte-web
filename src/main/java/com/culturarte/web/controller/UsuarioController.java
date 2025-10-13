@@ -2,6 +2,7 @@ package com.culturarte.web.controller;
 
 import com.culturarte.exepciones.UsuarioYaExiste;
 import com.culturarte.logica.IControlador;
+import com.culturarte.logica.datatypes.DTPropuesta;
 import com.culturarte.logica.datatypes.DTUsuario;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.util.List;
+
 @Controller
 @RequestMapping("/usuarios")
 public class UsuarioController {
@@ -100,4 +103,13 @@ public class UsuarioController {
 
         return "perfil";
     }
+
+    @GetMapping("/buscar")
+    public String buscarUsuarios(@RequestParam(required = false) String nombre, Model model) {
+        List<DTUsuario> resultados = ctrl.buscarUsuarios(nombre);
+        model.addAttribute("resultados", resultados);
+        model.addAttribute("nombre", nombre);
+        return "busquedaUsuario";
+    }
+
 }

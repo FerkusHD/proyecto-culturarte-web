@@ -2,22 +2,18 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-
-    <title>Culturarte</title>
-
     <meta charset="UTF-8">
+    <title>Buscar Usuarios - Culturarte</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/principal.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-</head>
-
-
 </head>
 
 <body>
+
 <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
         <div class="container-fluid">
@@ -71,7 +67,7 @@
                                 <span style="font-size: 16px; color: #333;">${sessionScope.usuarioLogueado.nombre} ${sessionScope.usuarioLogueado.apellido}</span>
 
                                 <div class="d-flex align-items-center" style="font-size: 13px;">
-                                    <a href="${pageContext.request.contextPath}/usuarios/${sessionScope.usuarioLogueado.nickname}" class="text-primary text-decoration-underline me-1">Perfil</a>
+                                    <a href="${pageContext.request.contextPath}/usuarios/perfil/${sessionScope.usuarioLogueado.nickname}" class="text-primary text-decoration-underline me-1">Perfil</a>
 
                                     <span class="text-muted">|</span>
 
@@ -96,46 +92,55 @@
     </nav>
 </header>
 
-<div class="tabs mb-0">
-    <ul class="nav nav-tabs border-bottom-0" role="tablist" id="proposalTabs">
+<main class="container mt-4">
 
-        <li class="nav-item" role="presentation">
-            <a class="nav-link active" data-bs-toggle="tab" href="#creadas" role="tab"
-               data-estado="PUBLICADA">Propuestas Creadas</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" data-bs-toggle="tab" href="#financiacion" role="tab"
-               data-estado="ENFINANCIACION">Propuestas en Financiación</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" data-bs-toggle="tab" href="#financiadas" role="tab"
-               data-estado="FINANCIADA">Propuestas Financiadas</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" data-bs-toggle="tab" href="#no-financiadas" role="tab"
-               data-estado="NOFINANCIADA">Propuestas NO Financiadas</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" data-bs-toggle="tab" href="#canceladas" role="tab"
-               data-estado="CANCELADA">Propuestas Canceladas</a>
-        </li>
-    </ul>
-</div>
+    <h2 class="mb-3">Buscar Usuarios</h2>
 
-<hr class="mt-0 mb-4" style="border-top: 2px solid #ced4da; opacity: 1;">
+    <!-- Formulario de búsqueda -->
+    <form class="row g-3 align-items-center mb-4"
+          action="${pageContext.request.contextPath}/usuarios/buscar"
+          method="get">
+        <div class="col-md-6 position-relative">
+            <input type="text" id="buscador" name="nombre" class="form-control"
+                   placeholder="Buscar por nombre o nickname"
+                   value="${nombre}" autocomplete="off" />
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Buscar</button>
+        </div>
+    </form>
 
-<div class="tab-content">
-</div>
+    <!-- Resultados -->
+    <c:choose>
+        <c:when test="${empty resultados}">
+            <div class="alert alert-warning">No se encontraron usuarios.</div>
+        </c:when>
+        <c:otherwise>
+            <div class="list-group">
+                <c:forEach var="u" items="${resultados}">
+                    <a href="${pageContext.request.contextPath}/usuarios/perfil/${u.nickname}"
+                       class="list-group-item list-group-item-action d-flex align-items-center">
+                        <c:choose>
+                            <c:when test="${not empty u.imagen}">
+                                <img src="${u.imagen}" ... />
+                            </c:when>
+                            <c:otherwise>
+                                <img src="${pageContext.request.contextPath}/img/user-placeholder.png" ... />
+                            </c:otherwise>
+                        </c:choose>
+                        <div>
+                            <h6 class="mb-0">${u.nombre} ${u.apellido}</h6>
+                            <small class="text-muted">@${u.nickname} — ${u.tipo}</small>
+                        </div>
+                    </a>
+                </c:forEach>
+            </div>
+        </c:otherwise>
+    </c:choose>
 
-<!-- Lista las propuestas -->
- <section id="tarjetas" class="tarjetas"></section>
+</main>
 
-<!-- Categorías -->
-<div id="categorias" class="categorias"></div>
-
-    <script src="${pageContext.request.contextPath}/js/propuestasAndCategorias.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="${pageContext.request.contextPath}/js/busquedaAjax.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
