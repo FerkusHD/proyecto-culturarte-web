@@ -1,118 +1,159 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
+    <title>Registro - Culturarte</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Culturarte</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/altaUsuario.css">
 
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/principal.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Bienvenido/a a Culturarte</h1>
-    <div class="culturarte">Culturarte</div>
-    <form action="${pageContext.request.contextPath}/usuarios/alta" method="post">
-         <div class="formulario">
-            <label for="nickname">Nickname</label>
-            <input id="nickname" name="nickname" type="text" maxlength="30" placeholder="nickname" value="${nickname}" required>
-         </div>
 
-         <div class="formulario">
-            <label for="nombre">Nombre</label>
-            <input id="nombre"  name="nombre" type="text" placeholder="nombre" value="${nombre}" required>
-         </div>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="${pageContext.request.contextPath}/">Culturarte</a>
 
-         <div class="formulario">
-            <label for="apellido">Apellido</label>
-            <input id="apellido"  name="apellido" type="text" placeholder="apellido" value="${apellido}" required>
-         </div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-         <div class="formulario">
-            <label for="password">Contraseña</label>
-            <input id="password"  name="password" type="password" placeholder="contraseña" value="${password}" required>
-         </div>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-normal" href="${pageContext.request.contextPath}/usuarios/buscar">
+                            Buscar usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-normal" href="${pageContext.request.contextPath}/propuestas/buscar">
+                            Buscar propuestas
+                        </a>
+                    </li>
+                </ul>
 
-        <div class="formulario">
-            <label for="confirmar">Confirmar contraseña</label>
-            <input id="confirmar" name="confirmar" type="password" placeholder="confirmar" value="${confirmar}" required>
+                <c:choose>
+                    <c:when test="${sessionScope.usuarioLogueado.tipo ne 'visitante'}">
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">${sessionScope.usuarioLogueado.nombre} ${sessionScope.usuarioLogueado.apellido}</span>
+                            <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-primary btn-sm">Salir</a>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="${pageContext.request.contextPath}/usuarios/alta" class="btn btn-primary btn-sm me-2">Registrarse</a>
+                        <a href="${pageContext.request.contextPath}/login" class="btn btn-outline-primary btn-sm">Entrar</a>
+                    </c:otherwise>
+                </c:choose>
+            </div>
         </div>
+    </nav>
+</header>
 
-        <div id="mensaje"></div>
+<main class="container mt-5" style="max-width: 600px;">
+    <div class="card shadow-sm p-4">
+        <h2 class="text-center mb-4">Registro de Usuario</h2>
 
-        <div class="formulario">
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" placeholder="email" value="${email}" required>
-        </div>
+        <form action="${pageContext.request.contextPath}/usuarios/alta" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="nickname" class="form-label">Nickname</label>
+                <input id="nickname" name="nickname" type="text" maxlength="30" placeholder="nickname"
+                       value="${nickname}" required class="form-control">
+            </div>
 
-         <div class="formulario">
-            <label for="fecha">Fecha de nacimiento</label>
-            <input id="fecha"  name="fecha" type="date" value="${date}" required>
-         </div>
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input id="nombre" name="nombre" type="text" placeholder="nombre" value="${nombre}" required class="form-control">
+            </div>
 
-         <div class="formulario">
-          <label for="imagen">Subir imagen:</label>
-          <input type="file" id="imagen" name="imagen" accept="image/*">
-         </div>
+            <div class="mb-3">
+                <label for="apellido" class="form-label">Apellido</label>
+                <input id="apellido" name="apellido" type="text" placeholder="apellido" value="${apellido}" required class="form-control">
+            </div>
 
-         <fieldset class="checkbox-group">
-          <legend>Selecciona tu rol</legend>
-          <label>
-            <input id="colaborador" onclick="cambiarPanelProponente()" type="radio" name="rol" value="colaborador"
-                   ${rol == 'colaborador' ? 'checked' : ''}required>
-            Colaborador
-          </label>
-          <label>
-            <input id="proponente" onclick="cambiarPanelProponente()" type="radio" name="rol" value="proponente"
-            ${rol == 'proponente' ? 'checked' : ''}>
-            Proponente
-          </label>
-        </fieldset>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input id="email" name="email" type="email" placeholder="email" value="${email}" required class="form-control">
+            </div>
 
-        <div class="campo-extra">
-            <label for="direccion">Dirección</label>
-            <input id="direccion" name="direccion" type="text" placeholder="direccion" value="${direccion}">
-         </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input id="password" name="password" type="password" placeholder="contraseña" required class="form-control">
+            </div>
 
-         <div class="campo-extra">
-            <label for="biografia">Biografia</label>
-            <textarea id="biografia" name="biografia" type="textarea" placeholder="biografia">${biografia}</textarea>
-         </div>
+            <div class="mb-3">
+                <label for="confirmar" class="form-label">Confirmar Contraseña</label>
+                <input id="confirmar" name="confirmar" type="password" placeholder="confirmar" required class="form-control">
+            </div>
 
-         <div class="campo-extra">
-            <label for="web">Sitio web</label>
-            <input id="web" name="web" type="text" placeholder="sitio web" value="${web}">
-         </div>
+            <div class="mb-3">
+                <label for="fecha" class="form-label">Fecha de nacimiento</label>
+                <input id="fecha" name="fecha" type="date" value="${date}" required class="form-control">
+            </div>
 
-        <c:if test="${not empty mensaje}">
-            <p>${mensaje}</p>
-        </c:if>
+            <div class="mb-3">
+                <label for="imagen" class="form-label">Subir imagen</label>
+                <input type="file" id="imagen" name="imagen" accept="image/*" class="form-control">
+            </div>
 
-         <button type="submit">Registrarse</button>
-   </form>
+            <fieldset class="mb-3">
+                <legend>Selecciona tu rol</legend>
+                <div class="form-check">
+                    <input id="colaborador" onclick="cambiarPanelProponente()" type="radio" name="rol" value="colaborador"
+                           class="form-check-input" ${rol == 'colaborador' ? 'checked' : ''} required>
+                    <label class="form-check-label" for="colaborador">Colaborador</label>
+                </div>
+                <div class="form-check">
+                    <input id="proponente" onclick="cambiarPanelProponente()" type="radio" name="rol" value="proponente"
+                           class="form-check-input" ${rol == 'proponente' ? 'checked' : ''}>
+                    <label class="form-check-label" for="proponente">Proponente</label>
+                </div>
+            </fieldset>
 
-    <script>
-        // Cambiar camposExtras
-       function cambiarPanelProponente() {
-           const proponente = document.getElementById('proponente');
-           const extras = document.querySelectorAll('.campo-extra');
+            <div class="mb-3 campo-extra">
+                <label for="direccion" class="form-label">Dirección</label>
+                <input id="direccion" name="direccion" type="text" placeholder="direccion" value="${direccion}" class="form-control">
+            </div>
 
-           if (proponente.checked) {
-               extras.forEach(div => div.style.display = 'block');
-           } else {
-               extras.forEach(div => div.style.display = 'none');
-           }
-       }
+            <div class="mb-3 campo-extra">
+                <label for="biografia" class="form-label">Biografía</label>
+                <textarea id="biografia" name="biografia" placeholder="biografia" class="form-control">${biografia}</textarea>
+            </div>
 
-       // Ocultar al cargar la página
-       window.addEventListener('DOMContentLoaded', () => {
-       const extras = document.querySelectorAll('.campo-extra');
-       extras.forEach(div => div.style.display = 'none');
-       });
-    </script>
+            <div class="mb-3 campo-extra">
+                <label for="web" class="form-label">Sitio web</label>
+                <input id="web" name="web" type="text" placeholder="sitio web" value="${web}" class="form-control">
+            </div>
 
-    <script src="${pageContext.request.contextPath}/js/validarContraseña.js"></script>
+            <c:if test="${not empty mensaje}">
+                <div class="alert alert-danger">${mensaje}</div>
+            </c:if>
+
+            <button type="submit" class="btn btn-primary w-100">Registrarse</button>
+        </form>
+    </div>
+</main>
+
+<script>
+    // Mostrar campos extra si es proponente
+    function cambiarPanelProponente() {
+        const proponente = document.getElementById('proponente');
+        const extras = document.querySelectorAll('.campo-extra');
+        extras.forEach(div => div.style.display = proponente.checked ? 'block' : 'none');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const extras = document.querySelectorAll('.campo-extra');
+        extras.forEach(div => div.style.display = 'none');
+    });
+</script>
+
+<script src="${pageContext.request.contextPath}/js/validarContraseña.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
