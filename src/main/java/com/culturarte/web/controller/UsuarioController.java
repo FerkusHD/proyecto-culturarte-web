@@ -2,7 +2,6 @@ package com.culturarte.web.controller;
 
 import com.culturarte.exepciones.UsuarioYaExiste;
 import com.culturarte.logica.IControlador;
-import com.culturarte.logica.datatypes.DTPropuesta;
 import com.culturarte.logica.datatypes.DTUsuario;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -10,10 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Controller
 @RequestMapping("/usuarios")
@@ -36,15 +39,39 @@ public class UsuarioController {
             @RequestParam String email,
             @RequestParam String fecha,
             @RequestParam String rol,
-            @RequestParam(required = false) String imagen,
+            @RequestParam(required = false) MultipartFile imagenFile,
             @RequestParam(required=false) String direccion,
             @RequestParam(required=false) String biografia,
             @RequestParam(required=false) String web,
             Model model
     ) {
         LocalDate fechaNac = LocalDate.parse(fecha);
+        String imagen = null;
 
         try {
+            // 🖼️ Si subió una imagen, la guardamos físicamente
+            // Obtener la carpeta absoluta del proyecto
+            Path directorio = Paths.get(System.getProperty("user.dir"), "uploads", "imagenes");
+
+// Crear carpeta si no existe
+            if (!Files.exists(directorio)) {
+                Files.createDirectories(directorio);
+            }
+
+// Nombre único para el archivo
+            String nombreArchivo = nickname + "_" + System.currentTimeMillis() + "_" + imagenFile.getOriginalFilename();
+
+// Guardar el archivo en la carpeta
+            Path rutaCompleta = directorio.resolve(nombreArchivo);
+            Files.copy(imagenFile.getInputStream(), rutaCompleta, StandardCopyOption.REPLACE_EXISTING);
+
+// Guardar solo la ruta relativa para usar en JSP
+            imagen = "uploads/imagenes/" + nombreArchivo;
+
+// DEBUG: ver dónde quedó el archivo
+            System.out.println("Imagen guardada en: " + rutaCompleta.toAbsolutePath());
+
+
             if (rol.equals("proponente")) {
                 ctrl.altaProponente(nickname,password, nombre, apellido, email, fechaNac, imagen, direccion, web, biografia);
                 model.addAttribute("mensaje", "Proponente registrado con éxito");
@@ -59,6 +86,8 @@ public class UsuarioController {
 
         } catch (UsuarioYaExiste e) {
             model.addAttribute("mensaje", "⚠️ " + "Ese nickname ya está registrado");
+        } catch (IOException e) {
+            model.addAttribute("mensaje", "⚠️ Error al procesar la imagen");
         }
 
         // 🔑 Guardamos los datos para que vuelvan al JSP

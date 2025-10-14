@@ -56,9 +56,18 @@
                 <c:choose>
                     <c:when test="${sessionScope.usuarioLogueado.tipo ne 'visitante'}">
                         <div class="d-flex align-items-start gap-2">
-                            <div class="rounded-circle bg-dark text-white d-flex justify-content-center align-items-center" style="width: 45px; height: 45px; flex-shrink: 0;">
-                                <i class="bi bi-person-fill" style="font-size: 28px;"></i>
-                            </div>
+                            <c:choose>
+                                <c:when test="${not empty sessionScope.usuarioLogueado.imagen}">
+                                    <img src="${pageContext.request.contextPath}/${sessionScope.usuarioLogueado.imagen}"
+                                         class="rounded-circle"
+                                         alt="Usuario" style="width: 45px; height: 45px; object-fit: cover;">
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="rounded-circle bg-dark text-white d-flex justify-content-center align-items-center" style="width: 45px; height: 45px;">
+                                        <i class="bi bi-person-fill" style="font-size: 28px;"></i>
+                                    </div>
+                                </c:otherwise>
+                            </c:choose>
 
                             <div class="d-flex flex-column lh-sm">
                                 <span style="font-size: 16px; color: #333;">${sessionScope.usuarioLogueado.nombre} ${sessionScope.usuarioLogueado.apellido}</span>

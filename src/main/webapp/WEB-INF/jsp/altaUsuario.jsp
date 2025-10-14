@@ -97,7 +97,7 @@
 
             <div class="mb-3">
                 <label for="imagen" class="form-label">Subir imagen</label>
-                <input type="file" id="imagen" name="imagen" accept="image/*" class="form-control">
+                <input type="file" id="imagen" name="imagenFile" accept="image/*" class="form-control">
             </div>
 
             <fieldset class="mb-3">

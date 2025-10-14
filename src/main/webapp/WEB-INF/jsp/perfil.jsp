@@ -63,9 +63,18 @@
                 <c:choose>
                     <c:when test="${sessionScope.usuarioLogueado.tipo ne 'visitante'}">
                         <div class="d-flex align-items-start gap-2">
-                            <div class="rounded-circle bg-dark text-white d-flex justify-content-center align-items-center" style="width: 45px; height: 45px; flex-shrink: 0;">
-                                <i class="bi bi-person-fill" style="font-size: 28px;"></i>
-                            </div>
+                            <c:choose>
+                                <c:when test="${not empty sessionScope.usuarioLogueado.imagen}">
+                                    <img src="${pageContext.request.contextPath}/${sessionScope.usuarioLogueado.imagen}"
+                                         class="rounded-circle"
+                                         alt="Usuario" style="width: 45px; height: 45px; object-fit: cover;">
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="rounded-circle bg-dark text-white d-flex justify-content-center align-items-center" style="width: 45px; height: 45px;">
+                                        <i class="bi bi-person-fill" style="font-size: 28px;"></i>
+                                    </div>
+                                </c:otherwise>
+                            </c:choose>
 
                             <div class="d-flex flex-column lh-sm">
                                 <span style="font-size: 16px; color: #333;">${sessionScope.usuarioLogueado.nombre} ${sessionScope.usuarioLogueado.apellido}</span>
@@ -115,7 +124,7 @@
                     <!-- Imagen de perfil -->
                     <c:choose>
                         <c:when test="${not empty perfilVisitado.imagen}">
-                            <img src="${perfilVisitado.imagen}" class="rounded-circle mb-3"
+                            <img src="${pageContext.request.contextPath}/${perfilVisitado.imagen}" class="rounded-circle mb-3"
                                  alt="Imagen de perfil" style="width: 130px; height: 130px; object-fit: cover;">
                         </c:when>
                         <c:otherwise>
@@ -345,7 +354,7 @@
                                         <div class="col-md-6 mb-3">
                                             <div class="card border-0 shadow-sm h-100">
                                                 <div class="card-body text-center">
-                                                    <img src="${p.imagen}" class="card-img-top" alt="${p.titulo}" style="height: 150px; object-fit: cover;">
+                                                    <img src="${propuesta.imagen}" class="card-img-top" alt="${propuesta.titulo}" style="height: 150px; object-fit: cover;">
                                                     <h5 class="card-title">${propuesta.titulo}</h5>
                                                     <p class="card-text text-muted">${propuesta.descripcion}</p>
                                                 </div>
@@ -387,7 +396,7 @@
                                                         <!-- Imagen de la propuesta -->
                                                         <c:choose>
                                                             <c:when test="${not empty propuesta.imagen}">
-                                                                <img src="${propuesta.imagen}" class="card-img-top" alt="${propuesta.titulo}" style="height: 150px; object-fit: cover;">
+                                                                <img src="${pageContext.request.contextPath}/${propuesta.imagen}" ...>
                                                             </c:when>
                                                             <c:otherwise>
                                                                 <div class="d-flex justify-content-center align-items-center bg-light" style="height: 150px;">
@@ -444,7 +453,7 @@
                                                             <!-- Imagen de la propuesta -->
                                                             <c:choose>
                                                                 <c:when test="${not empty propuesta.imagen}">
-                                                                    <img src="${propuesta.imagen}" class="card-img-top" alt="${propuesta.titulo}" style="height: 150px; object-fit: cover;">
+                                                                    <img src="${pageContext.request.contextPath}/${propuesta.imagen}" ...>
                                                                 </c:when>
                                                                 <c:otherwise>
                                                                     <div class="d-flex justify-content-center align-items-center bg-light" style="height: 150px;">
@@ -503,7 +512,10 @@
                                                         <!-- Imagen de la propuesta -->
                                                         <c:choose>
                                                             <c:when test="${not empty colaboracion.propuesta.imagen}">
-                                                                <img src="${colaboracion.propuesta.imagen}" class="card-img-top" alt="${colaboracion.propuesta.titulo}" style="height: 150px; object-fit: cover;">
+                                                                <img src="${pageContext.request.contextPath}/${colaboracion.propuesta.imagen}"
+                                                                     class="card-img-top"
+                                                                     alt="${colaboracion.propuesta.titulo}"
+                                                                     style="height: 150px; object-fit: cover;">
                                                             </c:when>
                                                             <c:otherwise>
                                                                 <div class="d-flex justify-content-center align-items-center bg-light" style="height: 150px;">

@@ -62,9 +62,18 @@
                 <c:choose>
                     <c:when test="${sessionScope.usuarioLogueado.tipo ne 'visitante'}">
                         <div class="d-flex align-items-start gap-2">
-                            <div class="rounded-circle bg-dark text-white d-flex justify-content-center align-items-center" style="width: 45px; height: 45px; flex-shrink: 0;">
-                                <i class="bi bi-person-fill" style="font-size: 28px;"></i>
-                            </div>
+                            <c:choose>
+                                <c:when test="${not empty sessionScope.usuarioLogueado.imagen}">
+                                    <img src="${pageContext.request.contextPath}/${sessionScope.usuarioLogueado.imagen}"
+                                         class="rounded-circle"
+                                         alt="Usuario" style="width: 45px; height: 45px; object-fit: cover;">
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="rounded-circle bg-dark text-white d-flex justify-content-center align-items-center" style="width: 45px; height: 45px;">
+                                        <i class="bi bi-person-fill" style="font-size: 28px;"></i>
+                                    </div>
+                                </c:otherwise>
+                            </c:choose>
 
                             <div class="d-flex flex-column lh-sm">
                                 <span style="font-size: 16px; color: #333;">${sessionScope.usuarioLogueado.nombre} ${sessionScope.usuarioLogueado.apellido}</span>
@@ -121,24 +130,25 @@
         <div class="col-lg-4 col-md-5 mb-4">
             <c:if test="${not empty propuesta.imagen}">
                 <div class="card shadow-sm">
-                    <img src="data:image/jpeg;base64,${propuesta.imagen}"
+                    <img src="${pageContext.request.contextPath}/${propuesta.imagen}"
                          class="card-img-top propuesta-img"
                          alt="${propuesta.titulo}">
                     <div class="card-body text-center">
                         <h5 class="card-title">${propuesta.titulo}</h5>
                         <span class="badge
-                            <c:choose>
-                                <c:when test="${propuesta.estadoActual.toString() == 'CONFIRMADA'}">bg-success</c:when>
-                                <c:when test="${propuesta.estadoActual.toString() == 'PUBLICADA'}">bg-primary</c:when>
-                                <c:when test="${propuesta.estadoActual.toString() == 'FINALIZADA'}">bg-secondary</c:when>
-                                <c:when test="${propuesta.estadoActual.toString() == 'CANCELADA'}">bg-danger</c:when>
-                                <c:otherwise>bg-warning</c:otherwise>
-                            </c:choose> rounded-pill">
-                            ${propuesta.estadoActual}
+                <c:choose>
+                    <c:when test="${propuesta.estadoActual.toString() == 'CONFIRMADA'}">bg-success</c:when>
+                    <c:when test="${propuesta.estadoActual.toString() == 'PUBLICADA'}">bg-primary</c:when>
+                    <c:when test="${propuesta.estadoActual.toString() == 'FINALIZADA'}">bg-secondary</c:when>
+                    <c:when test="${propuesta.estadoActual.toString() == 'CANCELADA'}">bg-danger</c:when>
+                    <c:otherwise>bg-warning</c:otherwise>
+                </c:choose> rounded-pill">
+                                ${propuesta.estadoActual}
                         </span>
                     </div>
                 </div>
             </c:if>
+
 
             <div class="card mt-3 shadow-sm">
                 <div class="card-header bg-primary text-white">
