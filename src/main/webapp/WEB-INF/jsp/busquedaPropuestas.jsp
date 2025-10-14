@@ -161,10 +161,26 @@
             <div class="list-group">
                 <c:forEach var="p" items="${resultados}">
                     <a href="${pageContext.request.contextPath}/propuestas/${p.titulo}"
-                       class="list-group-item list-group-item-action">
-                        <h5 class="mb-1">${p.titulo}</h5>
-                        <small class="text-muted">${p.lugar} — ${p.estadoActual}</small>
-                        <p class="mb-1">${p.descripcion}</p>
+                        class="list-group-item list-group-item-action d-flex align-items-center">
+                        <c:choose>
+                            <c:when test="${not empty p.imagen}">
+                                <img src="${pageContext.request.contextPath}/${p.imagen}"
+                                     alt="Imagen de ${p.titulo}"
+                                     class="rounded me-3"
+                                     style="width: 60px; height: 60px; object-fit: cover;">
+                            </c:when>
+                            <c:otherwise>
+                                <img src="${pageContext.request.contextPath}/uploads/imagenes/noimg.jpg"
+                                     alt="Imagen por defecto"
+                                     class="rounded me-3"
+                                     style="width: 60px; height: 60px; object-fit: cover;">
+                            </c:otherwise>
+                        </c:choose>
+                        <div>
+                            <h5 class="mb-1">${p.titulo}</h5>
+                            <small class="text-muted">${p.lugar} — ${p.estadoActual}</small>
+                            <p class="mb-1">${p.descripcion}</p>
+                        </div>
                     </a>
                 </c:forEach>
             </div>

@@ -82,7 +82,6 @@
 
                             <div class="d-flex flex-column lh-sm">
                                 <span style="font-size: 16px; color: #333;">${sessionScope.usuarioLogueado.nombre} ${sessionScope.usuarioLogueado.apellido}</span>
-
                                 <div class="d-flex align-items-center" style="font-size: 13px;">
                                     <a href="${pageContext.request.contextPath}/usuarios/${sessionScope.usuarioLogueado.nickname}" class="text-primary text-decoration-underline me-1">Perfil</a>
 
@@ -93,14 +92,11 @@
                             </div>
                         </div>
                     </c:when>
-
                     <c:otherwise>
                         <div class="d-flex align-items-center">
-                            <a class="nav-link d-inline p-0 text-dark"
-                               href="${pageContext.request.contextPath}/usuarios/alta">REGISTRARSE</a>
+                            <a class="nav-link d-inline p-0 text-dark" href="${pageContext.request.contextPath}/usuarios/alta">REGISTRARSE</a>
                             <span class="mx-2 text-dark">|</span>
-                            <a class="nav-link d-inline p-0 text-dark"
-                               href="${pageContext.request.contextPath}/login">ENTRAR</a>
+                            <a class="nav-link d-inline p-0 text-dark" href="${pageContext.request.contextPath}/login">ENTRAR</a>
                         </div>
                     </c:otherwise>
                 </c:choose>
@@ -145,7 +141,7 @@
                                      style="width: 60px; height: 60px; object-fit: cover;">
                             </c:when>
                             <c:otherwise>
-                                <img src="${pageContext.request.contextPath}/img/user-placeholder.png"
+                                <img src="${pageContext.request.contextPath}/uploads/imagenes/noimgperfil.jpg"
                                      alt="Sin foto"
                                      class="rounded-circle me-3"
                                      style="width: 60px; height: 60px; object-fit: cover;">
