@@ -25,7 +25,9 @@
 
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link text-primary fw-normal"  href="${pageContext.request.contextPath}/usuarios/perfiles">Buscar usuarios</a>
+                        <a class="nav-link text-primary fw-normal" href="${pageContext.request.contextPath}/usuarios/buscar">
+                            Buscar usuarios
+                        </a>
                     </li>
                     <c:if test="${sessionScope.usuarioLogueado.tipo eq 'proponente'}">
                         <li class="nav-item d-flex align-items-center">
@@ -79,7 +81,7 @@
                                 <span style="font-size: 16px; color: #333;">${sessionScope.usuarioLogueado.nombre} ${sessionScope.usuarioLogueado.apellido}</span>
 
                                 <div class="d-flex align-items-center" style="font-size: 13px;">
-                                    <a href="${pageContext.request.contextPath}/usuarios/perfil/${sessionScope.usuarioLogueado.nickname}" class="text-primary text-decoration-underline me-1">Perfil</a>
+                                    <a href="${pageContext.request.contextPath}/usuarios/${sessionScope.usuarioLogueado.nickname}" class="text-primary text-decoration-underline me-1">Perfil</a>
 
                                     <span class="text-muted">|</span>
 
@@ -114,7 +116,8 @@
                         <p class="text-muted">Complete todos los campos para crear su propuesta</p>
                     </div>
 
-                    <form action="${pageContext.request.contextPath}/propuestas/alta" method="post">
+                    <form action="${pageContext.request.contextPath}/propuestas/alta" method="post" enctype="multipart/form-data"
+                    >
                         <div class="mb-3">
                             <label for="titulo" class="form-label">Título</label>
                             <input id="titulo" name="titulo" type="text" maxlength="50" class="form-control" value="${titulo != null ? titulo : ''}" required>

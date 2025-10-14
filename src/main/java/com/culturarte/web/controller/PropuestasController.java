@@ -12,9 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
@@ -143,50 +150,92 @@ public class PropuestasController {
             @RequestParam String[] tiposRetorno,
             @RequestParam Float montoEntrada,
             @RequestParam Float montoNecesario,
-            @RequestParam(required = false) String imagen,
+            @RequestParam(required = false) MultipartFile imagenFile,
             HttpSession session,
             Model model
-    ){
-        try{
-            //Convierte fecha de String a LocalDate
+    ) {
+        try {
+            // Convertir fecha de String a LocalDate
             LocalDate fecha = LocalDate.parse(fechaPrevista);
 
-            //Obtengo el usuario
+            // Verificar sesión
             DTUsuario usuario = (DTUsuario) session.getAttribute("usuarioLogueado");
-
             if (usuario == null || "visitante".equals(usuario.getTipo())) {
                 model.addAttribute("mensaje", "⚠️ Debe estar logueado para crear una propuesta");
                 return "redirect:/login";
             }
 
             String proponente = usuario.getNickname();
+            String imagen = null;
 
-            //Convierte tipoRetorno de String a EnumSet
+            // 📸 Guardar la imagen si fue subida
+            if (imagenFile != null && !imagenFile.isEmpty()) {
+                try {
+                    // Carpeta donde se guardan las imágenes
+                    Path directorio = Paths.get(System.getProperty("user.dir"), "uploads", "imagenes");
+                    if (!Files.exists(directorio)) {
+                        Files.createDirectories(directorio);
+                    }
+
+                    // Nombre único del archivo
+                    String nombreArchivo = "propuesta_" +
+                            titulo.replaceAll("\\s+", "_") + "_" +
+                            System.currentTimeMillis() + "_" +
+                            imagenFile.getOriginalFilename();
+
+                    // Ruta absoluta donde se guarda el archivo
+                    Path rutaCompleta = directorio.resolve(nombreArchivo);
+
+                    // Copiar archivo al directorio
+                    Files.copy(imagenFile.getInputStream(), rutaCompleta, StandardCopyOption.REPLACE_EXISTING);
+
+                    // Guardar solo la ruta relativa (para BD)
+                    imagen = "uploads/imagenes/" + nombreArchivo;
+
+                    System.out.println("✅ Imagen guardada en: " + rutaCompleta.toAbsolutePath());
+                } catch (IOException e) {
+                    model.addAttribute("mensaje", "⚠️ Error al guardar la imagen");
+                    e.printStackTrace();
+                    return "altaPropuesta";
+                }
+            }
+
+            // Convertir los tipos de retorno a EnumSet
             EnumSet<TipoRetorno> tiposRet = Arrays.stream(tiposRetorno)
                     .map(TipoRetorno::valueOf)
                     .collect(Collectors.toCollection(() -> EnumSet.noneOf(TipoRetorno.class)));
 
-            ctrl.altaPropuesta(titulo, descripcion, lugar, fecha, montoEntrada, montoNecesario, tiposRet, imagen, proponente, categoria);
+            // Llamadas al controlador lógico
+            ctrl.altaPropuesta(
+                    titulo, descripcion, lugar, fecha,
+                    montoEntrada, montoNecesario,
+                    tiposRet, imagen, proponente, categoria
+            );
             ctrl.nuevoEstadoPropuesta(titulo, TipoEstado.INGRESADA, LocalDate.now(), LocalTime.now());
-            model.addAttribute("mensaje", "Propuesta registrada con éxito");
+
+            model.addAttribute("mensaje", "✅ Propuesta registrada con éxito");
             return "exitoAltaPropuesta";
 
-        }catch(PropuestaYaExiste e){
-            model.addAttribute("mensaje", "⚠️ " + "La Propuesta ya existe");
-            //Guardamos los datos para que vuelvan al JSP
+        } catch (PropuestaYaExiste e) {
+            model.addAttribute("mensaje", "⚠️ La propuesta ya existe");
+
             model.addAttribute("titulo", titulo);
             model.addAttribute("descripcion", descripcion);
             model.addAttribute("lugar", lugar);
             model.addAttribute("fechaPrevista", fechaPrevista);
             model.addAttribute("categorias", ctrl.listarCategoriasWebCompletas());
-            model.addAttribute("tiposRetorno" , ctrl.getTiposRetorno());
-            // TODO : Hacer que se seleccione aca el tipoRetorno y categoria
+            model.addAttribute("tiposRetorno", ctrl.getTiposRetorno());
             model.addAttribute("montoEntrada", montoEntrada);
             model.addAttribute("montoNecesario", montoNecesario);
-            model.addAttribute("imagen", imagen);
+            return "altaPropuesta";
+
+        } catch (Exception e) {
+            model.addAttribute("mensaje", "⚠️ Error inesperado al registrar la propuesta");
+            e.printStackTrace();
             return "altaPropuesta";
         }
     }
+
 
     @PostMapping("/cancelar/{titulo}")
     public String cancelarPropuesta(Model model, @PathVariable String titulo, HttpSession session) {

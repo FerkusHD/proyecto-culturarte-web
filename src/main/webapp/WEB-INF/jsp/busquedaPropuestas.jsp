@@ -29,7 +29,9 @@
 
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link text-primary fw-normal" href="${pageContext.request.contextPath}/usuarios/perfiles">Buscar usuarios</a>
+                        <a class="nav-link text-primary fw-normal" href="${pageContext.request.contextPath}/usuarios/buscar">
+                            Buscar usuarios
+                        </a>
                     </li>
                     <c:if test="${sessionScope.usuarioLogueado.tipo eq 'proponente'}">
                         <li class="nav-item d-flex align-items-center">
@@ -81,8 +83,10 @@
                             <div class="d-flex flex-column lh-sm">
                                 <span style="font-size: 16px; color: #333;">${sessionScope.usuarioLogueado.nombre} ${sessionScope.usuarioLogueado.apellido}</span>
                                 <div class="d-flex align-items-center" style="font-size: 13px;">
-                                    <a href="${pageContext.request.contextPath}/usuarios/perfil/${sessionScope.usuarioLogueado.nickname}" class="text-primary text-decoration-underline me-1">Perfil</a>
+                                    <a href="${pageContext.request.contextPath}/usuarios/${sessionScope.usuarioLogueado.nickname}" class="text-primary text-decoration-underline me-1">Perfil</a>
+
                                     <span class="text-muted">|</span>
+
                                     <a href="${pageContext.request.contextPath}/logout" class="text-primary text-decoration-underline ms-1">Salir</a>
                                 </div>
                             </div>

@@ -49,28 +49,21 @@ public class UsuarioController {
         String imagen = null;
 
         try {
-            // 🖼️ Si subió una imagen, la guardamos físicamente
-            // Obtener la carpeta absoluta del proyecto
+            //Si subió una imagen, la guardamos físicamente
+            //Obtener la carpeta absoluta del proyecto
             Path directorio = Paths.get(System.getProperty("user.dir"), "uploads", "imagenes");
 
-// Crear carpeta si no existe
             if (!Files.exists(directorio)) {
                 Files.createDirectories(directorio);
             }
-
-// Nombre único para el archivo
             String nombreArchivo = nickname + "_" + System.currentTimeMillis() + "_" + imagenFile.getOriginalFilename();
 
-// Guardar el archivo en la carpeta
             Path rutaCompleta = directorio.resolve(nombreArchivo);
             Files.copy(imagenFile.getInputStream(), rutaCompleta, StandardCopyOption.REPLACE_EXISTING);
 
-// Guardar solo la ruta relativa para usar en JSP
             imagen = "uploads/imagenes/" + nombreArchivo;
 
-// DEBUG: ver dónde quedó el archivo
             System.out.println("Imagen guardada en: " + rutaCompleta.toAbsolutePath());
-
 
             if (rol.equals("proponente")) {
                 ctrl.altaProponente(nickname,password, nombre, apellido, email, fechaNac, imagen, direccion, web, biografia);

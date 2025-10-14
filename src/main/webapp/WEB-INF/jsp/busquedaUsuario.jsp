@@ -40,6 +40,14 @@
                             <a class="nav-link text-primary fw-normal"  href="${pageContext.request.contextPath}/propuestas/alta">Tengo una propuesta</a>
                         </li>
                     </c:if>
+                    <c:if test="${sessionScope.usuarioLogueado.tipo eq 'colaborador'}">
+                        <li class="nav-item d-flex align-items-center">
+                            <span class="px-2 text-dark">|</span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-primary fw-normal" href="${pageContext.request.contextPath}/propuestas/registrarColaboracionProp">Quiero colaborar</a>
+                        </li>
+                    </c:if>
                 </ul>
 
                 <form class="d-flex me-3 flex-grow-1 position-relative" style="max-width: 400px;"
@@ -76,7 +84,7 @@
                                 <span style="font-size: 16px; color: #333;">${sessionScope.usuarioLogueado.nombre} ${sessionScope.usuarioLogueado.apellido}</span>
 
                                 <div class="d-flex align-items-center" style="font-size: 13px;">
-                                    <a href="${pageContext.request.contextPath}/usuarios/perfil/${sessionScope.usuarioLogueado.nickname}" class="text-primary text-decoration-underline me-1">Perfil</a>
+                                    <a href="${pageContext.request.contextPath}/usuarios/${sessionScope.usuarioLogueado.nickname}" class="text-primary text-decoration-underline me-1">Perfil</a>
 
                                     <span class="text-muted">|</span>
 
