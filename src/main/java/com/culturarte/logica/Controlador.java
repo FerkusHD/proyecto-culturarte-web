@@ -284,12 +284,12 @@ public class Controlador implements IControlador{
         return retorno;
     }
 
-    
+
     @Override
     public DTPropuesta getDTPropuesta(String titulo){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         Propuesta p = mp.getPropuesta(titulo);
-        String nombreCategoria = "Sin categoría"; 
+        String nombreCategoria = "Sin categoría";
         DTPropuesta dtp = new DTPropuesta();
         ArrayList<DTEstado> histEstado = new ArrayList<>();
         if(p != null){
@@ -303,11 +303,32 @@ public class Controlador implements IControlador{
 
             if (p.getComentarios() != null) {
                 for (Comentario comentario : p.getComentarios()) {
+
+                    Colaborador colab = comentario.getColaborador();
+                    DTColaborador dtColaborador = new DTColaborador(
+                            colab.getNickname(),
+                            colab.getPassword(),
+                            colab.getNombre(),
+                            colab.getApellido(),
+                            colab.getEmail(),
+                            colab.getFechaNacimiento(),
+                            colab.getImagen()
+                    );
+
+                    DTPropuesta dtPropSimple = new DTPropuesta(
+                            p.getTitulo(),
+                            p.getDescripcion(),
+                            p.getLugar(),
+                            p.getFechaPrevista(),
+                            p.getPrecioEntrada(),
+                            p.getMontoNecesario()
+                    );
+
                     DTComentario dtComentario = new DTComentario(
                             comentario.getTexto(),
-                            comentario.getColaborador(),
-                            comentario.getPropuesta(),
-                            LocalDate.now()
+                            dtColaborador,
+                            dtPropSimple,
+                            comentario.getFecha()
                     );
                     comentariosDT.add(dtComentario);
                 }

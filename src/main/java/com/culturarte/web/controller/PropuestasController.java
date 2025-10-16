@@ -4,6 +4,7 @@ import com.culturarte.exepciones.ColaboracionYaExiste;
 import com.culturarte.exepciones.PropuestaYaExiste;
 import com.culturarte.logica.IControlador;
 import com.culturarte.logica.datatypes.DTColaboracion;
+import com.culturarte.logica.datatypes.DTProponente;
 import com.culturarte.logica.datatypes.DTPropuesta;
 import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.logica.enums.TipoEstado;
@@ -255,12 +256,38 @@ public class PropuestasController {
 
     @GetMapping("/{titulo}")
     public String mostrarPropuesta(Model model, @PathVariable String titulo){
-        if(ctrl.getDTPropuesta(titulo) == null){
+        DTPropuesta propuesta = ctrl.getDTPropuesta(titulo);
+
+        if(propuesta == null){
             model.addAttribute("mensaje", "⚠️ La propuesta no existe");
             return "redirect:/propuestas/buscar";
         }
-        model.addAttribute("propuesta", ctrl.getDTPropuesta(titulo));
-        return  "consultarPropuesta";
+
+        model.addAttribute("propuesta", propuesta);
+
+        // Obtener el proponente
+        String nickProponente = propuesta.getProponente();
+        System.out.println("🔍 Nick del proponente: " + nickProponente);
+
+        DTProponente proponente = ctrl.getDTProponente(nickProponente);
+
+        // DEBUG
+        System.out.println("=== DEBUG PROPONENTE ===");
+        if (proponente != null) {
+            System.out.println("✅ Proponente encontrado");
+            System.out.println("Nickname: " + proponente.getNickname());
+            System.out.println("Nombre: " + proponente.getNombre());
+            System.out.println("Apellido: " + proponente.getApellido());
+            System.out.println("Biografía: " + proponente.getBiografia());
+            System.out.println("Link: " + proponente.getLinkWeb());
+        } else {
+            System.out.println("❌ Proponente es NULL");
+        }
+
+        model.addAttribute("proponente", proponente);
+        System.out.println("🔍 Atributo 'proponente' agregado al modelo");
+
+        return "consultarPropuesta";
     }
 
     @GetMapping("/buscar/sugerencias")

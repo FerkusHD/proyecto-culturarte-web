@@ -54,7 +54,7 @@
                            placeholder="Título, descripción, lugar" aria-label="Buscar"
                            autocomplete="off" value="${query != null ? query : ''}" />
                     <button class="btn btn-sm btn-outline-primary" type="submit">Buscar</button>
-                    <!-- Contenedor de sugerencias -->
+
                     <div id="sugerencias"
                          class="list-group position-absolute w-100"
                          style="top: 38px; z-index: 1000;"></div>
@@ -106,7 +106,7 @@
     </nav>
 </header>
 
-<!-- Alertas para mensajes de éxito/error -->
+
 <c:if test="${not empty mensajeExito}">
     <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i>${mensajeExito}
@@ -179,6 +179,126 @@
                     </div>
                 </div>
             </div>
+
+<div class="card mt-3 shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h6 class="mb-0"><i class="bi bi-person-badge"></i> Proponente</h6>
+    </div>
+    <div class="card-body">
+        <c:choose>
+            <c:when test="${proponente != null}">
+
+                <div class="d-flex align-items-start mb-3">
+                    <c:choose>
+                        <c:when test="${not empty proponente.imagen}">
+                            <img src="${pageContext.request.contextPath}/${proponente.imagen}"
+                                 class="rounded-circle me-3"
+                                 alt="${proponente.nombre}" style="width: 80px; height: 80px; object-fit: cover;">
+                        </c:when>
+                        <c:otherwise>
+                            <div class="rounded-circle bg-light border d-flex justify-content-center align-items-center me-3"
+                                 style="width: 80px; height: 80px;">
+                                <i class="bi bi-person-fill text-primary" style="font-size: 32px;"></i>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+                    <div class="flex-grow-1">
+                        <h4 class="mb-1 text-primary">${proponente.nombre} ${proponente.apellido}</h4>
+                        <c:if test="${not empty proponente.linkWeb}">
+                            <p class="mb-2">
+                                <i class="bi bi-link-45deg text-primary"></i>
+                                <a href="${proponente.linkWeb}" target="_blank" class="text-decoration-none">
+                                    ${proponente.linkWeb}
+                                </a>
+                            </p>
+                        </c:if>
+                    </div>
+                </div>
+
+                <c:if test="${not empty proponente.biografia}">
+                    <div class="border-top pt-3 d-flex align-items-center">
+                      <i class="bi bi-person-vcard text-primary me-2"></i>
+                      <span class="fw-semibold me-2">Biografía:</span>
+                      <span class="text-muted lh-base">${proponente.biografia}</span>
+                    </div>
+                </c:if>
+
+                <div class="mt-3 text-center">
+
+
+
+                    <c:if test="${sessionScope.usuarioLogueado.tipo ne 'visitante'}">
+                        <c:choose>
+                            <c:when test="${sessionScope.usuarioLogueado.nickname eq propuesta.proponente}">
+                                <button class="btn btn-secondary" disabled>
+                                    <i class="bi bi-person-plus"></i> No puedes seguirte a ti mismo
+                                </button>
+                            </c:when>
+                            <c:when test="${sessionScope.usuarioLogueado.buscarUsuarioSeguido(propuesta.proponente)}">
+                                <form action="${pageContext.request.contextPath}/usuarios/dejarDeSeguir" method="post" class="d-inline">
+                                    <input type="hidden" name="nickSeguido" value="${propuesta.proponente}"/>
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="bi bi-person-dash"></i> Dejar de seguir
+                                    </button>
+                                </form>
+                            </c:when>
+                            <c:otherwise>
+                                <form action="${pageContext.request.contextPath}/usuarios/seguir" method="post" class="d-inline">
+                                    <input type="hidden" name="nickSeguido" value="${propuesta.proponente}"/>
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-person-plus"></i> Seguir
+                                    </button>
+                                </form>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:if>
+
+
+                </div>
+            </c:when>
+            <c:otherwise>
+
+                <div class="text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-person-circle fs-1 text-primary"></i>
+                    </div>
+                    <h4 class="text-primary mb-2">${propuesta.proponente}</h4>
+                    <p class="text-muted mb-3">Creador de esta propuesta</p>
+
+                    <div class="mt-3">
+
+
+
+                        <c:if test="${sessionScope.usuarioLogueado.tipo ne 'visitante'}">
+                            <c:choose>
+                                <c:when test="${sessionScope.usuarioLogueado.nickname eq propuesta.proponente}">
+                                    <button class="btn btn-secondary" disabled>
+                                        <i class="bi bi-person-plus"></i> No puedes seguirte a ti mismo
+                                    </button>
+                                </c:when>
+                                <c:otherwise>
+                                    <form action="${pageContext.request.contextPath}/usuarios/seguir" method="post" class="d-inline">
+                                        <input type="hidden" name="nickSeguido" value="${propuesta.proponente}"/>
+                                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-person-plus"></i> Seguir
+                                        </button>
+                                    </form>
+                                </c:otherwise>
+                            </c:choose>
+                        </c:if>
+
+
+                    </div>
+                </div>
+            </c:otherwise>
+        </c:choose>
+    </div>
+</div>
+
+
         </div>
 
         <div class="col-lg-8 col-md-7">
@@ -299,7 +419,7 @@
                         <div class="tab-pane fade" id="comentarios" role="tabpanel">
                             <h4 class="text-primary mb-3">Comentarios</h4>
 
-                            <!-- Formulario para agregar comentario -->
+
                             <c:if test="${sessionScope.usuarioLogueado.tipo eq 'colaborador' && propuesta.colaboradores.contains(sessionScope.usuarioLogueado.nickname)}">
                                 <div class="card mb-4 border-primary">
                                     <div class="card-header bg-primary text-white">
@@ -321,7 +441,7 @@
                                 </div>
                             </c:if>
 
-                            <!-- Lista de comentarios -->
+
                             <div class="comentarios-lista">
                                 <c:choose>
                                     <c:when test="${not empty propuesta.comentarios && propuesta.comentarios.size() > 0}">

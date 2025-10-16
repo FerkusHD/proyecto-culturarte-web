@@ -9,13 +9,13 @@ import java.time.LocalDate;
 public class DTComentario {
     private int id;
     private String texto;
-    private Colaborador colaborador;
-    private Propuesta propuesta;
+    private DTColaborador colaborador;
+    private DTPropuesta propuesta;
     private LocalDate fecha;
 
     public DTComentario() {}
 
-    public DTComentario(String texto, Colaborador colaborador, Propuesta propuesta, LocalDate fecha) {
+    public DTComentario(String texto, DTColaborador colaborador, DTPropuesta propuesta, LocalDate fecha) {
         this.texto = texto;
         this.colaborador = colaborador;
         this.propuesta = propuesta;
@@ -26,11 +26,11 @@ public class DTComentario {
         return texto;
     }
 
-    public Colaborador getColaborador() {
+    public DTColaborador getColaborador() {
         return colaborador;
     }
 
-    public Propuesta getPropuesta() {
+    public DTPropuesta getPropuesta() {
         return propuesta;
     }
 
@@ -38,11 +38,11 @@ public class DTComentario {
         this.texto = texto;
     }
 
-    public void setColaborador(Colaborador colaborador) {
+    public void setColaborador(DTColaborador colaborador) {
         this.colaborador = colaborador;
     }
 
-    public void setPropuesta(Propuesta propuesta) {
+    public void setPropuesta(DTPropuesta propuesta) {
         this.propuesta = propuesta;
     }
 
