@@ -1,5 +1,5 @@
 package com.culturarte.logica;
-
+import com.culturarte.exepciones.CategoriaYaExiste;
 import com.culturarte.exepciones.PropuestaYaExiste;
 import com.culturarte.logica.clases.Categoria;
 import com.culturarte.logica.clases.Proponente;
@@ -16,6 +16,13 @@ import java.time.LocalTime;
 
 import static org.mockito.Mockito.*;
 import com.culturarte.logica.enums.*;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 
 class ControladorTest {
 
@@ -31,14 +38,25 @@ class ControladorTest {
     @InjectMocks
     private Controlador controlador;
 
+    @BeforeAll
+    public static void setUpClass() throws Exception {
+    }
+
+    @AfterAll
+    public static void tearDownClass() throws Exception {
+    }
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void altaColaborador() throws UsuarioYaExiste {
+    @AfterEach
+    public void tearDown() throws Exception {
+    }
 
+    @Test
+    void altaColaborador_exito() throws UsuarioYaExiste {
         when(mu.buscarUsuario("nick1")).thenReturn(null);
 
         controlador.altaColaborador("nick1", "pass", "nombre", "apellido", "mail@mail.com",
@@ -46,7 +64,10 @@ class ControladorTest {
 
         verify(mu).agregarUsuario(argThat(u ->
                 u instanceof Colaborador && u.getNickname().equals("nick1")));
+    }
 
+    @Test
+    void altaColaborador_usuarioYaExiste() throws UsuarioYaExiste {
         when(mu.buscarUsuario("nick1")).thenReturn(mock(Colaborador.class));
 
         assertThrows(UsuarioYaExiste.class, () ->
@@ -55,47 +76,27 @@ class ControladorTest {
     }
 
     @Test
-    void altaProponente() {
+    void altaProponente_exito() throws UsuarioYaExiste {
+        when(mu.buscarUsuario("propo1")).thenReturn(null);
+
+        controlador.altaProponente("propo1", "pass", "Ana", "López", "ana@mail.com",
+                LocalDate.of(1995, 2, 2), "img.png", "Calle Falsa 123", "www.ana.com", "Artista");
+
+        verify(mu).agregarUsuario(argThat(u ->
+                u instanceof Proponente && u.getNickname().equals("propo1")));
     }
 
     @Test
-    void getNickColaboradores() {
+    void altaProponente_usuarioYaExiste() throws UsuarioYaExiste {
+        when(mu.buscarUsuario("propo1")).thenReturn(mock(Colaborador.class));
+
+        assertThrows(UsuarioYaExiste.class, () ->
+                controlador.altaProponente("propo1", "pass", "Ana", "López", "ana@mail.com",
+                        LocalDate.of(1995, 2, 2), "img.png", "Calle Falsa 123", "www.ana.com", "Artista"));
     }
 
     @Test
-    void getNomProponentes() {
-    }
-
-    @Test
-    void getNomColaboradores() {
-    }
-
-    @Test
-    void getDTColaborador() {
-    }
-
-    @Test
-    void getDTProponente() {
-    }
-
-    @Test
-    void altaCategoria() {
-    }
-
-    @Test
-    void listarCategoriasWeb() {
-    }
-
-    @Test
-    void listarCategoriasWebCompletas() {
-    }
-
-    @Test
-    void listarCategorias() {
-    }
-
-    @Test
-    void altaPropuesta() throws Exception {
+    void altaPropuesta_exito() throws Exception {
         when(mp.getPropuesta("Expo")).thenReturn(null);
         when(mu.buscarUsuario("prop1")).thenReturn(mock(Proponente.class));
         when(mc.buscar("Arte")).thenReturn(mock(Categoria.class));
@@ -105,7 +106,10 @@ class ControladorTest {
                 java.util.EnumSet.of(TipoRetorno.ENTRADAGRATIS),
                 "img.png", "prop1", "Arte", LocalDate.now(), LocalTime.now());
         verify(mp).agregarPropuesta(any(Propuesta.class));
+    }
 
+    @Test
+    void altaPropuesta_propuestaYaExiste() throws Exception {
         when(mp.getPropuesta("Expo")).thenReturn(mock(Propuesta.class));
         assertThrows(PropuestaYaExiste.class, () -> controlador.altaPropuesta(
                 "Expo", "desc", "Montevideo",
@@ -115,91 +119,108 @@ class ControladorTest {
     }
 
     @Test
-    void getTituloPropuestas() {
+    void verificarPassword_correcto() throws UsuarioYaExiste {
+        Colaborador colab = new Colaborador("nick1", "pass123", "Juan", "Perez", "mail@mail.com",
+                LocalDate.of(1990, 1, 1), "img.png");
+        when(mu.buscarUsuario("nick1")).thenReturn(colab);
+
+        assertTrue(controlador.verificarPassword("pass123", "nick1"));
     }
 
     @Test
-    void getDTPropuestas() {
+    void verificarPassword_incorrecto() {
+        Colaborador colab = new Colaborador("nick1", "pass123", "Juan", "Perez", "mail@mail.com",
+                LocalDate.of(1990, 1, 1), "img.png");
+        when(mu.buscarUsuario("nick1")).thenReturn(colab);
+
+        assertFalse(controlador.verificarPassword("otraClave", "nick1"));
     }
 
     @Test
-    void getDTPropuestasWeb() {
+    void verificarPassword_usuarioNoExiste() {
+        when(mu.buscarUsuario("inexistente")).thenReturn(null);
+
+        assertFalse(controlador.verificarPassword("pass123", "inexistente"));
     }
 
     @Test
-    void getDTPropuesta() {
+    void getTiposRetorno_incluyeTodos() {
+        String[] tipos = controlador.getTiposRetorno();
+
+        assertNotNull(tipos);
+        assertTrue(tipos.length > 0);
+        assertTrue(Arrays.asList(tipos).contains("ENTRADAGRATIS"));
+        assertTrue(Arrays.asList(tipos).contains("PORCENTAJEGANANCIA"));
     }
 
     @Test
-    void getTituloPropuestasPorEstado() {
+    void nuevoEstadoPropuesta_cambiaEstado() throws Exception {
+        Propuesta propuesta = mock(Propuesta.class);
+        when(mp.getPropuesta("Expo")).thenReturn(propuesta);
+
+        controlador.nuevoEstadoPropuesta("Expo", TipoEstado.PUBLICADA, LocalDate.now(), LocalTime.now());
+
+        verify(propuesta).agregarEstado(argThat(estado ->
+                estado.getEstado() == TipoEstado.PUBLICADA));
     }
 
     @Test
-    void altaColaboracion() {
+    void nuevoEstadoPropuesta_propuestaNoExiste() {
+        when(mp.getPropuesta("Inexistente")).thenReturn(null);
+
+        assertThrows(NullPointerException.class, () ->
+                controlador.nuevoEstadoPropuesta("Inexistente", TipoEstado.PUBLICADA, LocalDate.now(), LocalTime.now()));
+    }
+
+
+    @Test
+    void altaCategoria_exitoso() throws Exception {
+        when(mc.buscar("Música")).thenReturn(null);
+
+        controlador.altaCategoria("Música", null);
+
+        verify(mc).alta(argThat(cat -> cat.getNombre().equals("Música")));
     }
 
     @Test
-    void getNickUsuarios() {
+    void altaCategoria_repetida() throws Exception {
+        when(mc.buscar("Música")).thenReturn(mock(Categoria.class));
+
+        assertThrows(CategoriaYaExiste.class, () ->
+                controlador.altaCategoria("Música", null));
     }
 
     @Test
-    void seguirUsuario() {
+    void listarCategoriasWeb_devuelveLista() {
+        List<Categoria> categoriasMock = List.of(
+                new Categoria("Música", null),
+                new Categoria("Teatro", null),
+                new Categoria("Arte", null)
+        );
+        when(mc.getCategoriasRaizConSubcategorias()).thenReturn(categoriasMock);
+
+        List<String> result = controlador.listarCategoriasWeb();
+
+        assertEquals(List.of("Música", "Teatro", "Arte"), result);
+        verify(mc).getCategoriasRaizConSubcategorias();
     }
 
-    @Test
-    void dejarDeSeguirUsuario() {
-    }
 
     @Test
-    void getDTUsuario() {
+    void getTituloPropuestas_devuelveLista() {
+        Propuesta p1 = mock(Propuesta.class);
+        when(p1.getTitulo()).thenReturn("Expo");
+        Propuesta p2 = mock(Propuesta.class);
+        when(p2.getTitulo()).thenReturn("Concierto");
+
+        List<Propuesta> propuestasMock = List.of(p1, p2);
+        when(mp.getPropuestas()).thenReturn(propuestasMock);
+
+        ArrayList<String> result = controlador.getTituloPropuestas();
+
+        assertEquals(new ArrayList<>(List.of("Concierto", "Expo")), result); // Orden alfabético
+        verify(mp).getPropuestas();
     }
 
-    @Test
-    void verificarPassword() {
-    }
-
-    @Test
-    void cancelarColaboracionPropuesta() {
-    }
-
-    @Test
-    void getDTColaboracionesPropuestas() {
-    }
-
-    @Test
-    void getDTColaboracionPropuesta() {
-    }
-
-    @Test
-    void getDTColaboraciones() {
-    }
-
-    @Test
-    void nuevoEstadoPropuesta() {
-    }
-
-    @Test
-    void getNickProponente() {
-    }
-
-    @Test
-    void buscarPropuestas() {
-    }
-
-    @Test
-    void buscarUsuarios() {
-    }
-
-    @Test
-    void modificarPropuesta() {
-    }
-
-    @Test
-    void getTiposRetorno() {
-    }
-
-    @Test
-    void extenderFinanciacion() {
-    }
 
 }
