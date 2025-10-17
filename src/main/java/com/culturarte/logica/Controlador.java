@@ -219,7 +219,7 @@ public class Controlador implements IControlador{
     }
 
     @Override
-    public void altaPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, EnumSet<TipoRetorno> tipoRetornos, String imagen, String proponente, String categoria)
+    public void altaPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, EnumSet<TipoRetorno> tipoRetornos, String imagen, String proponente, String categoria, LocalDate fechaActual, LocalTime horaActual)
     throws PropuestaYaExiste {
 
         if (mp.getPropuesta(titulo) != null) {
@@ -231,8 +231,11 @@ public class Controlador implements IControlador{
         Categoria c = mc.buscar(categoria);
         
         Propuesta p = new Propuesta(titulo,descripcion,lugar,fechaPrevista, precioEntrada, montoNecesario, tipoRetornos, imagen, u,c);
-        
+
+        // INGRESADA
         mp.agregarPropuesta(p);
+
+        nuevoEstadoPropuesta(titulo, TipoEstado.INGRESADA, fechaActual, horaActual);
     }
 
     @Override
@@ -338,6 +341,20 @@ public class Controlador implements IControlador{
         }
         return dtp;
     }
+
+    @Override
+    public boolean colaboradorPuedeComentar(String colaborador, String tituloPropuesta) {
+        Colaborador c = (Colaborador) mu.buscarUsuario(colaborador);
+        Propuesta p = mp.getPropuesta(tituloPropuesta);
+        if (p.getEstadoActual().getEstado() != TipoEstado.FINANCIADA) return false;
+
+        for (Comentario comentario : p.getComentarios()) {
+            if(comentario.getColaborador() == c) {
+                return false;
+            }
+        }
+        return true;
+    }
         
     
     @Override
@@ -363,24 +380,27 @@ public class Controlador implements IControlador{
         // 🔑 Cargar colaborador con sus colaboraciones
         Colaborador c = (Colaborador) mu.buscarUsuario(nickColaborador);
         if (c == null) throw new IllegalArgumentException("No existe el colaborador: " + nickColaborador);
+        if (p.getEstadoActual().getEstado() == TipoEstado.PUBLICADA || p.getEstadoActual().getEstado() == TipoEstado.ENFINANCIACION ) {
+            // Crear la colaboración
+            Colaboracion colab = new Colaboracion(monto, fecha, hora, tipoRetorno, p, c);
 
-        // Crear la colaboración
-        Colaboracion colab = new Colaboracion(monto, fecha, hora, tipoRetorno, p, c);
+            // Asociar bidireccionalmente
+            p.addColaboracion(colab);
+            c.addColaboracion(colab);
 
-        // Asociar bidireccionalmente
-        p.addColaboracion(colab);
-        c.addColaboracion(colab);
+            // Persistir colaboración
+            mcol.agregarColaboracion(colab);
 
-        // Persistir colaboración
-        mcol.agregarColaboracion(colab);
+            if (p.getEstadoActual().getEstado() == TipoEstado.PUBLICADA) {
+                nuevoEstadoPropuesta(p.getTitulo(), TipoEstado.ENFINANCIACION, fecha, hora);
+            }
+            if (p.getMontoRecaudado() >= p.getMontoNecesario()) {
+                nuevoEstadoPropuesta(p.getTitulo(), TipoEstado.FINANCIADA, fecha, hora);
+            }
+        } else {
+            throw new IllegalArgumentException("El estado de esta propuesta no permite colaboraciones: " + p.getEstadoActual().getEstado());
+        }
 
-//        if (p.getEstadoActual().getEstado() == TipoEstado.PUBLICADA) {
-//            nuevoEstadoPropuesta(p.getTitulo(), TipoEstado.ENFINANCIACION, fecha, hora);
-//        }
-//        if (p.getMontoRecaudado() >= p.getMontoNecesario()) {
-//            nuevoEstadoPropuesta(p.getTitulo(), TipoEstado.FINANCIADA, fecha, hora);
-//        }
-//
     }
 
     @Override 
@@ -665,6 +685,17 @@ public class Controlador implements IControlador{
         mu.actualizarUsuario(u);
     }
 
+    @Override
+    public void sacarPropuestaFavorita(String nickUsuario, String tituloPropuesta) {
+        Usuario u = mu.buscarUsuario(nickUsuario);
+        Propuesta p = mp.getPropuesta(tituloPropuesta);
+        if (u == null || p == null) {
+            throw new IllegalArgumentException("Usuario o Propuesta no encontrados");
+        }
+        u.sacarPropuestaFavorita(p);
+        mu.actualizarUsuario(u);
+    }
+
     @Transactional
     public void cargarDatosPrueba() throws CargaFallida{
         System.out.println("Agregando datos de prueba: ...");
@@ -679,7 +710,7 @@ public class Controlador implements IControlador{
                     "Actor y conductor"
             );
             this.altaProponente(
-                    "mbusca", "m","Martín", "Buscaglia",
+                    "mbusca", "a","Martín", "Buscaglia",
                     "martin.bus@agadu.org.uy", LocalDate.of(1972, 6, 14),
                     "uploads/imagenes/MB.jpg",
                     "Colonia 4321",
@@ -687,7 +718,7 @@ public class Controlador implements IControlador{
                     "Músico uruguayo"
             );
             this.altaProponente(
-                    "hectorg", "","Héctor", "Guido",
+                    "hectorg", "a","Héctor", "Guido",
                     "hector.gui@elgalpon.org.uy", LocalDate.of(1954, 1, 7),
                     null,
                     "Gral. Flores 5645",
@@ -695,7 +726,7 @@ public class Controlador implements IControlador{
                     "Actor de teatro"
             );
             this.altaProponente(
-                    "tabarec", "","Tabaré", "Cardozo",
+                    "tabarec", "a","Tabaré", "Cardozo",
                     "tabare.car@agadu.org.uy", LocalDate.of(1971, 7, 24),
                     null,
                     "Santiago Rivas 1212",
@@ -703,7 +734,7 @@ public class Controlador implements IControlador{
                     "Cantante murguista"
             );
             this.altaProponente(
-                    "cachilas", "","Waldemar \"Cachila\"", "Silva",
+                    "cachilas", "a","Waldemar \"Cachila\"", "Silva",
                     "cachila.sil@c1080.org.uy", LocalDate.of(1947, 1, 1),
                     null,
                     "Br. Artigas 4567",
@@ -711,7 +742,7 @@ public class Controlador implements IControlador{
                     "Director comparsa"
             );
             this.altaProponente(
-                    "juliob", "","Julio", "Bocca",
+                    "juliob", "a","Julio", "Bocca",
                     "juliobocca@sodre.com.uy", LocalDate.of(1967, 3, 16),
                     null,
                     "Benito Blanco 4321",
@@ -719,7 +750,7 @@ public class Controlador implements IControlador{
                     "Bailarín"
             );
             this.altaProponente(
-                    "diegop", "","Diego", "Parodi",
+                    "diegop", "a","Diego", "Parodi",
                     "diego@efectocine.com", LocalDate.of(1975, 1, 1),
                     null,
                     "Emilio Frugoni 1138 Ap. 02",
@@ -727,7 +758,7 @@ public class Controlador implements IControlador{
                     "Cineasta"
             );
             this.altaProponente(
-                    "kairoh", "","Kairo", "Herrera",
+                    "kairoh", "a","Kairo", "Herrera",
                     "kairoher@pilsenrock.com.uy", LocalDate.of(1840, 4, 25),
                     null,
                     "Paraguay 1423",
@@ -735,7 +766,7 @@ public class Controlador implements IControlador{
                     "Organizador eventos"
             );
             this.altaProponente(
-                    "losBardo", "","Los", "Bardo",
+                    "losBardo", "a","Los", "Bardo",
                     "losbardo@bardocientifico.com", LocalDate.of(1980, 10, 31),
                     "uploads/imagenes/LB.jpg",
                     "8 de Octubre 1429",
@@ -744,57 +775,57 @@ public class Controlador implements IControlador{
             );
                 // Colaboradores
             this.altaColaborador(
-                    "robinh", "r","Robin", "Henderson",
+                    "robinh", "a","Robin", "Henderson",
                     "robin.h@tinglesa.com.uy", LocalDate.of(1940, 8, 3),
                     null
             );
             this.altaColaborador(
-                    "marcelot", "","Marcelo", "Tinelli",
+                    "marcelot", "a","Marcelo", "Tinelli",
                     "marcelot@ideasdelsur.com.ar", LocalDate.of(1960, 4, 1),
                     null
             );
             this.altaColaborador(
-                    "novick", "","Edgardo", "Novick",
+                    "novick", "a","Edgardo", "Novick",
                     "edgardo@novick.com.uy", LocalDate.of(1952, 7, 17),
                     null
             );
             this.altaColaborador(
-                    "sergiop", "","Sergio", "Puglia",
+                    "sergiop", "a","Sergio", "Puglia",
                     "puglia@alpanpan.com.uy", LocalDate.of(1950, 1, 28),
                     "uploads/imagenes/SP.jpg"
             );
             this.altaColaborador(
-                    "chino", "","Alvaro", "Recoba",
+                    "chino", "a","Alvaro", "Recoba",
                     "chino@trico.org.uy", LocalDate.of(1976, 3, 17),
                     null
             );
             this.altaColaborador(
-                    "tonyp", "","Antonio", "Pacheco",
+                    "tonyp", "a","Antonio", "Pacheco",
                     "tonyp@manya.org.uy", LocalDate.of(1955, 2, 14),
                    "uploads/imagenes/AP.jpg"
             );
             this.altaColaborador(
-                    "nicoJ", "","Nicolás", "Jodal",
+                    "nicoJ", "a","Nicolás", "Jodal",
                     "jodal@artech.com.uy", LocalDate.of(1960, 8, 9),
                     "uploads/imagenes/NJ.jpg"
             );
             this.altaColaborador(
-                    "juanP", "","Juan", "Perez",
+                    "juanP", "a","Juan", "Perez",
                     "juanp@elpueblo.com", LocalDate.of(1970, 1, 1),
                     null
             );
             this.altaColaborador(
-                    "Mengano", "","Mengano", "Gómez",
+                    "Mengano", "a","Mengano", "Gómez",
                     "menganog@elpueblo.com", LocalDate.of(1982, 2, 2),
                     null
             );
             this.altaColaborador(
-                    "Perengano", "","Perengano", "López",
+                    "Perengano", "a","Perengano", "López",
                     "pere@elpueblo.com", LocalDate.of(1985, 3, 3),
                     null
             );
             this.altaColaborador(
-                    "Tiajaci", "","Tía", "Jacinta",
+                    "Tiajaci", "a","Tía", "Jacinta",
                     "jacinta@elpueblo.com", LocalDate.of(1990, 4, 4),
                     null
             );
@@ -920,158 +951,154 @@ public class Controlador implements IControlador{
             this.altaCategoria("Revista", "Carnaval");
             
             // Propuestas
-            this.altaPropuesta(
-                    "Cine en el Botánico",
-                    "El 16 de Diciembre a la hora 20 se proyectará la película \"Clever\", en el Jardín Botánico (Av. 19 de Abril 1181) en el marco de las actividades realizadas por el ciclo Cultura al Aire Libre. El largometraje uruguayo de ficción Clever es dirigido por Federico Borgia y Guillermo Madeiro. Es apto para mayores de 15 años.",
+            this.altaPropuesta("Cine en el Botánico",
+                    "El 16 de Diciembre a la hora 20 se proyectará la película \"Clever\", en el Jardín Botánico (Av. 19 de Abril 1181). Entrada libre. Organiza: Intendencia de Montevideo.",
                     "Jardín Botánico",
-                    LocalDate.of(2017, 9, 16),
-                    (float)200, (float)150000,
+                    LocalDate.of(2025, 9, 16),
+                    200f,
+                    150000f,
                     EnumSet.of(TipoRetorno.PORCENTAJEGANANCIA),
                     null,
-                    "diegop", "Cine"
+                    "diegop",
+                    "Cine",
+                    LocalDate.of(2025, 5, 15),
+                    LocalTime.of(15, 30)
             );
-            
-            this.altaPropuesta(
-                    "Religiosamente",
-                    "MOMOSAPIENS presenta \"Religiosamente\". Mediante dos parodias y un hilo conductor que aborda la temática de la religión Momosapiens, mediante el humor y la reflexión, hilvana una historia que muestra al hombre inmerso en el tema religioso. El libreto está escrito utilizando diferentes lenguajes de humor, dando una visión satírica y reflexiva desde distintos puntos de vista, logrando mediante situaciones paródicas armar una propuesta plena de arte carnavalero.",
+
+            this.altaPropuesta("Religiosamente",
+                    "MOMOSAPIENS presenta \"Religiosamente\", en el Teatro de Verano. El espectáculo se realiza el 7 de Octubre, hora 21.",
                     "Teatro de Verano",
-                    LocalDate.of(2017, 10, 7),
-                    (float)300, (float)300000,
+                    LocalDate.of(2025, 10, 7),
+                    300f,
+                    300000f,
                     EnumSet.of(TipoRetorno.ENTRADAGRATIS, TipoRetorno.PORCENTAJEGANANCIA),
                     null,
-                    "hrubino", "Parodistas"
+                    "hrubino",
+                    "Parodistas",
+                    LocalDate.of(2025, 6, 18),
+                    LocalTime.of(4, 28)
             );
-            
-            this.altaPropuesta(
-                    "El Pimiento Indomable",
-                    "El Pimiento Indomable, formación compuesta por Kiko Veneno y el uruguayo Martín Buscaglia, presentará este 19 de Octubre, su primer trabajo. Bajo un título homónimo al del grupo, es un disco que según los propios protagonistas \"no se parece al de ninguno de los dos por separado. Entre los títulos que se podrán escuchar se encuentran \"Nadador salvador\", \"América es más grande\", \"Pescaito Enroscado\" o \"La reina del placer\".",
+
+            this.altaPropuesta("El Pimiento Indomable",
+                    "El Pimiento Indomable, formación compuesta por Kiko Veneno y Martín Buscaglia, se presentará el 19 de Octubre en el Teatro Solís. Entradas por Tickantel.",
                     "Teatro Solís",
-                    LocalDate.of(2017, 10, 19),
-                    (float)400, (float)400000,
+                    LocalDate.of(2025, 10, 19),
+                    400f,
+                    400000f,
                     EnumSet.of(TipoRetorno.PORCENTAJEGANANCIA),
                     "uploads/imagenes/PIM.jpg",
-                    "mbusca", "Concierto"
+                    "mbusca",
+                    "Concierto",
+                    LocalDate.of(2025, 7, 26),
+                    LocalTime.of(15, 30)
             );
-            
-            this.altaPropuesta(
-                    "Pilsen Rock",
-                    "La edición 2017 del Pilsen Rock se celebrará el 21 de Octubre en la Rural del Prado y contará con la participación de más de 15 bandas nacionales. Quienes no puedan trasladarse al lugar, tendrán la posibilidad de disfrutar los shows a través de Internet, así como entrevistas en vivo a los músicos una vez finalizados los conciertos.",
-                    "Rural de Prado",
-                    LocalDate.of(2017, 10, 21),
-                    (float)1000, (float)900000,
+
+            this.altaPropuesta("Pilsen Rock",
+                    "La edición 2025 del Pilsen Rock se celebrará el 21 de Octubre en la Rural del Prado. Entradas a la venta en RedTickets.",
+                    "Rural del Prado",
+                    LocalDate.of(2025, 10, 21),
+                    1000f,
+                    900000f,
                     EnumSet.of(TipoRetorno.ENTRADAGRATIS, TipoRetorno.PORCENTAJEGANANCIA),
                     "uploads/imagenes/PIL.jpg",
-                    "kairoh", "Festival"
+                    "kairoh",
+                    "Festival",
+                    LocalDate.of(2025, 7, 30),
+                    LocalTime.of(15, 40)
             );
-            
-            this.altaPropuesta(
-                    "Romeo y Julieta",
-                    "Romeo y Julieta de Kenneth MacMillan, uno de los ballets favoritos del director artístico Julio Bocca, se presentará nuevamente el 5 de Noviembre en el Auditorio Nacional del Sodre. Basada en la obra homónima de William Shakespeare, Romeo y Julieta es considerada la coreografía maestra del MacMillan. La producción de vestuario y escenografía se realizó en los Talleres del Auditorio Adela Reta, sobre los diseños originales.",
+
+            this.altaPropuesta("Romeo y Julieta",
+                    "Romeo y Julieta de Kenneth MacMillan se presentará nuevamente el 5 de Noviembre en el Auditorio Nacional del Sodre. Entradas en Tickantel.",
                     "Auditorio Nacional del Sodre",
-                    LocalDate.of(2017, 11, 5),
-                    (float)800, (float)750000,
+                    LocalDate.of(2025, 11, 5),
+                    800f,
+                    750000f,
                     EnumSet.of(TipoRetorno.PORCENTAJEGANANCIA),
                     null,
-                    "juliob", "Ballet"
+                    "juliob",
+                    "Ballet",
+                    LocalDate.of(2025, 8, 4),
+                    LocalTime.of(12, 20)
             );
-            
-            this.altaPropuesta(
-                    "Un día de Julio",
-                    "La Catalina presenta el espectáculo \"Un Día de Julio\" en Landia. Un hombre misterioso y solitario vive encerrado entre las cuatro paredes de su casa. Intenta, con sus teorías extravagantes, cambiar el mundo exterior que le resulta inhabitable. Un día de Julio sucederá algo que cambiará su vida y la de su entorno para siempre.",
+
+            this.altaPropuesta("Un día de Julio",
+                    "La Catalina presenta el espectáculo \"Un Día de Julio\" en Landia. Función el 16 de Noviembre a las 21 hs.",
                     "Landia",
-                    LocalDate.of(2017, 11, 16),
-                    (float)650, (float)300000,
+                    LocalDate.of(2025, 11, 16),
+                    650f,
+                    300000f,
                     EnumSet.of(TipoRetorno.ENTRADAGRATIS, TipoRetorno.PORCENTAJEGANANCIA),
                     "uploads/imagenes/UDJ.jpg",
-                    "tabarec", "Murga"
+                    "tabarec",
+                    "Murga",
+                    LocalDate.of(2025, 8, 6),
+                    LocalTime.of(2, 0)
             );
-            
-            this.altaPropuesta(
-                    "El Lazarillo de Tormes",
-                    "Vuelve unas de las producciones de El Galpón más aclamadas de los últimos tiempos. Esta obra se ha presentado en Miami, Nueva York, Washington, México, Guadalajara, Río de Janeiro y La Habana. En nuestro país, El Lazarillo de Tormes fue nominado en los rubros mejor espectáculo y mejor dirección a los Premios Florencio 1995, obteniendo su protagonista Héctor Guido el Florencio a Mejor actor de ese año.",
+
+            this.altaPropuesta("El Lazarillo de Tormes",
+                    "Vuelve una de las producciones de El Galpón más aclamadas por crítica y público. Funciones desde el 3 de Diciembre.",
                     "Teatro el Galpón",
-                    LocalDate.of(2017, 12, 3),
-                    (float)350, (float)175000,
+                    LocalDate.of(2025, 12, 3),
+                    350f,
+                    175000f,
                     EnumSet.of(TipoRetorno.ENTRADAGRATIS),
                     null,
-                    "hectorg", "Teatro Dramático"
+                    "hectorg",
+                    "Teatro Dramático",
+                    LocalDate.of(2025, 8, 18),
+                    LocalTime.of(2, 40)
             );
-            
-            this.altaPropuesta(
-                    "Bardo en la FING",
-                    "El 10 de Diciembre se presentará Bardo Científico en la FING. El humor puede ser usado como una herramienta importante para el aprendizaje y la democratización de la ciencia, los monólogos científicos son una forma didáctica de apropiación del conocimiento científico y contribuyen a que el público aprenda ciencia de forma amena. Los invitamos a pasar un rato divertido, en un espacio en el cual aprenderán cosas de la ciencia que los sorprenderán. ¡Los esperamos!",
-                    "Anfiteatro Edificio \"José Luis Massera\"",
-                    LocalDate.of(2017, 12, 10),
-                    (float)200, (float)100000,
+
+            this.altaPropuesta("Bardo en la FING",
+                    "El 10 de Diciembre se presentará Bardo Científico en la FING, Anfiteatro del Edificio José Luis Massera. Entrada libre.",
+                    "Anfiteatro Edificio José Luis Massera",
+                    LocalDate.of(2025, 12, 10),
+                    200f,
+                    100000f,
                     EnumSet.of(TipoRetorno.ENTRADAGRATIS),
                     null,
-                    "losBardo", "Stand-up"
+                    "losBardo",
+                    "Stand-up",
+                    LocalDate.of(2025, 8, 23),
+                    LocalTime.of(2, 12)
             );
-            
-            this.altaColaboracion(50000, LocalDate.of(2017, 5, 20), LocalTime.of(14,30), TipoRetorno.PORCENTAJEGANANCIA, "Cine en el Botánico", "novick");
-            this.altaColaboracion(50000, LocalDate.of(2017, 5, 24), LocalTime.of(17,25), TipoRetorno.PORCENTAJEGANANCIA, "Cine en el Botánico", "robinh");
-            this.altaColaboracion(50000, LocalDate.of(2017, 5, 30), LocalTime.of(18,30), TipoRetorno.PORCENTAJEGANANCIA, "Cine en el Botánico", "nicoJ");
-            this.altaColaboracion(200000, LocalDate.of(2017, 6, 30), LocalTime.of(14,25), TipoRetorno.PORCENTAJEGANANCIA, "Religiosamente", "marcelot");
-            this.altaColaboracion(500, LocalDate.of(2017, 7, 1), LocalTime.of(18,05), TipoRetorno.ENTRADAGRATIS, "Religiosamente", "Tiajaci");
-            this.altaColaboracion(600, LocalDate.of(2017, 7, 7), LocalTime.of(17,45), TipoRetorno.ENTRADAGRATIS, "Religiosamente", "Mengano");
-            this.altaColaboracion(50000, LocalDate.of(2017, 7, 10), LocalTime.of(14,35), TipoRetorno.PORCENTAJEGANANCIA, "Religiosamente", "novick");
-            this.altaColaboracion(50000, LocalDate.of(2017, 7, 15), LocalTime.of(9,45), TipoRetorno.PORCENTAJEGANANCIA, "Religiosamente", "sergiop");
-            this.altaColaboracion(200000, LocalDate.of(2017, 8, 1), LocalTime.of(7,40), TipoRetorno.PORCENTAJEGANANCIA, "El Pimiento Indomable", "marcelot");
-            this.altaColaboracion(80000, LocalDate.of(2017, 8, 3), LocalTime.of(9,25), TipoRetorno.PORCENTAJEGANANCIA, "El Pimiento Indomable", "sergiop");
-            this.altaColaboracion(50000, LocalDate.of(2017, 8, 5), LocalTime.of(16,50), TipoRetorno.ENTRADAGRATIS, "Pilsen Rock", "chino");
-            this.altaColaboracion(120000, LocalDate.of(2017, 8, 10), LocalTime.of(15,50), TipoRetorno.PORCENTAJEGANANCIA, "Pilsen Rock", "novick");
-            this.altaColaboracion(120000, LocalDate.of(2017, 8, 15), LocalTime.of(19,30), TipoRetorno.ENTRADAGRATIS, "Pilsen Rock", "tonyp");
-            this.altaColaboracion(100000, LocalDate.of(2017, 8, 13), LocalTime.of(4,58), TipoRetorno.PORCENTAJEGANANCIA, "Romeo y Julieta", "sergiop");
-            this.altaColaboracion(200000, LocalDate.of(2017, 8, 14), LocalTime.of(11,25), TipoRetorno.PORCENTAJEGANANCIA, "Romeo y Julieta", "marcelot");
-            this.altaColaboracion(30000, LocalDate.of(2017, 8, 15), LocalTime.of(04,48), TipoRetorno.ENTRADAGRATIS, "Un día de Julio", "tonyp");
-            this.altaColaboracion(150000, LocalDate.of(2017, 8, 17), LocalTime.of(15,30), TipoRetorno.PORCENTAJEGANANCIA, "Un día de Julio", "marcelot");
+
+            // Propuestas publicadas
+            this.nuevoEstadoPropuesta("Cine en el Botánico", TipoEstado.PUBLICADA, LocalDate.of(2025, 6, 1), LocalTime.of(10, 15));
+            this.nuevoEstadoPropuesta("Religiosamente", TipoEstado.PUBLICADA, LocalDate.of(2025, 7, 5), LocalTime.of(11, 10));
+            this.nuevoEstadoPropuesta("El Pimiento Indomable", TipoEstado.PUBLICADA, LocalDate.of(2025, 7, 27), LocalTime.of(9, 45));
+            this.nuevoEstadoPropuesta("Pilsen Rock", TipoEstado.PUBLICADA, LocalDate.of(2025, 8, 2), LocalTime.of(16, 5));
+            this.nuevoEstadoPropuesta("Romeo y Julieta", TipoEstado.PUBLICADA, LocalDate.of(2025, 8, 9), LocalTime.of(14, 50));
+            this.nuevoEstadoPropuesta("Un día de Julio", TipoEstado.PUBLICADA, LocalDate.of(2025, 8, 14), LocalTime.of(13, 10));
+            this.nuevoEstadoPropuesta("El Lazarillo de Tormes", TipoEstado.PUBLICADA, LocalDate.of(2025, 8, 20), LocalTime.of(17, 20));
+
+            this.altaColaboracion(50000, LocalDate.of(2025, 5, 20), LocalTime.of(14,30), TipoRetorno.PORCENTAJEGANANCIA, "Cine en el Botánico", "novick");
+            this.altaColaboracion(50000, LocalDate.of(2025, 5, 24), LocalTime.of(17,25), TipoRetorno.PORCENTAJEGANANCIA, "Cine en el Botánico", "robinh");
+            this.altaColaboracion(50000, LocalDate.of(2025, 5, 30), LocalTime.of(18,30), TipoRetorno.PORCENTAJEGANANCIA, "Cine en el Botánico", "nicoJ");
+            this.altaColaboracion(200000, LocalDate.of(2025, 6, 30), LocalTime.of(14,25), TipoRetorno.PORCENTAJEGANANCIA, "Religiosamente", "marcelot");
+            this.altaColaboracion(500, LocalDate.of(2025, 7, 1), LocalTime.of(18,05), TipoRetorno.ENTRADAGRATIS, "Religiosamente", "Tiajaci");
+            this.altaColaboracion(600, LocalDate.of(2025, 7, 7), LocalTime.of(17,45), TipoRetorno.ENTRADAGRATIS, "Religiosamente", "Mengano");
+            this.altaColaboracion(50000, LocalDate.of(2025, 7, 10), LocalTime.of(14,35), TipoRetorno.PORCENTAJEGANANCIA, "Religiosamente", "novick");
+            this.altaColaboracion(50000, LocalDate.of(2025, 7, 15), LocalTime.of(9,45), TipoRetorno.PORCENTAJEGANANCIA, "Religiosamente", "sergiop");
+            this.altaColaboracion(200000, LocalDate.of(2025, 8, 1), LocalTime.of(7,40), TipoRetorno.PORCENTAJEGANANCIA, "El Pimiento Indomable", "marcelot");
+            this.altaColaboracion(80000, LocalDate.of(2025, 8, 3), LocalTime.of(9,25), TipoRetorno.PORCENTAJEGANANCIA, "El Pimiento Indomable", "sergiop");
+            this.altaColaboracion(50000, LocalDate.of(2025, 8, 5), LocalTime.of(16,50), TipoRetorno.ENTRADAGRATIS, "Pilsen Rock", "chino");
+            this.altaColaboracion(120000, LocalDate.of(2025, 8, 10), LocalTime.of(15,50), TipoRetorno.PORCENTAJEGANANCIA, "Pilsen Rock", "novick");
+            this.altaColaboracion(120000, LocalDate.of(2025, 8, 15), LocalTime.of(19,30), TipoRetorno.ENTRADAGRATIS, "Pilsen Rock", "tonyp");
+            this.altaColaboracion(100000, LocalDate.of(2025, 8, 13), LocalTime.of(4,58), TipoRetorno.PORCENTAJEGANANCIA, "Romeo y Julieta", "sergiop");
+            this.altaColaboracion(200000, LocalDate.of(2025, 8, 14), LocalTime.of(11,25), TipoRetorno.PORCENTAJEGANANCIA, "Romeo y Julieta", "marcelot");
+            this.altaColaboracion(30000, LocalDate.of(2025, 8, 15), LocalTime.of(04,48), TipoRetorno.ENTRADAGRATIS, "Un día de Julio", "tonyp");
+            this.altaColaboracion(150000, LocalDate.of(2025, 8, 17), LocalTime.of(15,30), TipoRetorno.PORCENTAJEGANANCIA, "Un día de Julio", "marcelot");
 
             
             
-            // Estados para CEB
-            this.nuevoEstadoPropuesta("Cine en el Botánico", TipoEstado.INGRESADA, LocalDate.of(2017, 5, 15), LocalTime.of(15, 30));
-            this.nuevoEstadoPropuesta("Cine en el Botánico", TipoEstado.PUBLICADA, LocalDate.of(2017, 5, 17), LocalTime.of(8, 30));
-            this.nuevoEstadoPropuesta("Cine en el Botánico", TipoEstado.ENFINANCIACION, LocalDate.of(2017, 5, 20), LocalTime.of(14, 30));
-            this.nuevoEstadoPropuesta("Cine en el Botánico", TipoEstado.FINANCIADA, LocalDate.of(2017, 5, 30), LocalTime.of(18, 30));
-            this.nuevoEstadoPropuesta("Cine en el Botánico", TipoEstado.CANCELADA, LocalDate.of(2017, 6, 15), LocalTime.of(14, 50));
-            
-            // Estados para MOM
-            this.nuevoEstadoPropuesta("Religiosamente",TipoEstado.INGRESADA, LocalDate.of(2017, 6, 18), LocalTime.of(4,28));
-            this.nuevoEstadoPropuesta("Religiosamente", TipoEstado.PUBLICADA, LocalDate.of(2017, 6, 20), LocalTime.of(4, 56));
-            this.nuevoEstadoPropuesta("Religiosamente", TipoEstado.ENFINANCIACION, LocalDate.of(2017, 6, 30), LocalTime.of(14, 25));
-            this.nuevoEstadoPropuesta("Religiosamente", TipoEstado.FINANCIADA, LocalDate.of(2017, 7, 15), LocalTime.of(9, 45));
-
-            //Estados para PIM
-            this.nuevoEstadoPropuesta("El Pimiento Indomable", TipoEstado.INGRESADA, LocalDate.of(2017, 7, 26), LocalTime.of(15, 30));
-            this.nuevoEstadoPropuesta("El Pimiento Indomable", TipoEstado.PUBLICADA, LocalDate.of(2017, 7, 31), LocalTime.of(8, 30));
-            this.nuevoEstadoPropuesta("El Pimiento Indomable", TipoEstado.ENFINANCIACION, LocalDate.of(2017, 8, 1), LocalTime.of(7, 40));
-
-            //Estados para PIL
-            this.nuevoEstadoPropuesta("Pilsen Rock", TipoEstado.INGRESADA, LocalDate.of(2017, 7, 30), LocalTime.of(15, 40));
-            this.nuevoEstadoPropuesta("Pilsen Rock", TipoEstado.PUBLICADA, LocalDate.of(2017, 8, 1), LocalTime.of(14, 30));
-            this.nuevoEstadoPropuesta("Pilsen Rock", TipoEstado.ENFINANCIACION, LocalDate.of(2017, 8, 5), LocalTime.of(16, 50));
-   
-            //Estados para RYJ
-            this.nuevoEstadoPropuesta("Romeo y Julieta", TipoEstado.INGRESADA, LocalDate.of(2017, 8, 4), LocalTime.of(12, 20));
-            this.nuevoEstadoPropuesta("Romeo y Julieta", TipoEstado.PUBLICADA, LocalDate.of(2017, 8, 10), LocalTime.of(10, 25));
-            this.nuevoEstadoPropuesta("Romeo y Julieta", TipoEstado.ENFINANCIACION, LocalDate.of(2017, 8, 13), LocalTime.of(4, 58));
-
-            // Estados para UDJ
-            this.nuevoEstadoPropuesta("Un día de Julio", TipoEstado.INGRESADA, LocalDate.of(2017, 8, 6), LocalTime.of(2, 0));
-            this.nuevoEstadoPropuesta("Un día de Julio", TipoEstado.PUBLICADA, LocalDate.of(2017, 8, 12), LocalTime.of(4, 50));
-            this.nuevoEstadoPropuesta("Un día de Julio", TipoEstado.ENFINANCIACION, LocalDate.of(2017, 8, 15), LocalTime.of(4, 48));
-
-            //Estados para LDT
-            this.nuevoEstadoPropuesta("El Lazarillo de Tormes", TipoEstado.INGRESADA, LocalDate.of(2017, 8, 18), LocalTime.of(2, 40));
-            this.nuevoEstadoPropuesta("El Lazarillo de Tormes", TipoEstado.PUBLICADA, LocalDate.of(2017, 8, 20), LocalTime.of(21, 58));
-
-            // Estados para BEF
-            this.nuevoEstadoPropuesta("Bardo en la FING", TipoEstado.INGRESADA, LocalDate.of(2017, 8, 23), LocalTime.of(2, 12));
+            // Propuestas Canceladas
+            this.nuevoEstadoPropuesta("Cine en el Botánico", TipoEstado.CANCELADA, LocalDate.of(2025, 6, 15), LocalTime.of(14, 50));
 
             
             System.out.println("Datos de prueba cargados exitosamente.");
         } catch (Exception e) {
-            throw new CargaFallida("Error al cargar datos de prueba: " + e);
+            throw new CargaFallida("Error al cargar datos de prueba: " + e.toString());
         }
     }
 

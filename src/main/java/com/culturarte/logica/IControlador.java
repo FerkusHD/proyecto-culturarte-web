@@ -35,7 +35,7 @@ public interface IControlador {
     public abstract DTProponente getDTProponente(String nickname);
     public abstract void altaCategoria(String nombre, String catPadre) throws CategoriaYaExiste;
     public abstract DefaultTreeModel listarCategorias();
-    public abstract void altaPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, EnumSet<TipoRetorno> tipoRetornos, String imagen, String proponente, String categoria) throws PropuestaYaExiste;
+    public abstract void altaPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, EnumSet<TipoRetorno> tipoRetornos, String imagen, String proponente, String categoria, LocalDate fechaActual, LocalTime horaActual) throws PropuestaYaExiste;
     public abstract ArrayList<String> getNickColaboradores();
     public abstract ArrayList<String> getNomColaboradores();
     public abstract DTColaborador getDTColaborador(String nickname);
@@ -65,4 +65,6 @@ public interface IControlador {
     public abstract void agregarComentario(String texto, String nickColaborador, String tituloPropuesta);
     public abstract List<DTUsuario> buscarUsuarios(String nombre);
     public abstract void agregarPropuestaFavorita(String nickname, String tituloPropuesta);
+    public abstract void sacarPropuestaFavorita(String nickname, String tituloPropuesta);
+    public abstract boolean colaboradorPuedeComentar(String colaborador, String tituloPropuesta);
 }

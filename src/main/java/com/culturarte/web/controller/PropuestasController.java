@@ -3,10 +3,7 @@ package com.culturarte.web.controller;
 import com.culturarte.exepciones.ColaboracionYaExiste;
 import com.culturarte.exepciones.PropuestaYaExiste;
 import com.culturarte.logica.IControlador;
-import com.culturarte.logica.datatypes.DTColaboracion;
-import com.culturarte.logica.datatypes.DTProponente;
-import com.culturarte.logica.datatypes.DTPropuesta;
-import com.culturarte.logica.datatypes.DTUsuario;
+import com.culturarte.logica.datatypes.*;
 import com.culturarte.logica.enums.TipoEstado;
 import com.culturarte.logica.enums.TipoRetorno;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -205,9 +202,9 @@ public class PropuestasController {
             ctrl.altaPropuesta(
                     titulo, descripcion, lugar, fecha,
                     montoEntrada, montoNecesario,
-                    tiposRet, imagen, proponente, categoria
+                    tiposRet, imagen, proponente, categoria,
+                    LocalDate.now(), LocalTime.now()
             );
-            ctrl.nuevoEstadoPropuesta(titulo, TipoEstado.INGRESADA, LocalDate.now(), LocalTime.now());
 
             model.addAttribute("mensaje", "✅ Propuesta registrada con éxito");
             return "exitoAltaPropuesta";
@@ -252,7 +249,7 @@ public class PropuestasController {
     }
 
     @GetMapping("/{titulo}")
-    public String mostrarPropuesta(Model model, @PathVariable String titulo){
+    public String mostrarPropuesta(Model model, HttpSession session, @PathVariable String titulo){
         DTPropuesta propuesta = ctrl.getDTPropuesta(titulo);
 
         if(propuesta == null){
@@ -270,6 +267,16 @@ public class PropuestasController {
 
         model.addAttribute("proponente", proponente);
 
+        DTUsuario usuario = (DTUsuario) session.getAttribute("usuarioLogueado");
+        if (usuario != null && !usuario.getTipo().equals("visitante")) {
+            boolean esFavorita = usuario.buscarPropuestaFavorita(titulo);
+            model.addAttribute("esFavorita", esFavorita);
+        }
+
+        if (usuario != null && usuario.getTipo().equals("colaborador")) {
+            boolean puedeComentar = ctrl.colaboradorPuedeComentar(usuario.getNickname(), propuesta.getTitulo());
+            model.addAttribute("puedeComentar", puedeComentar);
+        }
 
         return "consultarPropuesta";
     }
@@ -317,7 +324,7 @@ public class PropuestasController {
     @PostMapping("/agregarComentario")
     public String agregarComentario(
             @RequestParam String tituloPropuesta,
-            @RequestParam(required = false) String texto,  // ← Hacerlo opcional
+            @RequestParam String texto,  // ← Hacerlo opcional
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
@@ -342,19 +349,6 @@ public class PropuestasController {
                 return "redirect:/propuestas/" + tituloPropuesta;
             }
 
-            // Verificar que el colaborador haya colaborado con esta propuesta
-            DTPropuesta propuesta = ctrl.getDTPropuesta(tituloPropuesta);
-            if (propuesta == null) {
-                redirectAttributes.addFlashAttribute("mensajeError", "La propuesta no existe");
-                return "redirect:/propuestas/buscar";
-            }
-
-            if (!propuesta.getColaboradores().contains(usuario.getNickname())) {
-                redirectAttributes.addFlashAttribute("mensajeError", "Debes ser colaborador de esta propuesta para comentar");
-                return "redirect:/propuestas/" + tituloPropuesta;
-            }
-
-            // Llamar a tu método ya implementado
             ctrl.agregarComentario(texto, usuario.getNickname(), tituloPropuesta);
 
             redirectAttributes.addFlashAttribute("mensajeExito", "Comentario agregado correctamente");
@@ -388,6 +382,33 @@ public class PropuestasController {
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("mensajeError", "Error al agregar a favoritos: " + e.getMessage());
+        }
+
+        return "redirect:/propuestas/" + tituloPropuesta;
+    }
+
+    @PostMapping("/quitarFavorita")
+    public String quitarFavorita(
+            @RequestParam String tituloPropuesta,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        try {
+            DTUsuario usuario = (DTUsuario) session.getAttribute("usuarioLogueado");
+
+            if (usuario == null || "visitante".equals(usuario.getTipo())) {
+                redirectAttributes.addFlashAttribute("mensajeError", "Debes estar logueado para agregar a favoritas");
+                return "redirect:/propuestas/" + tituloPropuesta;
+            }
+
+            ctrl.sacarPropuestaFavorita(usuario.getNickname(), tituloPropuesta);
+
+            DTUsuario usuarioActualizado = ctrl.getDTUsuario(usuario.getNickname());
+            session.setAttribute("usuarioLogueado", usuarioActualizado);
+
+            redirectAttributes.addFlashAttribute("mensajeExito", "Propuesta eliminada de favoritos correctamente");
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("mensajeError", "Error al borrar de favoritos: " + e.getMessage());
         }
 
         return "redirect:/propuestas/" + tituloPropuesta;

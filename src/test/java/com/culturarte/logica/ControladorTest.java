@@ -12,6 +12,8 @@ import com.culturarte.logica.manejadores.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
+
 import static org.mockito.Mockito.*;
 import com.culturarte.logica.enums.*;
 
@@ -101,7 +103,7 @@ class ControladorTest {
         controlador.altaPropuesta("Expo", "desc", "Montevideo",
                 LocalDate.of(2025, 1, 1), 100f, 1000f,
                 java.util.EnumSet.of(TipoRetorno.ENTRADAGRATIS),
-                "img.png", "prop1", "Arte");
+                "img.png", "prop1", "Arte", LocalDate.now(), LocalTime.now());
         verify(mp).agregarPropuesta(any(Propuesta.class));
 
         when(mp.getPropuesta("Expo")).thenReturn(mock(Propuesta.class));
@@ -109,7 +111,7 @@ class ControladorTest {
                 "Expo", "desc", "Montevideo",
                 LocalDate.of(2025, 1, 1), 100f, 1000f,
                 java.util.EnumSet.of(TipoRetorno.ENTRADAGRATIS),
-                "img.png", "prop1", "Arte"));
+                "img.png", "prop1", "Arte", LocalDate.now(), LocalTime.now()));
     }
 
     @Test

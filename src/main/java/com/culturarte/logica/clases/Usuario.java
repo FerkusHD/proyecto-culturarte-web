@@ -142,6 +142,17 @@ public abstract class Usuario {
         this.propuestasSeguidas.add(propuesta);
     }
 
+    public void sacarPropuestaFavorita(Propuesta propuesta) {
+        if (this.propuestasSeguidas == null) {
+            this.propuestasSeguidas= new ArrayList<>();
+        }
+
+        if( this.propuestasSeguidas.contains(propuesta)) {
+            this.propuestasSeguidas.remove(propuesta);
+        }
+
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

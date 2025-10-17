@@ -425,18 +425,18 @@
                             <h4 class="text-primary mb-3">Comentarios</h4>
 
 
-                            <c:if test="${sessionScope.usuarioLogueado.tipo eq 'colaborador' && propuesta.colaboradores.contains(sessionScope.usuarioLogueado.nickname)}">
+                            <c:if test="${puedeComentar}">
                                 <div class="card mb-4 border-primary">
                                     <div class="card-header bg-primary text-white">
                                         <h6 class="mb-0"><i class="bi bi-chat-left-text"></i> Agregar Comentario</h6>
                                     </div>
                                     <div class="card-body">
                                         <form action="${pageContext.request.contextPath}/propuestas/agregarComentario" method="post">
-                                            <input type="hidden" name="tituloPropuesta" value="${propuesta.titulo}">
+                                            <input type="hidden" name="tituloPropuesta" value="${propuesta.titulo}"/>
                                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                                             <div class="mb-3">
-                                                <label for="comentarioTexto" class="form-label">Tu comentario:</label>
-                                                <textarea class="form-control" id="comentarioTexto" name="texto" rows="3" maxlength="500" placeholder="Escribe tu comentario aquí..." required></textarea>
+                                                <label for="texto" class="form-label">Tu comentario:</label>
+                                                <textarea class="form-control" id="texto" name="texto" rows="3" maxlength="500" placeholder="Escribe tu comentario aquí..." required></textarea>
                                             </div>
                                             <button type="submit" class="btn btn-primary">
                                                 <i class="bi bi-send"></i> Publicar Comentario
@@ -456,7 +456,7 @@
                                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                                         <div class="d-flex align-items-center">
                                                             <i class="bi bi-person-circle text-primary me-2 fs-5"></i>
-                                                            <strong class="me-2">${comentario.colaborador}</strong>
+                                                            <strong class="me-2">${comentario.colaborador.nickname}</strong>
                                                             <span class="text-muted small">
                                                                 ${comentario.fecha}
                                                             </span>
@@ -520,9 +520,13 @@
                     </a>
                 </c:when>
                 <c:when test="${esFavorita}">
-                    <button class="btn btn-danger" disabled>
-                        <i class="bi bi-heart-fill"></i> En Favoritos
-                    </button>
+                    <form action="${pageContext.request.contextPath}/propuestas/quitarFavorita" method="post" class="d-inline">
+                        <input type="hidden" name="tituloPropuesta" value="${propuesta.titulo}"/>
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="bi bi-heartbreak"></i> Quitar de Favoritos
+                        </button>
+                    </form>
                 </c:when>
                 <c:otherwise>
                     <form action="${pageContext.request.contextPath}/propuestas/agregarFavorita" method="post" class="d-inline">

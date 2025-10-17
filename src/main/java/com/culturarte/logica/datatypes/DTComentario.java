@@ -49,4 +49,6 @@ public class DTComentario {
     public LocalDate getFecha() { return fecha;}
 
     public void setFecha(LocalDate fecha) { this.fecha = fecha; }
+
+
 }

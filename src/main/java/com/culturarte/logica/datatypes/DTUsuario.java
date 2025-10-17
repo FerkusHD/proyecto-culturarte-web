@@ -76,6 +76,8 @@ public class DTUsuario {
     }
 
 
+
+
     public String getImagen() {
         return imagen;
     }
@@ -176,6 +178,16 @@ public class DTUsuario {
         if (this.usuariosSeguidos == null ) return false;
         for (DTUsuario u : this.usuariosSeguidos) {
             if (u.getNickname().equals(seguido)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean buscarPropuestaFavorita(String titulo) {
+        if (this.propuestasSeguidas == null ) return false;
+        for (DTPropuesta p : this.propuestasSeguidas) {
+            if (p.getTitulo().equals(titulo)) {
                 return true;
             }
         }
