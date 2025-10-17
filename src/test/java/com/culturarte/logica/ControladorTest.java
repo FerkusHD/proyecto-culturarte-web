@@ -17,9 +17,8 @@ import java.time.LocalTime;
 import static org.mockito.Mockito.*;
 import com.culturarte.logica.enums.*;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -97,16 +96,30 @@ class ControladorTest {
 
     @Test
     void altaPropuesta_exito() throws Exception {
-        when(mp.getPropuesta("Expo")).thenReturn(null);
+        Map<String, Propuesta> store = new HashMap<>();
+
+        when(mp.getPropuesta(anyString())).thenAnswer(invocation -> store.get(invocation.getArgument(0)));
+
+        doAnswer(invocation -> {
+            Propuesta p = invocation.getArgument(0);
+            store.put(p.getTitulo(), p);
+            return null;
+        }).when(mp).agregarPropuesta(any(Propuesta.class));
+
         when(mu.buscarUsuario("prop1")).thenReturn(mock(Proponente.class));
         when(mc.buscar("Arte")).thenReturn(mock(Categoria.class));
 
         controlador.altaPropuesta("Expo", "desc", "Montevideo",
                 LocalDate.of(2025, 1, 1), 100f, 1000f,
-                java.util.EnumSet.of(TipoRetorno.ENTRADAGRATIS),
+                EnumSet.of(TipoRetorno.ENTRADAGRATIS),
                 "img.png", "prop1", "Arte", LocalDate.now(), LocalTime.now());
+
         verify(mp).agregarPropuesta(any(Propuesta.class));
+
+        assertNotNull(store.get("Expo"));
     }
+
+
 
     @Test
     void altaPropuesta_propuestaYaExiste() throws Exception {
