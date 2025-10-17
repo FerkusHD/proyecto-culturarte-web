@@ -345,19 +345,35 @@
                             <c:choose>
                                 <c:when test="${not empty propuesta.colaboradores && propuesta.colaboradores.size() > 0}">
                                     <div class="row">
-                                        <c:forEach var="colaborador" items="${propuesta.colaboradores}">
-                                             <div class="col-md-6 mb-3">
-                                                 <a href="${pageContext.request.contextPath}/usuarios/${colaborador}" style="text-decoration: none; color: inherit;">
-                                                     <div class="card h-100 shadow-sm border-0 rounded-3 overflow-hidden hover-shadow">
-                                                         <div class="card-body text-center">
-                                                             <i class="bi bi-person-circle fs-1 text-primary mb-3"></i>
-                                                             <h5 class="card-title">${colaborador}</h5>
-                                                             <p class="card-text text-muted">Colaborador</p>
-                                                         </div>
-                                                     </div>
-                                                 </a>
+                                        <c:forEach var="colaborador" items="${colaboradores}">
+                                            <div class="col-md-6 mb-3">
+                                                <a href="${pageContext.request.contextPath}/usuarios/${colaborador.nickname}" style="text-decoration: none; color: inherit;">
+                                                    <div class="card h-100 shadow-sm border-0 rounded-3 overflow-hidden hover-shadow">
+                                                        <div class="card-body text-center">
+                                                            <c:choose>
+                                                                <c:when test="${not empty colaborador.imagen}">
+                                                                    <img src="${pageContext.request.contextPath}/${colaborador.imagen}"
+                                                                         class="rounded-circle mb-3"
+                                                                         style="width: 80px; height: 80px; object-fit: cover;"
+                                                                         alt="${colaborador.nombre}">
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <img src="${pageContext.request.contextPath}/uploads/imagenes/noimgperfil.jpg"
+                                                                         alt="Sin foto"
+                                                                         class="rounded-circle mb-3"
+                                                                         style="width: 80px; height: 80px; object-fit: cover;">
+                                                                </c:otherwise>
+                                                            </c:choose>
+
+                                                            <h5 class="card-title">${colaborador.nombre} ${colaborador.apellido}</h5>
+                                                            <p class="card-text text-muted">Colaborador</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
                                             </div>
                                         </c:forEach>
+
+
                                     </div>
                                 </c:when>
                                 <c:otherwise>

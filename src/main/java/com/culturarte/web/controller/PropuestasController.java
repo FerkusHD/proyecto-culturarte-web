@@ -20,6 +20,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -277,6 +278,16 @@ public class PropuestasController {
             boolean puedeComentar = ctrl.colaboradorPuedeComentar(usuario.getNickname(), propuesta.getTitulo());
             model.addAttribute("puedeComentar", puedeComentar);
         }
+
+        if (propuesta.getColaboradores() != null && !propuesta.getColaboradores().isEmpty()) {
+            List<DTUsuario> colaboradores = propuesta.getColaboradores().stream()
+                    .map(nick -> ctrl.getDTUsuario(nick)) // método que devuelve DTUsuario con nombre, apellido, imagen
+                    .collect(Collectors.toList());
+            model.addAttribute("colaboradores", colaboradores);
+        } else {
+            model.addAttribute("colaboradores", new ArrayList<>()); // para evitar null
+        }
+
 
         return "consultarPropuesta";
     }

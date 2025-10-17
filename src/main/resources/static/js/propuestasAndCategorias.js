@@ -98,13 +98,14 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// --- Función Principal de Renderizado ---
+
+const imagenPorDefecto = '/uploads/imagenes/noimg.jpg'; // Ajusta según tu estructura
+
 function mostrarPropuestas(lista) {
     const contenedor = document.getElementById('tarjetas');
-    // Creamos el contenedor de filas de Bootstrap para las tarjetas
     const row = document.createElement('div');
     row.classList.add('row', 'row-cols-1', 'row-cols-md-3', 'g-4');
-    contenedor.innerHTML = ''; // Limpiar el contenedor principal
+    contenedor.innerHTML = '';
 
     if (lista.length === 0) {
         contenedor.innerHTML = '<p class="text-center w-100 mt-4">No se encontraron propuestas con los filtros seleccionados.</p>';
@@ -116,13 +117,18 @@ function mostrarPropuestas(lista) {
         const porcentajeRedondeado = Math.min(Math.round(porcentaje), 100);
         const diasRestantes = calcularDiasRestantes(p.fechaPrevista);
 
+        // Si no tiene imagen, usar la default
+        const imgSrc = p.imagen && p.imagen.trim() !== ''
+            ? p.imagen
+            : imagenPorDefecto;
+
         const col = document.createElement('div');
         col.classList.add('col');
 
         col.innerHTML = `
         <a href="/propuestas/${p.titulo}" class="text-decoration-none text-dark">
             <div class="card h-100 border p-2 shadow-sm hover-shadow">
-                <img src="${p.imagen}" class="card-img-top" alt="${p.titulo}" style="height: 150px; object-fit: cover;">
+                <img src="${imgSrc}" class="card-img-top" alt="${p.titulo}" style="height: 150px; object-fit: cover;">
                 <div class="card-body p-2">
                     <h6 class="card-title fw-bold mb-1" style="font-size: 14px;">${p.titulo}</h6>
                     <p class="card-text text-muted mb-2" style="font-size: 12px;">${p.descripcion.substring(0, 120)}...</p>
@@ -155,19 +161,17 @@ function mostrarPropuestas(lista) {
                 </div>
             </div>
         </a>
-    `;
+        `;
         row.appendChild(col);
     });
-
 
     contenedor.appendChild(row);
 }
 
+
 let estadoActivo = 'PUBLICADA';
 
 function inicializarFiltros() {
-    // Obtener el estado inicial de la pestaña activa al cargar la página.
-    // Asumiendo que el ID del ul es 'proposalTabs' y la pestaña por defecto es 'Creadas'.
     const activeTab = document.getElementById('proposalTabs').querySelector('.nav-link.active');
     if (activeTab) {
         estadoActivo = activeTab.getAttribute('data-estado');

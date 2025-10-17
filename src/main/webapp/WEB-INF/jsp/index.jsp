@@ -73,11 +73,12 @@
                         <div class="d-flex align-items-start gap-2">
                             <c:choose>
                                 <c:when test="${not empty sessionScope.usuarioLogueado.imagen}">
-                                    <img src="${sessionScope.usuarioLogueado.imagen}" class="rounded-circle"
+                                    <img src="${pageContext.request.contextPath}/${sessionScope.usuarioLogueado.imagen}"
+                                         class="rounded-circle"
                                          alt="Usuario" style="width: 45px; height: 45px; object-fit: cover;">
                                 </c:when>
                                 <c:otherwise>
-                                    <div class="rounded-circle bg-dark text-white d-flex justify-content-center align-items-center" style="width: 45px; height: 45px; flex-shrink: 0;">
+                                    <div class="rounded-circle bg-dark text-white d-flex justify-content-center align-items-center" style="width: 45px; height: 45px;">
                                         <i class="bi bi-person-fill" style="font-size: 28px;"></i>
                                     </div>
                                 </c:otherwise>
