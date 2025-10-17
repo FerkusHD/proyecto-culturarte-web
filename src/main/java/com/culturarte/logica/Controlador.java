@@ -644,6 +644,18 @@ public class Controlador implements IControlador{
         mp.actualizarPropuesta(p);
     }
 
+
+    @Override
+    public void agregarPropuestaFavorita(String nickUsuario, String tituloPropuesta) {
+        Usuario u = mu.buscarUsuario(nickUsuario);
+        Propuesta p = mp.getPropuesta(tituloPropuesta);
+        if (u == null || p == null) {
+            throw new IllegalArgumentException("Usuario o Propuesta no encontrados");
+        }
+        u.agregarPropuestaFavorita(p);
+        mu.actualizarUsuario(u);
+    }
+
     @Transactional
     public void cargarDatosPrueba() throws CargaFallida{
         System.out.println("Agregando datos de prueba: ...");

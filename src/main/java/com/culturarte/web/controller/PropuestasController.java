@@ -265,27 +265,14 @@ public class PropuestasController {
 
         model.addAttribute("propuesta", propuesta);
 
-        // Obtener el proponente
+
         String nickProponente = propuesta.getProponente();
-        System.out.println("🔍 Nick del proponente: " + nickProponente);
+
 
         DTProponente proponente = ctrl.getDTProponente(nickProponente);
 
-        // DEBUG
-        System.out.println("=== DEBUG PROPONENTE ===");
-        if (proponente != null) {
-            System.out.println("✅ Proponente encontrado");
-            System.out.println("Nickname: " + proponente.getNickname());
-            System.out.println("Nombre: " + proponente.getNombre());
-            System.out.println("Apellido: " + proponente.getApellido());
-            System.out.println("Biografía: " + proponente.getBiografia());
-            System.out.println("Link: " + proponente.getLinkWeb());
-        } else {
-            System.out.println("❌ Proponente es NULL");
-        }
-
         model.addAttribute("proponente", proponente);
-        System.out.println("🔍 Atributo 'proponente' agregado al modelo");
+
 
         return "consultarPropuesta";
     }
@@ -337,9 +324,6 @@ public class PropuestasController {
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        System.out.println("=== DEBUG AGREGAR COMENTARIO ===");
-        System.out.println("tituloPropuesta: " + tituloPropuesta);
-        System.out.println("texto: " + texto);
 
         try {
             DTUsuario usuario = (DTUsuario) session.getAttribute("usuarioLogueado");
@@ -384,5 +368,33 @@ public class PropuestasController {
             return "redirect:/propuestas/" + tituloPropuesta;
         }
     }
+
+    @PostMapping("/agregarFavorita")
+    public String agregarFavorita(
+            @RequestParam String tituloPropuesta,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        try {
+            DTUsuario usuario = (DTUsuario) session.getAttribute("usuarioLogueado");
+
+            if (usuario == null || "visitante".equals(usuario.getTipo())) {
+                redirectAttributes.addFlashAttribute("mensajeError", "Debes estar logueado para agregar a favoritas");
+                return "redirect:/propuestas/" + tituloPropuesta;
+            }
+
+            ctrl.agregarPropuestaFavorita(usuario.getNickname(), tituloPropuesta);
+
+            DTUsuario usuarioActualizado = ctrl.getDTUsuario(usuario.getNickname());
+            session.setAttribute("usuarioLogueado", usuarioActualizado);
+
+            redirectAttributes.addFlashAttribute("mensajeExito", "Propuesta agregada a favoritos correctamente");
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("mensajeError", "Error al agregar a favoritos: " + e.getMessage());
+        }
+
+        return "redirect:/propuestas/" + tituloPropuesta;
+    }
+
 
 }

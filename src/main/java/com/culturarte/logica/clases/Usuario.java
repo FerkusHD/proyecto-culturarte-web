@@ -128,6 +128,20 @@ public abstract class Usuario {
         this.usuariosSeguidores.add(usuario);
     }
 
+    public void agregarPropuestaFavorita(Propuesta propuesta) {
+        if (this.propuestasSeguidas == null) {
+            this.propuestasSeguidas= new ArrayList<>();
+        }
+
+        for (Propuesta fav : this.propuestasSeguidas) {
+            if (fav.getTitulo().equals(propuesta.getTitulo())) {
+                throw new IllegalArgumentException("La propuesta ya está en favoritos");
+            }
+        }
+
+        this.propuestasSeguidas.add(propuesta);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

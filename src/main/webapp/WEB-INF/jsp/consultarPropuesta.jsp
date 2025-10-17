@@ -507,11 +507,29 @@
                 </c:if>
             </c:if>
 
-            <div class="text-center mb-3">
-                <a class="btn btn-outline-danger">
-                    <i class="bi bi-heart"></i> Agregar a Favoritos
-                </a>
-            </div>
+        <div class="text-center mb-3">
+            <c:choose>
+                <c:when test="${sessionScope.usuarioLogueado.tipo eq 'visitante'}">
+                    <a href="${pageContext.request.contextPath}/login" class="btn btn-outline-danger">
+                        <i class="bi bi-heart"></i> Inicia sesión para agregar a favoritos
+                    </a>
+                </c:when>
+                <c:when test="${esFavorita}">
+                    <button class="btn btn-danger" disabled>
+                        <i class="bi bi-heart-fill"></i> En Favoritos
+                    </button>
+                </c:when>
+                <c:otherwise>
+                    <form action="${pageContext.request.contextPath}/propuestas/agregarFavorita" method="post" class="d-inline">
+                        <input type="hidden" name="tituloPropuesta" value="${propuesta.titulo}"/>
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="bi bi-heart"></i> Agregar a Favoritos
+                        </button>
+                    </form>
+                </c:otherwise>
+            </c:choose>
+        </div>
         </div>
     </div>
 </div>

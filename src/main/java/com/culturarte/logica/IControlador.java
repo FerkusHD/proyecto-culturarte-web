@@ -64,4 +64,5 @@ public interface IControlador {
     public abstract void extenderFinanciacion(String tituloPropuesta, LocalDate nuevaFecha);
     public abstract void agregarComentario(String texto, String nickColaborador, String tituloPropuesta);
     public abstract List<DTUsuario> buscarUsuarios(String nombre);
+    public abstract void agregarPropuestaFavorita(String nickname, String tituloPropuesta);
 }
