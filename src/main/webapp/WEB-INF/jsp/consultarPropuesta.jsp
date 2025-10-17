@@ -212,6 +212,9 @@
                                 </a>
                             </p>
                         </c:if>
+                        <div class="card-footer bg-white border-0 text-center">
+                            <a href="${pageContext.request.contextPath}/usuarios/${proponente.nickname}" class="btn btn-sm btn-primary w-100 hover-shadow">Ver Perfil</a>
+                        </div>
                     </div>
                 </div>
 
@@ -343,14 +346,16 @@
                                 <c:when test="${not empty propuesta.colaboradores && propuesta.colaboradores.size() > 0}">
                                     <div class="row">
                                         <c:forEach var="colaborador" items="${propuesta.colaboradores}">
-                                            <div class="col-md-6 mb-3">
-                                                <div class="card border-0 shadow-sm h-100">
-                                                    <div class="card-body text-center">
-                                                        <i class="bi bi-person-circle fs-1 text-primary mb-3"></i>
-                                                        <h5 class="card-title">${colaborador}</h5>
-                                                        <p class="card-text text-muted">Colaborador</p>
-                                                    </div>
-                                                </div>
+                                             <div class="col-md-6 mb-3">
+                                                 <a href="${pageContext.request.contextPath}/usuarios/${colaborador}" style="text-decoration: none; color: inherit;">
+                                                     <div class="card h-100 shadow-sm border-0 rounded-3 overflow-hidden hover-shadow">
+                                                         <div class="card-body text-center">
+                                                             <i class="bi bi-person-circle fs-1 text-primary mb-3"></i>
+                                                             <h5 class="card-title">${colaborador}</h5>
+                                                             <p class="card-text text-muted">Colaborador</p>
+                                                         </div>
+                                                     </div>
+                                                 </a>
                                             </div>
                                         </c:forEach>
                                     </div>
@@ -533,6 +538,15 @@
         </div>
     </div>
 </div>
+
+
+<style>
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+        transform: translateY(-3px);
+        transition: all 0.3s ease-in-out;
+    }
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 

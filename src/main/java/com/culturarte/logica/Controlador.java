@@ -373,6 +373,14 @@ public class Controlador implements IControlador{
 
         // Persistir colaboración
         mcol.agregarColaboracion(colab);
+
+//        if (p.getEstadoActual().getEstado() == TipoEstado.PUBLICADA) {
+//            nuevoEstadoPropuesta(p.getTitulo(), TipoEstado.ENFINANCIACION, fecha, hora);
+//        }
+//        if (p.getMontoRecaudado() >= p.getMontoNecesario()) {
+//            nuevoEstadoPropuesta(p.getTitulo(), TipoEstado.FINANCIADA, fecha, hora);
+//        }
+//
     }
 
     @Override 
@@ -555,6 +563,7 @@ public class Controlador implements IControlador{
     public List<DTPropuesta> buscarPropuestas(String texto) {
         return mp.buscarPropuestas(texto)
                 .stream()
+                .filter(p -> p.getEstadoActual().getEstado() != TipoEstado.INGRESADA)
                 .map(DTPropuesta::new)
                 .collect(Collectors.toList());
     }
@@ -1031,7 +1040,7 @@ public class Controlador implements IControlador{
             this.nuevoEstadoPropuesta("Religiosamente", TipoEstado.PUBLICADA, LocalDate.of(2017, 6, 20), LocalTime.of(4, 56));
             this.nuevoEstadoPropuesta("Religiosamente", TipoEstado.ENFINANCIACION, LocalDate.of(2017, 6, 30), LocalTime.of(14, 25));
             this.nuevoEstadoPropuesta("Religiosamente", TipoEstado.FINANCIADA, LocalDate.of(2017, 7, 15), LocalTime.of(9, 45));
-         
+
             //Estados para PIM
             this.nuevoEstadoPropuesta("El Pimiento Indomable", TipoEstado.INGRESADA, LocalDate.of(2017, 7, 26), LocalTime.of(15, 30));
             this.nuevoEstadoPropuesta("El Pimiento Indomable", TipoEstado.PUBLICADA, LocalDate.of(2017, 7, 31), LocalTime.of(8, 30));
@@ -1051,7 +1060,7 @@ public class Controlador implements IControlador{
             this.nuevoEstadoPropuesta("Un día de Julio", TipoEstado.INGRESADA, LocalDate.of(2017, 8, 6), LocalTime.of(2, 0));
             this.nuevoEstadoPropuesta("Un día de Julio", TipoEstado.PUBLICADA, LocalDate.of(2017, 8, 12), LocalTime.of(4, 50));
             this.nuevoEstadoPropuesta("Un día de Julio", TipoEstado.ENFINANCIACION, LocalDate.of(2017, 8, 15), LocalTime.of(4, 48));
-         
+
             //Estados para LDT
             this.nuevoEstadoPropuesta("El Lazarillo de Tormes", TipoEstado.INGRESADA, LocalDate.of(2017, 8, 18), LocalTime.of(2, 40));
             this.nuevoEstadoPropuesta("El Lazarillo de Tormes", TipoEstado.PUBLICADA, LocalDate.of(2017, 8, 20), LocalTime.of(21, 58));

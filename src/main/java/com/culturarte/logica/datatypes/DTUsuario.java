@@ -173,7 +173,8 @@ public class DTUsuario {
     }
 
     public boolean buscarUsuarioSeguido(String seguido) {
-        for (DTUsuario u : usuariosSeguidos) {
+        if (this.usuariosSeguidos == null ) return false;
+        for (DTUsuario u : this.usuariosSeguidos) {
             if (u.getNickname().equals(seguido)) {
                 return true;
             }

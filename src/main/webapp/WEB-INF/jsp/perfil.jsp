@@ -345,18 +345,44 @@
                 <div class="tab-content p-3" id="perfilTabsContent" style="min-height: 400px;">
 
                     <!-- Propuestas Seguidas -->
+
+
                     <div class="tab-pane fade show active" id="propuestasFav" role="tabpanel">
                         <h4 class="text-primary mb-3">Propuestas Favoritas</h4>
                         <c:choose>
                             <c:when test="${not empty perfilVisitado.propuestasSeguidas && perfilVisitado.propuestasSeguidas.size() > 0}">
-                                <div class="row">
+                                <div class="row g-3">
                                     <c:forEach var="propuesta" items="${perfilVisitado.propuestasSeguidas}">
-                                        <div class="col-md-6 mb-3">
-                                            <div class="card border-0 shadow-sm h-100">
-                                                <div class="card-body text-center">
-                                                    <img src="${propuesta.imagen}" class="card-img-top" alt="${propuesta.titulo}" style="height: 150px; object-fit: cover;">
-                                                    <h5 class="card-title">${propuesta.titulo}</h5>
-                                                    <p class="card-text text-muted">${propuesta.descripcion}</p>
+                                        <div class="col-md-6 col-lg-4">
+                                            <div class="card h-100 shadow-sm border-0 rounded-3 overflow-hidden hover-shadow">
+                                                <!-- Imagen de la propuesta -->
+                                                <c:choose>
+                                                    <c:when test="${not empty propuesta.imagen}">
+                                                        <img src="${pageContext.request.contextPath}/${propuesta.imagen}" ...>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <div class="d-flex justify-content-center align-items-center bg-light" style="height: 150px;">
+                                                            <i class="bi bi-image fs-1 text-muted"></i>
+                                                        </div>
+                                                    </c:otherwise>
+                                                </c:choose>
+
+                                                <div class="card-body">
+                                                    <h6 class="card-title fw-bold mb-2" style="font-size: 14px;">${propuesta.titulo} - ${propuesta.estadoActual}</h6>
+                                                    <p class="card-text text-muted mb-0" style="font-size: 12px;">
+                                                        <c:choose>
+                                                            <c:when test="${fn:length(propuesta.descripcion) > 120}">
+                                                                ${propuesta.descripcion.substring(0, 120)}...
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                ${propuesta.descripcion}
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </p>
+                                                </div>
+
+                                                <div class="card-footer bg-white border-0 text-center">
+                                                    <a href="${pageContext.request.contextPath}/propuestas/${propuesta.titulo}" class="btn btn-sm btn-primary w-100">Ver Propuesta</a>
                                                 </div>
                                             </div>
                                         </div>

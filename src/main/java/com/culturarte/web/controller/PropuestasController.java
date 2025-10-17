@@ -80,9 +80,6 @@ public class PropuestasController {
     LocalTime hora = LocalTime.now();
 
     TipoRetorno tipoRetorno = TipoRetorno.valueOf(retorno.toUpperCase());
-      if (TipoEstado.INGRESADA.equals(propuesta.getEstadoActual())){
-            ctrl.nuevoEstadoPropuesta(tituloPropuesta, TipoEstado.ENFINANCIACION, fecha, hora);
-        }
 
     ctrl.altaColaboracion(monto, fecha, hora, tipoRetorno, tituloPropuesta, nickColaborador);
     redirectAttributes.addFlashAttribute("mensajeExito", "Colaboración registrada correctamente!");
