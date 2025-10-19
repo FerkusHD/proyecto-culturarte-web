@@ -447,6 +447,51 @@ public class Controlador implements IControlador{
         }
     }
 
+      @Override
+    public DTUsuario getDTUsuarioEmail(String email) {
+        Usuario usu = mu.buscarUsuarioPorEmail(email);
+
+        if (usu == null) return null;
+
+        ArrayList<DTUsuario> usuariosSeguidos = new ArrayList<>();
+        for(Usuario u : usu.getUsuariosSeguidos()){
+            String tipo = null;
+            if(u instanceof Colaborador){
+                tipo = "colaborador";
+            } else if (u instanceof  Proponente){
+                tipo = "proponente";
+            }
+            usuariosSeguidos.add(new DTUsuario(u.getNickname(), tipo, u.getImagen()));
+        }
+
+        ArrayList<DTUsuario> usuariosSeguidores = new ArrayList<>();
+        for(Usuario u : usu.getUsuariosSeguidores()){
+            String tipo = null;
+            if(u instanceof Colaborador){
+                tipo = "colaborador";
+            } else if (u instanceof  Proponente){
+                tipo = "proponente";
+            }
+            usuariosSeguidores.add(new DTUsuario(u.getNickname(), tipo, u.getImagen()));
+        }
+
+        ArrayList<DTPropuesta> propuestasSeguidas = new ArrayList<>();
+        for(Propuesta p : usu.getPropuestasSeguidas()) {
+            propuestasSeguidas.add(getDTPropuesta(p.getTitulo()));
+        }
+
+        String tipo = null;
+        if(usu instanceof Colaborador){
+            tipo = "colaborador";
+        } else if (usu instanceof  Proponente){
+            tipo = "proponente";
+        }
+
+        DTUsuario dtu = new DTUsuario(usu.getNickname(), usu.getNombre(), usu.getApellido(), usu.getEmail(), usu.getFechaNacimiento(), usuariosSeguidos, usuariosSeguidores, tipo, usu.getImagen(), propuestasSeguidas);
+
+        return dtu;
+    }
+
     @Override
     public DTUsuario getDTUsuario(String nickname) {
         Usuario usu = mu.buscarUsuario(nickname);
@@ -492,18 +537,36 @@ public class Controlador implements IControlador{
 
         return dtu;
     }
-
+    
+     @Override
     public boolean verificarPassword(String password, String nick) {
         Usuario usu = mu.buscarUsuario(nick);
-        // if (usu == null) usu = mu.buscarUsuarioPorEmail(nick);
+        
         if (usu == null) {
             return false;
         } else {
             return (usu.getPassword().equals(password));
         }
-
     }
+ 
+    @Override
+    public boolean verificarPass(String password, Usuario usu) {
+        
+        return (usu.getPassword().equals(password));
+    }
+
+    @Override
+    public boolean verificarUsuario(String nickOemail, String password) {
+   
+        Usuario usu = mu.buscarUsuario(nickOemail);
     
+        if (usu == null) {
+            usu = mu.buscarUsuarioPorEmail(nickOemail);
+        }
+    
+        return usu != null && verificarPass(password, usu);
+    }
+
     @Override
     public void cancelarColaboracionPropuesta(String tituloPropuesta, String nickColaborador){
         Propuesta p = mp.getPropuesta(tituloPropuesta);

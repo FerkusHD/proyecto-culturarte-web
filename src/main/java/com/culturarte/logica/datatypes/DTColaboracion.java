@@ -6,8 +6,6 @@ package com.culturarte.logica.datatypes;
 import com.culturarte.logica.enums.TipoRetorno;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
-
 /**
  *
  * @author fabriciorivero

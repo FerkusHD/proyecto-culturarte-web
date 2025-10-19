@@ -1,9 +1,5 @@
 package com.culturarte.logica.datatypes;
 
-import com.culturarte.logica.clases.Colaborador;
-import com.culturarte.logica.clases.Propuesta;
-import jakarta.persistence.*;
-
 import java.time.LocalDate;
 
 public class DTComentario {

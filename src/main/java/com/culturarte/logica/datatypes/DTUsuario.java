@@ -24,7 +24,7 @@ public class DTUsuario {
     private String tipo;
     
     public DTUsuario(){}
-    
+
     public DTUsuario(String nickname, String nombre, String apellido, String email, LocalDate fechaNacimiento, ArrayList<DTUsuario> usuariosSeguidos, ArrayList<DTUsuario> usuariosSeguidores, String tipo, String imagen, ArrayList<DTPropuesta> propuestasSeguidas) {
         this.nickname = nickname;
         this.nombre = nombre;

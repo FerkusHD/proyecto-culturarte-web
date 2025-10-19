@@ -90,6 +90,8 @@
                 <input id="confirmar" name="confirmar" type="password" placeholder="confirmar" required class="form-control">
             </div>
 
+            <div id="mensaje" class="fw-bold mt-2"></div>
+            
             <div class="mb-3">
                 <label for="fecha" class="form-label">Fecha de nacimiento</label>
                 <input id="fecha" name="fecha" type="date" value="${date}" required class="form-control">

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import com.culturarte.logica.datatypes.DTColaborador;
 import com.culturarte.logica.datatypes.DTPropuesta;
+import com.culturarte.logica.clases.Usuario;
 import com.culturarte.logica.datatypes.DTColaboracion;
 import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.logica.enums.*;
@@ -56,7 +57,6 @@ public interface IControlador {
     public abstract void nuevoEstadoPropuesta(String propuesta, TipoEstado estado, LocalDate fecha, LocalTime hora);
     public abstract void modificarPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, String imagen, String proponente, String categoria, String nuevoEstado) throws DatosIncorrectos;
     public abstract ArrayList<DTPropuesta> getDTPropuestasWeb();
-    public abstract boolean verificarPassword(String password, String nick);
     public abstract List<String> listarCategoriasWeb();
     public abstract List<String> listarCategoriasWebCompletas();
     public abstract List<DTPropuesta> buscarPropuestas(String texto);
@@ -67,4 +67,8 @@ public interface IControlador {
     public abstract void agregarPropuestaFavorita(String nickname, String tituloPropuesta);
     public abstract void sacarPropuestaFavorita(String nickname, String tituloPropuesta);
     public abstract boolean colaboradorPuedeComentar(String colaborador, String tituloPropuesta);
+    public abstract boolean verificarUsuario(String nickOemail,String password);
+    public abstract boolean verificarPass(String password, Usuario usu);
+    public abstract DTUsuario getDTUsuarioEmail(String email);
+    public abstract boolean verificarPassword(String password, String nick);
 }

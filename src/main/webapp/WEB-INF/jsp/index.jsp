@@ -9,6 +9,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/principal.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
@@ -61,7 +62,7 @@
                            placeholder="Título, descripción, lugar" aria-label="Buscar"
                            autocomplete="off" value="${query != null ? query : ''}" />
                     <button class="btn btn-sm btn-outline-primary" type="submit">Buscar</button>
-                    <!-- Contenedor de sugerencias -->
+                    
                     <div id="sugerencias"
                          class="list-group position-absolute w-100"
                          style="top: 38px; z-index: 1000;"></div>
@@ -152,6 +153,7 @@
 <div id="categorias" class="categorias"></div>
 
     <script src="${pageContext.request.contextPath}/js/propuestasAndCategorias.js"></script>
+    <script src="${pageContext.request.contextPath}/js/validarContraseña.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="${pageContext.request.contextPath}/js/busquedaAjax.js"></script>
 

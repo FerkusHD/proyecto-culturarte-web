@@ -3,8 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.culturarte.logica.datatypes;
-
-import com.culturarte.logica.clases.Comentario;
 import com.culturarte.logica.clases.Propuesta;
 import com.culturarte.logica.enums.TipoEstado;
 import java.time.LocalDate;

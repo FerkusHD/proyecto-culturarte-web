@@ -1,11 +1,7 @@
 package com.culturarte.logica.manejadores;
-
 import com.culturarte.logica.clases.Propuesta;
 import jakarta.persistence.*;
-
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 

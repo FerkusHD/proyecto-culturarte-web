@@ -155,7 +155,7 @@ class ControladorTest {
 
         assertFalse(controlador.verificarPassword("pass123", "inexistente"));
     }
-
+    
     @Test
     void getTiposRetorno_incluyeTodos() {
         String[] tipos = controlador.getTiposRetorno();
