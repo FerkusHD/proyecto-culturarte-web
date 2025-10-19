@@ -1,5 +1,6 @@
 package com.culturarte.logica;
 import com.culturarte.exepciones.CategoriaYaExiste;
+import com.culturarte.exepciones.EmailYaExiste;
 import com.culturarte.exepciones.PropuestaYaExiste;
 import com.culturarte.logica.clases.Categoria;
 import com.culturarte.logica.clases.Proponente;
@@ -55,7 +56,7 @@ class ControladorTest {
     }
 
     @Test
-    void altaColaborador_exito() throws UsuarioYaExiste {
+    void altaColaborador_exito() throws UsuarioYaExiste, EmailYaExiste {
         when(mu.buscarUsuario("nick1")).thenReturn(null);
 
         controlador.altaColaborador("nick1", "pass", "nombre", "apellido", "mail@mail.com",
@@ -75,7 +76,7 @@ class ControladorTest {
     }
 
     @Test
-    void altaProponente_exito() throws UsuarioYaExiste {
+    void altaProponente_exito() throws UsuarioYaExiste, EmailYaExiste {
         when(mu.buscarUsuario("propo1")).thenReturn(null);
 
         controlador.altaProponente("propo1", "pass", "Ana", "López", "ana@mail.com",

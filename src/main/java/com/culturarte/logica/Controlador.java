@@ -3,6 +3,7 @@ import org.springframework.stereotype.Service;
 import com.culturarte.exepciones.CargaFallida;
 import com.culturarte.exepciones.CategoriaYaExiste;
 import com.culturarte.exepciones.DatosIncorrectos;
+import com.culturarte.exepciones.EmailYaExiste;
 import com.culturarte.exepciones.UsuarioYaExiste;
 import com.culturarte.exepciones.PropuestaYaExiste;
 import com.culturarte.exepciones.UsuarioNoSeguido;
@@ -43,21 +44,35 @@ public class Controlador implements IControlador{
     
     @Override
     public void altaColaborador(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen)
-            throws UsuarioYaExiste {
+            throws UsuarioYaExiste, EmailYaExiste {
         Usuario u = mu.buscarUsuario(nickname);
         if (u != null) {
             throw new UsuarioYaExiste("El usuario con nickname " + nickname + " ya está registrado");
         }
+
+        u=mu.buscarUsuarioPorEmail(email);
+
+        if (u!=null) {
+            throw new EmailYaExiste("El usuario con email " + email + " ya está registrado");
+        }
+
         mu.agregarUsuario(new Colaborador(nickname, password, nombre, apellido, email, fechaNacimiento, imagen));
     }
     
     @Override
     public void altaProponente(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen, String direccion, String linkWeb, String bibliografia)
-            throws UsuarioYaExiste {
+            throws UsuarioYaExiste,EmailYaExiste {
         Usuario u = mu.buscarUsuario(nickname);
         if (u != null) {
             throw new UsuarioYaExiste("El usuario con nickname " + nickname + " ya está registrado");
         }
+
+         u=mu.buscarUsuarioPorEmail(email);
+
+        if (u!=null) {
+            throw new EmailYaExiste("El usuario con email " + email + " ya está registrado");
+        }
+
         mu.agregarUsuario(new Proponente(nickname, password, nombre, apellido, email, fechaNacimiento, imagen, direccion, linkWeb, bibliografia));
     }
         

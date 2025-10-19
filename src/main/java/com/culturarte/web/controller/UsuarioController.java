@@ -1,5 +1,6 @@
 package com.culturarte.web.controller;
 
+import com.culturarte.exepciones.EmailYaExiste;
 import com.culturarte.exepciones.UsuarioYaExiste;
 import com.culturarte.logica.IControlador;
 import com.culturarte.logica.datatypes.DTUsuario;
@@ -79,7 +80,10 @@ public class UsuarioController {
 
         } catch (UsuarioYaExiste e) {
             model.addAttribute("mensaje", "⚠️ " + "Ese nickname ya está registrado");
-        } catch (IOException e) {
+        }
+        catch(EmailYaExiste e){
+            model.addAttribute("mensaje", "⚠️ " + "Ese email ya está registrado");}
+         catch (IOException e) {
             model.addAttribute("mensaje", "⚠️ Error al procesar la imagen");
         }
 

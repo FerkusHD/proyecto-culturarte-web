@@ -42,7 +42,7 @@ public class MenuController {
                                 @RequestParam String password,
                                 HttpSession session,
                                 Model model) {
-        //boolean existe = ctrl.verificarPassword(password, nickOemail);
+        
         boolean existeUsuario = ctrl.verificarUsuario(nickOemail, password);
 
         if (!existeUsuario) {
@@ -67,6 +67,4 @@ public class MenuController {
         session.invalidate();
         return "redirect:/";
     }
-
-
 }
