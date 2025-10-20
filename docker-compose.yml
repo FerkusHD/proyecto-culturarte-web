@@ -1,47 +1,58 @@
 services:
   db:
-    image: mysql:8.0
+    image: mysql:8.4
     container_name: culturarte-mysql
-    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: culturarte
-      MYSQL_USER: user
-      MYSQL_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "culturarte"
     ports:
       - "3306:3306"
     volumes:
-      - ./mysql/data:/var/lib/mysql
-      - ./mysql/init:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/mysql
+      - ./war/mysql/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   web:
-    build: ./web
+    build:
+      context: .
+      dockerfile: war/Dockerfile
     container_name: culturarte-web
     depends_on:
       db:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/culturarte
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: 1234
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_DATASOURCE_URL: "jdbc:mysql://db:3306/culturarte?zeroDateTimeBehavior=CONVERT_TO_NULL"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "root"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "create-drop"
     ports:
       - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/ || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
 
-  jar:
+  app:
     build:
-      context: ./jar
-      target: builder   # solo construye el jar en la etapa builder
-    container_name: culturarte-jar
-    command: ["echo", "GUI JAR construido; ejecutar manualmente si querés abrir la app"]
+      context: .
+      dockerfile: jar/Dockerfile
+    container_name: culturarte-app
     depends_on:
       web:
-        condition: service_started
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://db:3306/culturarte?zeroDateTimeBehavior=CONVERT_TO_NULL"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "root"
+      SPRING_MAIN_WEB_APPLICATION_TYPE: "none"
+    profiles: ["app"]
 
-
-
+volumes:
+  db_data:

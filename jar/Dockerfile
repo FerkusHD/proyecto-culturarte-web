@@ -1,12 +1,15 @@
-# Etapa 1: construir el JAR
-FROM eclipse-temurin:21-jdk-alpine AS builder
+# Build stage
+FROM maven:3.9.9-eclipse-temurin-21 AS builder
 WORKDIR /build
-RUN apk add --no-cache maven
-COPY . .
-RUN mvn clean package -DskipTests
+COPY jar/pom.xml /build/
+RUN mvn -q -f /build/pom.xml -DskipTests dependency:go-offline
+COPY jar/src /build/src
+RUN mvn -q -f /build/pom.xml -DskipTests package
 
-# Etapa 2: solo para guardar el JAR construido
-FROM scratch AS final
+# Runtime stage
+FROM eclipse-temurin:21-jre
 WORKDIR /app
-COPY --from=builder /build/target/*.jar app.jar
-# No abrimos GUI dentro del contenedor
+# Headless AWT to avoid X11 requirements by default
+ENV JAVA_TOOL_OPTIONS="-Djava.awt.headless=true"
+COPY --from=builder /build/target/*.jar /app/app.jar
+ENTRYPOINT ["java","-jar","/app/app.jar"]

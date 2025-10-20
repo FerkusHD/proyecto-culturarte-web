@@ -28,7 +28,7 @@ public class Propuesta {
 
     private String imagen;
     
-    @OneToMany(mappedBy = "propuesta")
+    @OneToMany(mappedBy = "propuesta", fetch = FetchType.EAGER)
     private List<Colaboracion> colaboraciones;
     
     @ManyToOne(fetch = FetchType.EAGER)

@@ -29,6 +29,10 @@ nbdist/
 *.iml
 .idea/
 .vscode/
+# Eclipse / STS
+.project
+.classpath
+.settings/
 
 # ============================
 # Archivos temporales / logs
@@ -37,7 +41,37 @@ nbdist/
 *.tmp
 *.bak
 *.swp
+logs/
+war/logs/
+jar/logs/
 
-
+# ============================
+# SO y archivos varios
+# ============================
 .DS_Store
-/mysql/data
+Thumbs.db
+*.orig
+
+# ============================
+# Docker / Compose / Entorno
+# ============================
+.env
+*.env
+docker-compose.override.yml
+
+# ============================
+# Datos locales (no versionar)
+# ============================
+# Directorios de datos de MySQL dentro de cada módulo
+war/mysql/data/
+jar/mysql/data/
+
+# Subidas locales (imágenes, etc.)
+war/uploads/
+jar/uploads/
+
+# ============================
+# Java crash dumps
+# ============================
+hs_err_pid*
+replay_pid*

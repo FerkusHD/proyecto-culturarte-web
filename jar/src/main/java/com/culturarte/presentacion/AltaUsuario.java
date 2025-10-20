@@ -4,6 +4,7 @@
  */
 package com.culturarte.presentacion;
 
+import com.culturarte.exepciones.EmailYaExiste;
 import com.culturarte.logica.IControlador;
 import com.culturarte.exepciones.UsuarioYaExiste;
 import java.time.LocalDate;
@@ -70,6 +71,8 @@ public class AltaUsuario extends javax.swing.JInternalFrame {
         JTarchivo = new javax.swing.JTextField();
         jlContrasenia = new javax.swing.JLabel();
         jtContrasenia = new javax.swing.JTextField();
+        jlContrasenia1 = new javax.swing.JLabel();
+        jtConfirmacion = new javax.swing.JTextField();
 
         setClosable(true);
         setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
@@ -191,6 +194,14 @@ public class AltaUsuario extends javax.swing.JInternalFrame {
             }
         });
 
+        jlContrasenia1.setText("Confirmación");
+
+        jtConfirmacion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jtConfirmacionActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -254,7 +265,11 @@ public class AltaUsuario extends javax.swing.JInternalFrame {
                                         .addComponent(JRBproponente)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(JRBcolaborador)
-                                        .addGap(12, 12, 12)))))
+                                        .addGap(12, 12, 12))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jlContrasenia1)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jtConfirmacion, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                         .addGap(26, 26, 26))))
         );
         layout.setVerticalGroup(
@@ -270,7 +285,11 @@ public class AltaUsuario extends javax.swing.JInternalFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jlContrasenia)
                     .addComponent(jtContrasenia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(10, 10, 10)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jlContrasenia1)
+                    .addComponent(jtConfirmacion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(JTnombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -294,7 +313,7 @@ public class AltaUsuario extends javax.swing.JInternalFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(JTdireccion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(JTlinkweb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -317,6 +336,18 @@ public class AltaUsuario extends javax.swing.JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void JBaceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBaceptarActionPerformed
+        String pass = jtContrasenia.getText();
+        String confirmacion = jtConfirmacion.getText();
+        if(!pass.equals(confirmacion)) {
+            JOptionPane.showMessageDialog(this, "Las contraseñas no coinciden", "EROR", JOptionPane.ERROR_MESSAGE);
+            return ;
+        }
+        
+        if(pass.isBlank()) {
+            JOptionPane.showMessageDialog(this, "La contraseña no puede ser vacía", "EROR", JOptionPane.ERROR_MESSAGE);
+            return ;
+        }
+        
         String nick = JTnick.getText().trim();
         String nombre = JTnombre.getText().trim();
         String apellido = JTapellido.getText().trim();
@@ -335,18 +366,20 @@ public class AltaUsuario extends javax.swing.JInternalFrame {
                 String web = JTlinkweb.getText().trim();
                 String biografia = JTbiografia.getText().trim();
 
-                controlador.altaProponente(nick,"", nombre, apellido, email, fechaNac, imagen, direccion, web, biografia);
-                JOptionPane.showMessageDialog(this, "Usuario registrado correctamente.");
+                controlador.altaProponente(nick,pass, nombre, apellido, email, fechaNac, imagen, direccion, web, biografia);
+                JOptionPane.showMessageDialog(this, "Proponente registrado correctamente.");
 
             } else if (JRBcolaborador.isSelected()) {
-                controlador.altaColaborador(nick,"", nombre, apellido, email, fechaNac, imagen);
-                JOptionPane.showMessageDialog(this, "Usuario registrado correctamente.");
+                controlador.altaColaborador(nick,pass, nombre, apellido, email, fechaNac, imagen);
+                JOptionPane.showMessageDialog(this, "Colaborador registrado correctamente.");
             } else {
                 JOptionPane.showMessageDialog(this, "Debe seleccionar un rol (Proponente o Colaborador)");
                 return;
             }
         } catch (UsuarioYaExiste e) {
             JOptionPane.showMessageDialog(this, "El usuario ya existe: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (EmailYaExiste e) {
+            JOptionPane.showMessageDialog(this, "El email ya está en uso", "Error", JOptionPane.ERROR_MESSAGE);
         }
 
         
@@ -432,6 +465,10 @@ public class AltaUsuario extends javax.swing.JInternalFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jtContraseniaActionPerformed
 
+    private void jtConfirmacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jtConfirmacionActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jtConfirmacionActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton JBaceptar;
@@ -459,6 +496,8 @@ public class AltaUsuario extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel jlContrasenia;
+    private javax.swing.JLabel jlContrasenia1;
+    private javax.swing.JTextField jtConfirmacion;
     private javax.swing.JTextField jtContrasenia;
     // End of variables declaration//GEN-END:variables
 }
