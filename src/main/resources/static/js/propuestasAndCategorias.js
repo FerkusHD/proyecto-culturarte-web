@@ -27,61 +27,279 @@ function calcularDiasRestantes(fechaPrevistaString) {
     return diffDays;
 }
 
+function splitCategoryPath(name) {
+    if (!name) return [''];
+    if (name.includes('>')) return name.split('>').map(s => s.trim());
+    if (name.includes(',')) return name.split(',').map(s => s.trim());
+    if (name.includes('/')) return name.split('/').map(s => s.trim());
+    return [name.trim()];
+}
+
+function buildTreeFromList(list) {
+    const root = { children: {}, name: '' };
+    (list || []).forEach(full => {
+        if (!full) return;
+        const parts = splitCategoryPath(full);
+        let node = root;
+        let pathAccum = [];
+        parts.forEach(part => {
+            if (!part) return;
+            pathAccum.push(part);
+            if (!node.children[part]) {
+                node.children[part] = { name: part, children: {}, fullPath: pathAccum.join(' > ') };
+            }
+            node = node.children[part];
+        });
+    });
+    return root;
+}
+
+function renderTree(node, container) {
+    const ul = document.createElement('ul');
+    Object.keys(node.children).sort((a,b)=>a.localeCompare(b, 'es', {sensitivity:'base'})).forEach(key => {
+        const child = node.children[key];
+        const li = document.createElement('li');
+
+        const hasChildren = Object.keys(child.children).length > 0;
+
+
+        let toggle = null;
+        if (hasChildren) {
+            toggle = document.createElement('span');
+            toggle.className = 'categoria-toggle collapsed';
+            toggle.tabIndex = 0;
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const expanded = toggle.classList.toggle('expanded');
+                toggle.classList.toggle('collapsed', !expanded);
+                const nestedUl = li.querySelector('ul');
+                if (nestedUl) nestedUl.style.display = expanded ? 'block' : 'none';
+            });
+
+            toggle.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggle.click();
+                }
+            });
+            li.appendChild(toggle);
+        } else {
+            const spacer = document.createElement('span');
+            spacer.className = 'categoria-toggle';
+            spacer.style.visibility = 'hidden';
+            li.appendChild(spacer);
+        }
+
+        const span = document.createElement('span');
+        span.className = 'categoria-node';
+        span.textContent = child.name;
+        span.dataset.fullpath = child.fullPath || child.name;
+
+
+        if (hasChildren) {
+            span.style.fontWeight = '600';
+            span.tabIndex = 0;
+            span.addEventListener('click', (e) => {
+                e.stopPropagation();
+
+                if (toggle) {
+                    const expanded = toggle.classList.toggle('expanded');
+                    toggle.classList.toggle('collapsed', !expanded);
+                }
+                const nestedUl = li.querySelector('ul');
+                if (nestedUl) nestedUl.style.display = nestedUl.style.display === 'block' ? 'none' : 'block';
+            });
+
+            span.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    span.click();
+                }
+            });
+        } else {
+
+            span.tabIndex = 0;
+            span.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isSelected = span.classList.toggle('selected');
+                if (!e.ctrlKey && !e.metaKey) {
+
+                    document.querySelectorAll('.categoria-node.selected').forEach(n => {
+                        if (n !== span) n.classList.remove('selected');
+                    });
+                }
+                aplicarFiltrosCombinados();
+            });
+
+            span.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    span.click();
+                }
+            });
+        }
+
+        li.appendChild(span);
+
+
+        if (hasChildren) {
+            const childContainer = document.createElement('div');
+            childContainer.style.marginLeft = '0.5rem';
+            renderTree(child, childContainer);
+            const nested = childContainer.querySelector('ul');
+            if (nested) nested.style.display = 'none';
+            li.appendChild(childContainer);
+        }
+
+        ul.appendChild(li);
+    });
+    container.appendChild(ul);
+}
+
+// New renderer that consumes DTOs from /categorias/tree (objects: { nombre, hijos[] })
+function renderTreeFromDTO(list, container) {
+    const ul = document.createElement('ul');
+    (list || []).forEach(node => {
+        const li = document.createElement('li');
+        const hasChildren = node.hijos && node.hijos.length > 0;
+
+        let toggle = null;
+        if (hasChildren) {
+            toggle = document.createElement('span');
+            toggle.className = 'categoria-toggle collapsed';
+            toggle.tabIndex = 0;
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const expanded = toggle.classList.toggle('expanded');
+                toggle.classList.toggle('collapsed', !expanded);
+                const nested = li.querySelector('ul');
+                if (nested) nested.style.display = expanded ? 'block' : 'none';
+            });
+            toggle.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle.click(); }
+            });
+            li.appendChild(toggle);
+        } else {
+            const spacer = document.createElement('span');
+            spacer.className = 'categoria-toggle';
+            spacer.style.visibility = 'hidden';
+            li.appendChild(spacer);
+        }
+
+        const span = document.createElement('span');
+        span.className = 'categoria-node';
+        span.textContent = node.nombre || node.name || '';
+        span.dataset.fullpath = node.nombre || node.name || '';
+        span.tabIndex = 0;
+
+        if (hasChildren) {
+            span.style.fontWeight = '600';
+            span.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (toggle) {
+                    const expanded = toggle.classList.toggle('expanded');
+                    toggle.classList.toggle('collapsed', !expanded);
+                }
+                const nested = li.querySelector('ul');
+                if (nested) nested.style.display = nested.style.display === 'block' ? 'none' : 'block';
+            });
+            span.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); span.click(); } });
+        } else {
+            span.addEventListener('click', (e) => {
+                e.stopPropagation();
+                span.classList.toggle('selected');
+                if (!e.ctrlKey && !e.metaKey) {
+                    document.querySelectorAll('.categoria-node.selected').forEach(n => { if (n !== span) n.classList.remove('selected'); });
+                }
+                aplicarFiltrosCombinados();
+            });
+            span.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); span.click(); } });
+        }
+
+        li.appendChild(span);
+
+        if (hasChildren) {
+            const childContainer = document.createElement('div');
+            childContainer.style.marginLeft = '0.5rem';
+            renderTreeFromDTO(node.hijos, childContainer);
+            const nestedUl = childContainer.querySelector('ul');
+            if (nestedUl) nestedUl.style.display = 'none';
+            li.appendChild(childContainer);
+        }
+
+        ul.appendChild(li);
+    });
+    container.appendChild(ul);
+}
+
+
+// Base path (injected by JSP as window.CTX). Falls back to empty string.
+const BASE = (typeof window !== 'undefined' && window.CTX) ? window.CTX : '';
+
 // === CATEGORÍAS ===
-fetch('/categorias/lista')
+fetch(BASE + '/categorias/tree')
     .then(response => response.json())
     .then(data => {
+        console.debug('categorias/tree data:', data);
         const contenedor = document.getElementById('categorias');
+        if (!contenedor) return;
         contenedor.innerHTML = '';
 
-        // Asegúrate de que los estilos de Bootstrap se usen aquí para el layout
-        contenedor.classList.add('d-flex', 'flex-wrap', 'gap-5', 'mt-3', 'justify-content-start');
-
-        // Encabezado de Categorías
+        // Header
         const header = document.createElement('h6');
-        header.classList.add('fw-bold', 'text-uppercase', 'w-100', 'mb-3');
+        header.className = 'fw-bold text-uppercase mb-2';
         header.textContent = 'CATEGORÍAS';
         contenedor.appendChild(header);
 
-
-        // Contenedor para los checkboxes
-        const checkboxesContainer = document.createElement('div');
-        checkboxesContainer.classList.add('d-flex', 'flex-wrap', 'gap-5');
-        contenedor.appendChild(checkboxesContainer);
-
-
-        data.forEach(nombre => {
-            // Usando las clases de Bootstrap para checkboxes para mantener el estilo
-            const divCheck = document.createElement('div');
-            divCheck.classList.add('form-check');
-
-            const checkbox = document.createElement('input');
-            checkbox.classList.add('form-check-input');
-            checkbox.type = 'checkbox';
-            checkbox.name = 'categorias';
-            checkbox.value = nombre;
-            checkbox.id = 'check' + nombre.replace(/\s/g, '');
-
-            checkbox.addEventListener('change', filtrarPropuestas);
-
-            const label = document.createElement('label');
-            label.classList.add('form-check-label');
-            label.setAttribute('for', checkbox.id);
-            label.textContent = nombre;
-
-            divCheck.appendChild(checkbox);
-            divCheck.appendChild(label);
-            checkboxesContainer.appendChild(divCheck);
-        });
+        // If the server returned an array of objects with 'nombre' use the DTO renderer
+        if (Array.isArray(data) && data.length > 0 && (typeof data[0] === 'object')) {
+            const treeDiv = document.createElement('div');
+            treeDiv.className = 'categoria-tree';
+            renderTreeFromDTO(data, treeDiv);
+            contenedor.appendChild(treeDiv);
+            // ensure children are collapsed by default
+            collapseAllTreeNodes(treeDiv);
+        } else {
+            // fallback to previous behavior (flat list)
+            const treeRoot = buildTreeFromList(data || []);
+            const treeDiv = document.createElement('div');
+            treeDiv.className = 'categoria-tree';
+            renderTree(treeRoot, treeDiv);
+            contenedor.appendChild(treeDiv);
+            collapseAllTreeNodes(treeDiv);
+        }
+    })
+    .catch(err => {
+        console.error('Error cargando categorías:', err);
+        // fallback to lista endpoint if tree fails
+        fetch(BASE + '/categorias/lista')
+            .then(r => r.json())
+            .then(list => {
+                console.debug('categorias/lista data:', list);
+                const contenedor = document.getElementById('categorias');
+                if (!contenedor) return;
+                contenedor.innerHTML = '';
+                const header = document.createElement('h6');
+                header.className = 'fw-bold text-uppercase mb-2';
+                header.textContent = 'CATEGORÍAS';
+                contenedor.appendChild(header);
+                const treeRoot = buildTreeFromList(list || []);
+                const treeDiv = document.createElement('div');
+                treeDiv.className = 'categoria-tree';
+                renderTree(treeRoot, treeDiv);
+                contenedor.appendChild(treeDiv);
+                collapseAllTreeNodes(treeDiv);
+            })
+            .catch(e => console.error('Fallback error cargando lista de categorias:', e));
     });
 
 // === PROPUESTAS ===
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Cargar todas las propuestas
-    fetch('/propuestas/listar')
+    fetch(BASE + '/propuestas/listar')
         .then(response => response.json())
         .then(data => {
-            todasLasPropuestas = data;
+            todasLasPropuestas = data || [];
 
             inicializarFiltros();
         })
@@ -98,7 +316,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-
 const imagenPorDefecto = '/uploads/imagenes/noimg.jpg'; // Ajusta según tu estructura
 
 function mostrarPropuestas(lista) {
@@ -107,7 +324,7 @@ function mostrarPropuestas(lista) {
     row.classList.add('row', 'row-cols-1', 'row-cols-md-3', 'g-4');
     contenedor.innerHTML = '';
 
-    if (lista.length === 0) {
+    if (!lista || lista.length === 0) {
         contenedor.innerHTML = '<p class="text-center w-100 mt-4">No se encontraron propuestas con los filtros seleccionados.</p>';
         return;
     }
@@ -126,12 +343,12 @@ function mostrarPropuestas(lista) {
         col.classList.add('col');
 
         col.innerHTML = `
-        <a href="/propuestas/${p.titulo}" class="text-decoration-none text-dark">
+        <a href="/propuestas/${encodeURIComponent(p.titulo)}" class="text-decoration-none text-dark">
             <div class="card h-100 border p-2 shadow-sm hover-shadow">
                 <img src="${imgSrc}" class="card-img-top" alt="${p.titulo}" style="height: 150px; object-fit: cover;">
                 <div class="card-body p-2">
                     <h6 class="card-title fw-bold mb-1" style="font-size: 14px;">${p.titulo}</h6>
-                    <p class="card-text text-muted mb-2" style="font-size: 12px;">${p.descripcion.substring(0, 120)}...</p>
+                    <p class="card-text text-muted mb-2" style="font-size: 12px;">${(p.descripcion || '').substring(0, 120)}...</p>
 
                     <div class="d-flex align-items-center mb-1">
                         <i class="bi bi-wallet-fill me-1" style="font-size: 14px;"></i>
@@ -172,7 +389,7 @@ function mostrarPropuestas(lista) {
 let estadoActivo = 'PUBLICADA';
 
 function inicializarFiltros() {
-    const activeTab = document.getElementById('proposalTabs').querySelector('.nav-link.active');
+    const activeTab = document.getElementById('proposalTabs') ? document.getElementById('proposalTabs').querySelector('.nav-link.active') : null;
     if (activeTab) {
         estadoActivo = activeTab.getAttribute('data-estado');
     }
@@ -181,14 +398,14 @@ function inicializarFiltros() {
 }
 
 function aplicarFiltrosCombinados() {
+    const activeTabElement = document.getElementById('proposalTabs') ? document.getElementById('proposalTabs').querySelector('.nav-link.active') : null;
+    const estadoActivo = activeTabElement ? activeTabElement.getAttribute('data-estado') : null;
 
-    const activeTabElement = document.getElementById('proposalTabs').querySelector('.nav-link.active');
-    let estadoActivo = activeTabElement ? activeTabElement.getAttribute('data-estado') : null;
+    // get selected categories (can be multiple with Ctrl/Cmd)
+    const categoriasSeleccionadas = Array.from(document.querySelectorAll('.categoria-node.selected'))
+        .map(n => n.dataset.fullpath);
 
-    const categoriasSeleccionadas = Array.from(document.querySelectorAll('input[name="categorias"]:checked'))
-        .map(c => c.value);
-
-    let listaFiltrada = todasLasPropuestas;
+    let listaFiltrada = todasLasPropuestas || [];
 
     if (estadoActivo) {
         listaFiltrada = listaFiltrada.filter(p => p.estadoActual === estadoActivo);
@@ -196,12 +413,12 @@ function aplicarFiltrosCombinados() {
 
     if (categoriasSeleccionadas.length > 0) {
         listaFiltrada = listaFiltrada.filter(p => {
+            const propCat = p.categoria || '';
 
-            const primeraCategoria = p.categoria ? p.categoria.split(',')[0].trim() : '';
-
-            return categoriasSeleccionadas.includes(primeraCategoria);
+            return categoriasSeleccionadas.some(sel => propCat.includes(sel) || sel.includes(propCat));
         });
     }
+
     mostrarPropuestas(listaFiltrada);
 }
 
@@ -209,3 +426,16 @@ function filtrarPropuestas() {
     aplicarFiltrosCombinados();
 }
 
+// Utility to collapse all nested nodes (hide all ULs that are not the root level)
+function collapseAllTreeNodes(container) {
+    const root = container || document;
+    // hide all nested ULs (any UL inside another UL)
+    root.querySelectorAll('.categoria-tree ul ul').forEach(u => {
+        u.style.display = 'none';
+    });
+    // mark all toggles as collapsed and remove expanded
+    root.querySelectorAll('.categoria-toggle').forEach(t => {
+        t.classList.remove('expanded');
+        t.classList.add('collapsed');
+    });
+}
