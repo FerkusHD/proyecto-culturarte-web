@@ -67,8 +67,5 @@ public interface IControlador {
     public abstract void agregarPropuestaFavorita(String nickname, String tituloPropuesta);
     public abstract void sacarPropuestaFavorita(String nickname, String tituloPropuesta);
     public abstract boolean colaboradorPuedeComentar(String colaborador, String tituloPropuesta);
-    public abstract boolean verificarUsuario(String nickOemail,String password);
-    public abstract boolean verificarPass(String password, Usuario usu);
-    public abstract DTUsuario getDTUsuarioEmail(String email);
     public abstract boolean verificarPassword(String password, String nick);
 }

@@ -42,24 +42,17 @@ public class MenuController {
                                 @RequestParam String password,
                                 HttpSession session,
                                 Model model) {
-        
-        boolean existeUsuario = ctrl.verificarUsuario(nickOemail, password);
+
+        boolean existeUsuario = ctrl.verificarPassword(password, nickOemail);
 
         if (!existeUsuario) {
             model.addAttribute("mensaje", "⚠️ Contraseña o nickname/email incorrecto");
             model.addAttribute("nickname", nickOemail);
             return "login";
         }
-        if(!nickOemail.contains("@") && !nickOemail.contains(".com")){
         DTUsuario usuario = ctrl.getDTUsuario(nickOemail);
         session.setAttribute("usuarioLogueado", usuario);
         return "index";
-        }
-        else{
-            DTUsuario usuario = ctrl.getDTUsuarioEmail(nickOemail);
-            session.setAttribute("usuarioLogueado", usuario);
-                return "index"; 
-        }
     }
 
     @GetMapping("/logout")
