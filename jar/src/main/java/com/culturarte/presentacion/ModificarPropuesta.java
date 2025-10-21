@@ -714,9 +714,14 @@ public class ModificarPropuesta extends javax.swing.JInternalFrame {
         // Imagen
         String rutaImagen = p.getImagen();
         if (rutaImagen != null && !rutaImagen.isEmpty()) {
-            ImageIcon icon = new ImageIcon(rutaImagen);
-            Image imagenEscalada = icon.getImage().getScaledInstance(jLabel1.getWidth(), jLabel1.getHeight(), Image.SCALE_SMOOTH);
-            jLabel1.setIcon(new ImageIcon(imagenEscalada));
+            String resolvedPath = com.culturarte.util.ImagePathResolver.resolve(rutaImagen);
+            if (resolvedPath != null) {
+                ImageIcon icon = new ImageIcon(resolvedPath);
+                Image imagenEscalada = icon.getImage().getScaledInstance(jLabel1.getWidth(), jLabel1.getHeight(), Image.SCALE_SMOOTH);
+                jLabel1.setIcon(new ImageIcon(imagenEscalada));
+            } else {
+                jLabel1.setIcon(null);
+            }
         } else {
             jLabel1.setIcon(null);
         }

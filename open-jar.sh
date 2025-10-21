@@ -37,5 +37,10 @@ fi
 
 export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:-} -Djava.awt.headless=false"
 
-echo "[open-jar] Launching Swing app (JAR) locally..."
-exec mvn -q -f "$ROOT_DIR/jar/pom.xml" spring-boot:run -Dspring-boot.run.jvmArguments="-Djava.awt.headless=false"
+# Use a single uploads folder at repo root for both JAR and WEB when running locally
+UPLOADS_DIR="$ROOT_DIR/uploads"
+mkdir -p "$UPLOADS_DIR"
+export APP_UPLOADS_DIR="$UPLOADS_DIR"
+
+echo "[open-jar] Launching Swing app (JAR) locally... (uploads: $UPLOADS_DIR)"
+exec mvn -q -f "$ROOT_DIR/jar/pom.xml" spring-boot:run -Dspring-boot.run.jvmArguments="-Djava.awt.headless=false -Dapp.uploads.dir=$UPLOADS_DIR"

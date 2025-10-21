@@ -29,8 +29,11 @@ services:
       SPRING_DATASOURCE_USERNAME: "root"
       SPRING_DATASOURCE_PASSWORD: "root"
       SPRING_JPA_HIBERNATE_DDL_AUTO: "create-drop"
+      APP_UPLOADS_DIR: "/app/uploads"
     ports:
       - "8080:8080"
+    volumes:
+      - ./uploads:/app/uploads
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/ || exit 1"]
       interval: 5s
