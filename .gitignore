@@ -42,8 +42,7 @@ nbdist/
 *.bak
 *.swp
 logs/
-war/logs/
-jar/logs/
+# Los logs específicos por módulo se generan bajo target/ y ya están ignorados
 
 # ============================
 # SO y archivos varios
@@ -62,13 +61,11 @@ docker-compose.override.yml
 # ============================
 # Datos locales (no versionar)
 # ============================
-# Directorios de datos de MySQL dentro de cada módulo
-war/mysql/data/
-jar/mysql/data/
+# Directorios de datos de MySQL
+web-app/mysql/data/
 
 # Subidas locales (imágenes, etc.)
-war/uploads/
-jar/uploads/
+uploads/
 
 # ============================
 # Java crash dumps

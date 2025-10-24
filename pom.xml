@@ -10,11 +10,12 @@
     <packaging>pom</packaging>
 
     <name>proyecto-culturarte-aggregator</name>
-    <description>Aggregator POM to build WAR and JAR modules together</description>
+    <description>Aggregator POM for web-app, desktop-gui and core-business</description>
 
     <modules>
-        <module>war</module>
-        <module>jar</module>
+        <module>core-business</module>
+        <module>web-app</module>
+        <module>desktop-gui</module>
     </modules>
 
     <properties>
