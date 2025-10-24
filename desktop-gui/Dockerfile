@@ -6,10 +6,8 @@ RUN mvn -q -f /build/pom.xml -DskipTests dependency:go-offline
 COPY jar/src /build/src
 RUN mvn -q -f /build/pom.xml -DskipTests package
 
-# Runtime stage
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-# Headless AWT to avoid X11 requirements by default
 ENV JAVA_TOOL_OPTIONS="-Djava.awt.headless=true"
 COPY --from=builder /build/target/*.jar /app/app.jar
 ENTRYPOINT ["java","-jar","/app/app.jar"]

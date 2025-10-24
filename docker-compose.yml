@@ -9,7 +9,7 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
-      - ./war/mysql/init:/docker-entrypoint-initdb.d:ro
+      - ./web-app/mysql/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
       interval: 5s
@@ -19,7 +19,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: war/Dockerfile
+      dockerfile: web-app/Dockerfile
     container_name: culturarte-web
     depends_on:
       db:
