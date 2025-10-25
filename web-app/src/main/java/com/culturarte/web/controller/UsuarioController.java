@@ -44,7 +44,8 @@ public class UsuarioController {
             @RequestParam(required=false) String direccion,
             @RequestParam(required=false) String biografia,
             @RequestParam(required=false) String web,
-            Model model
+            Model model,
+            HttpSession session
     ) {
         LocalDate fechaNac = LocalDate.parse(fecha);
         String imagen = null;
@@ -68,12 +69,14 @@ public class UsuarioController {
 
             if (rol.equals("proponente")) {
                 ctrl.altaProponente(nickname,password, nombre, apellido, email, fechaNac, imagen, direccion, web, biografia);
-                model.addAttribute("mensaje", "Proponente registrado con éxito");
-                return "exitoAltaUsuario";
+                DTUsuario usuario = ctrl.getDTUsuario(nickname);
+                session.setAttribute("usuarioLogueado", usuario);
+                return "redirect:/";
             } else if (rol.equals("colaborador")) {
                 ctrl.altaColaborador(nickname,password, nombre, apellido, email, fechaNac, imagen);
-                model.addAttribute("mensaje", "Colaborador registrado con éxito");
-                return "exitoAltaUsuario";
+                DTUsuario usuario = ctrl.getDTUsuario(nickname);
+                session.setAttribute("usuarioLogueado", usuario);
+                return "redirect:/";
             } else {
                 model.addAttribute("mensaje", "⚠️ Debe seleccionar un rol");
             }
