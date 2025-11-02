@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import com.culturarte.logica.datatypes.DTColaborador;
 import com.culturarte.logica.datatypes.DTPropuesta;
+import com.culturarte.logica.clases.Usuario;
 import com.culturarte.logica.datatypes.DTColaboracion;
 import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.logica.enums.*;
@@ -64,5 +65,6 @@ public interface IControlador {
     public abstract void sacarPropuestaFavorita(String nickname, String tituloPropuesta);
     public abstract boolean colaboradorPuedeComentar(String colaborador, String tituloPropuesta);
     public abstract boolean verificarPassword(String password, String nick);
+    public abstract ArrayList<DTUsuario> listarUsuarios();
 }
 
