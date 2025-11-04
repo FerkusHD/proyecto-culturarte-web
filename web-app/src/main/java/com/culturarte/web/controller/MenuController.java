@@ -1,5 +1,6 @@
 package com.culturarte.web.controller;
 import com.culturarte.logica.datatypes.DTUsuario;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,20 +18,24 @@ public class MenuController {
     }
 
     @GetMapping("/")
-    public String index(HttpSession session, Model model) {
+    public String index(HttpSession session, Model model, HttpServletRequest request) {
 
-        DTUsuario u = (DTUsuario) session.getAttribute("usuarioLogueado");
-        if (u == null) {
-            u = new DTUsuario();
-            u.setNickname("visitante");
-            u.setTipo("visitante");
-            session.setAttribute("usuarioLogueado", u);
-        }
-
-        model.addAttribute("usuario", u);
-
-        return "index";
+    DTUsuario u = (DTUsuario) session.getAttribute("usuarioLogueado");
+    if (u == null) {
+        u = new DTUsuario();
+        u.setNickname("visitante");
+        u.setTipo("visitante");
+        session.setAttribute("usuarioLogueado", u);
     }
+
+    String userAgent = request.getHeader("User-Agent");
+    boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
+
+    model.addAttribute("usuario", u);
+    model.addAttribute("esMovil", esMovil);
+
+    return "index";
+}
 
     @GetMapping("/login")
     public String login() {

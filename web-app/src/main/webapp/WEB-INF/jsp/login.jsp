@@ -14,6 +14,7 @@
 </head>
 <body>
 
+<c:if test="${!esMovil}">
 <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
         <div class="container-fluid">
@@ -53,6 +54,7 @@
         </div>
     </nav>
 </header>
+</c:if>
 
 <main class="container mt-5" style="max-width: 450px;">
     <div class="card shadow-sm p-4">
@@ -89,3 +91,4 @@
 
 </body>
 </html>
+
