@@ -27,7 +27,7 @@ public class WebServiceConfig {
     // Placeholder schema for future SOAP operations
     @Bean
     public XsdSchema culturarteSchema() {
-        return new SimpleXsdSchema(new ClassPathResource("schemas/culturarte.xsd"));
+        return new SimpleXsdSchema(new ClassPathResource("ws/culturarte.xsd"));
     }
 
     // Expose a WSDL named culturarte at /ws/culturarte.wsdl
@@ -39,5 +39,21 @@ public class WebServiceConfig {
         wsdl11Definition.setTargetNamespace("http://culturarte.com/soap");
         wsdl11Definition.setSchema(culturarteSchema);
         return wsdl11Definition;
+    }
+
+
+    @Bean(name = "categorias")
+    public DefaultWsdl11Definition categoriasWsdl(XsdSchema categoriasSchema) {
+        DefaultWsdl11Definition definition = new DefaultWsdl11Definition();
+        definition.setPortTypeName("CategoriasPort");
+        definition.setLocationUri("/ws");
+        definition.setTargetNamespace("http://www.culturarte.com/ws/categorias");
+        definition.setSchema(categoriasSchema);
+        return definition;
+    }
+
+    @Bean
+    public XsdSchema categoriasSchema() {
+        return new SimpleXsdSchema(new ClassPathResource("ws/categorias.xsd"));
     }
 }

@@ -37,14 +37,12 @@ fi
 
 export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:-} -Djava.awt.headless=false"
 
-# Use a single uploads folder at repo root for both JAR and WEB when running locally
 UPLOADS_DIR="$ROOT_DIR/uploads"
 mkdir -p "$UPLOADS_DIR"
 export APP_UPLOADS_DIR="$UPLOADS_DIR"
 
 echo "[open-jar] Launching Swing app (JAR) locally... (uploads: $UPLOADS_DIR)"
-# Build and INSTALL desktop-gui and its dependencies first (without running it), skipping tests and JaCoCo
-# Using 'install' ensures core-business is available in the local Maven repo for the subsequent run phase.
+
 mvn -q -f "$ROOT_DIR/pom.xml" -pl desktop-gui -am install -DskipTests -Djacoco.skip=true
-# Now run Spring Boot only in the desktop-gui module
+
 exec mvn -q -f "$ROOT_DIR/desktop-gui/pom.xml" spring-boot:run -Dspring-boot.run.mainClass=com.culturarte.DesktopGuiApplication -Dspring-boot.run.jvmArguments="-Djava.awt.headless=false -Dapp.uploads.dir=$UPLOADS_DIR"
