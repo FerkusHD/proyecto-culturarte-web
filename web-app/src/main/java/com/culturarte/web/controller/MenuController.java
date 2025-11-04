@@ -1,5 +1,7 @@
 package com.culturarte.web.controller;
 import com.culturarte.logica.datatypes.DTUsuario;
+
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,9 +35,14 @@ public class MenuController {
     }
 
     @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
+    public String login(HttpServletRequest request, Model model) {
+        
+    String userAgent = request.getHeader("User-Agent");
+    boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
+
+    model.addAttribute("esMovil", esMovil);
+    return "login";
+}
 
     @PostMapping("/login")
     public String procesarLogin(@RequestParam String nickOemail,
