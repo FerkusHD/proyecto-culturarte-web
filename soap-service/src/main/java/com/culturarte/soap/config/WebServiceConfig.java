@@ -15,7 +15,6 @@ import org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition;
 @Configuration
 public class WebServiceConfig {
 
-    // Registers Spring-WS MessageDispatcherServlet under /ws/*
     @Bean
     public ServletRegistrationBean<MessageDispatcherServlet> messageDispatcherServlet(ApplicationContext applicationContext) {
         MessageDispatcherServlet servlet = new MessageDispatcherServlet();
@@ -24,13 +23,11 @@ public class WebServiceConfig {
         return new ServletRegistrationBean<>(servlet, "/ws/*");
     }
 
-    // Placeholder schema for future SOAP operations
     @Bean
     public XsdSchema culturarteSchema() {
         return new SimpleXsdSchema(new ClassPathResource("ws/culturarte.xsd"));
     }
 
-    // Expose a WSDL named culturarte at /ws/culturarte.wsdl
     @Bean(name = "culturarte")
     public DefaultWsdl11Definition defaultWsdl11Definition(XsdSchema culturarteSchema) {
         DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
