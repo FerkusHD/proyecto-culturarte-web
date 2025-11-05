@@ -37,7 +37,6 @@
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
         </dependency>
-        <!-- Provide JAXB API (javax) for generated sources that reference javax.xml.bind -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
@@ -61,19 +60,19 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-            <!-- Generate JAXB classes from XSDs under src/main/resources/ws -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxb2-maven-plugin</artifactId>
                 <version>2.5.0</version>
                 <executions>
                     <execution>
+                        <phase>generate-sources</phase>
                         <id>xjc</id>
                         <goals>
                             <goal>xjc</goal>
                         </goals>
                         <configuration>
-                            <schemaDirectory>${project.basedir}/src/main/resources/ws</schemaDirectory>
+                            <schemaDirectory>${project.basedir}/src/main/xsd</schemaDirectory>
                             <outputDirectory>${project.build.directory}/generated-sources/xjc</outputDirectory>
                             <packageName>com.culturarte.soap.gen</packageName>
                             <schemas>
