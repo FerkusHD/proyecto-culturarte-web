@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 WEB_URL="http://localhost:8080/"
-SOAP_URL="http://localhost:8081/ws"
+SOAP_URL="http://localhost:8081/soap/ws"
 TIMEOUT=120
 SLEEP=3
 
@@ -30,25 +30,29 @@ wait_for_url() {
 }
 
 if have docker && docker compose version >/dev/null 2>&1; then
-  echo "[open-jar] Starting DB with Docker Compose..."
-  (cd "$ROOT_DIR" && docker compose up -d db)
-  sleep 5  # Give DB time to initialize
+  echo "[open-jar] Starting services with Docker Compose..."
+  (cd "$ROOT_DIR" && docker compose up -d db soap web)
+  sleep 5  # Give services time to initialize
 else
-  echo "[open-jar] Docker Compose not found. Skipping containerized DB startup."
+  echo "[open-jar] Docker Compose not found. Starting services manually..."
   echo "[open-jar] Make sure your DB is running locally before continuing."
+  
+  # Start SOAP service
+  echo "[open-jar] Starting SOAP service..."
+  mvn -q -f "$ROOT_DIR/soap-service/pom.xml" spring-boot:run \
+      -Dspring.profiles.active=mysql-local \
+      -Dserver.port=8081 &
+  SOAP_PID=$!
+  wait_for_url "$SOAP_URL" "SOAP service" || true
+
+  # Start Web app
+  echo "[open-jar] Starting Web application..."
+  mvn -q -f "$ROOT_DIR/web-app/pom.xml" spring-boot:run \
+      -Dspring.profiles.active=mysql-local \
+      -Dserver.port=8080 &
+  WEB_PID=$!
+  wait_for_url "$WEB_URL" "Web app" || true
 fi
-
-# Start SOAP service
-echo "[open-jar] Starting SOAP service..."
-mvn -q -f "$ROOT_DIR/soap-service/pom.xml" spring-boot:run -Dserver.port=8081 &
-SOAP_PID=$!
-wait_for_url "$SOAP_URL" "SOAP service" || true
-
-# Start Web app
-echo "[open-jar] Starting Web application..."
-mvn -q -f "$ROOT_DIR/web-app/pom.xml" spring-boot:run -Dserver.port=8080 &
-WEB_PID=$!
-wait_for_url "$WEB_URL" "Web app" || true
 
 # Setup for desktop app
 UPLOADS_DIR="$ROOT_DIR/uploads"
@@ -59,10 +63,13 @@ export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:-} -Djava.awt.headless=false"
 echo "[open-jar] Building and launching Swing app (JAR)..."
 mvn -q -f "$ROOT_DIR/pom.xml" -pl desktop-gui -am install -DskipTests -Djacoco.skip=true
 
-# Trap to kill background processes on script exit
-trap 'kill $SOAP_PID $WEB_PID 2>/dev/null || true' EXIT
+# Trap to kill background processes on script exit if running manually
+if [ -n "${SOAP_PID:-}" ] && [ -n "${WEB_PID:-}" ]; then
+  trap 'kill $SOAP_PID $WEB_PID 2>/dev/null || true' EXIT
+fi
 
 # Run desktop app
 exec mvn -q -f "$ROOT_DIR/desktop-gui/pom.xml" spring-boot:run \
     -Dspring-boot.run.mainClass=com.culturarte.DesktopGuiApplication \
+    -Dspring.profiles.active=mysql-local \
     -Dspring-boot.run.jvmArguments="-Djava.awt.headless=false -Dapp.uploads.dir=$UPLOADS_DIR"
