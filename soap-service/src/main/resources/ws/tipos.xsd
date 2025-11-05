@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.culturarte.com/ws/tipos"
+           xmlns:tns="http://www.culturarte.com/ws/tipos"
+           elementFormDefault="qualified">
+
+    <xs:complexType name="dtFecha">
+        <xs:sequence>
+            <xs:element name="anio" type="xs:int"/>
+            <xs:element name="mes" type="xs:int"/>
+            <xs:element name="dia" type="xs:int"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="dtHora">
+        <xs:sequence>
+            <xs:element name="hora" type="xs:int"/>
+            <xs:element name="minuto" type="xs:int"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="tipoEstado">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="INGRESADA"/>
+            <xs:enumeration value="PUBLICADA"/>
+            <xs:enumeration value="EN_FINANCIACION"/>
+            <xs:enumeration value="FINANCIADA"/>
+            <xs:enumeration value="CANCELADA"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="tipoRetorno">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ENTRADA_GRATIS"/>
+            <xs:enumeration value="VISITA_GUIADA"/>
+            <xs:enumeration value="ACCESO_BACKSTAGE"/>
+            <xs:enumeration value="MERCHANDISING"/>
+            <xs:enumeration value="MEET_AND_GREET"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

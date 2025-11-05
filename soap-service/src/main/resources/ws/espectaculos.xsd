@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.culturarte.com/ws/espectaculos"
+           xmlns:tns="http://www.culturarte.com/ws/espectaculos"
+           xmlns:tipos="http://www.culturarte.com/ws/tipos"
+           elementFormDefault="qualified">
+
+    <xs:element name="getEspectaculoRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="id" type="xs:long"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getEspectaculoResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="espectaculo" type="tns:espectaculoType"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="espectaculoType">
+        <xs:sequence>
+            <xs:element name="id" type="xs:long"/>
+            <xs:element name="nombre" type="xs:string"/>
+            <xs:element name="descripcion" type="xs:string"/>
+            <xs:element name="duracion" type="xs:int"/>
+            <xs:element name="url" type="xs:string" minOccurs="0"/>
+            <xs:element name="costo" type="xs:float"/>
+            <xs:element name="fechaRegistro" type="xs:dateTime"/>
+            <xs:element name="estado" type="xs:string"/>
+            <xs:element name="imagen" type="xs:string" minOccurs="0"/>
+            <xs:element name="plataforma" type="xs:string"/>
+            <xs:element name="categorias" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="funciones" type="tns:funcionType" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="funcionType">
+        <xs:sequence>
+            <xs:element name="id" type="xs:long"/>
+            <xs:element name="nombre" type="xs:string"/>
+            <xs:element name="fecha" type="xs:dateTime"/>
+            <xs:element name="fechaRegistro" type="xs:dateTime"/>
+            <xs:element name="artistas" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

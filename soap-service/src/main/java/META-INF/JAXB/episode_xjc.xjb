@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bindings version="3.0" xmlns="https://jakarta.ee/xml/ns/jaxb">
+  <!--
+
+Este archivo ha sido generado por Eclipse Implementation of JAXB v3.0.0 
+Visite https://eclipse-ee4j.github.io/jaxb-ri 
+Todas las modificaciones realizadas en este archivo se perderán si se vuelve a compilar el esquema de origen. 
+Generado el: 2025.11.05 a las 03:15:23 PM GMT-03:00 
+
+  -->
+  <bindings scd="x-schema::tns" xmlns:tns="http://www.culturarte.com/ws/categorias">
+    <schemaBindings map="false">
+      <package name="com.culturarte.soap.gen"/>
+    </schemaBindings>
+    <bindings scd="tns:getCategoriasResponse">
+      <class ref="com.culturarte.soap.gen.GetCategoriasResponse"/>
+    </bindings>
+  </bindings>
+  <bindings scd="x-schema::tns" xmlns:tns="http://www.culturarte.com/ws">
+    <schemaBindings map="false">
+      <package name="com.culturarte.soap.gen"/>
+    </schemaBindings>
+    <bindings scd="tns:pingRequest">
+      <class ref="com.culturarte.soap.gen.PingRequest"/>
+    </bindings>
+    <bindings scd="tns:pingResponse">
+      <class ref="com.culturarte.soap.gen.PingResponse"/>
+    </bindings>
+    <bindings scd="tns:getPropuestasRequest">
+      <class ref="com.culturarte.soap.gen.GetPropuestasRequest"/>
+    </bindings>
+    <bindings scd="tns:getPropuestasResponse">
+      <class ref="com.culturarte.soap.gen.GetPropuestasResponse"/>
+    </bindings>
+    <bindings scd="tns:getUsuariosRequest">
+      <class ref="com.culturarte.soap.gen.GetUsuariosRequest"/>
+    </bindings>
+    <bindings scd="tns:getUsuariosResponse">
+      <class ref="com.culturarte.soap.gen.GetUsuariosResponse"/>
+    </bindings>
+  </bindings>
+  <bindings scd="x-schema::tns" xmlns:tns="http://www.culturarte.com/ws/propuestas">
+    <schemaBindings map="false">
+      <package name="com.culturarte.soap.gen"/>
+    </schemaBindings>
+    <bindings scd="~tns:propuestaType">
+      <class ref="com.culturarte.soap.gen.PropuestaType"/>
+    </bindings>
+    <bindings scd="tns:listarPropuestasResponse">
+      <class ref="com.culturarte.soap.gen.ListarPropuestasResponse"/>
+    </bindings>
+    <bindings scd="tns:getPropuestaRequest">
+      <class ref="com.culturarte.soap.gen.GetPropuestaRequest"/>
+    </bindings>
+    <bindings scd="tns:getPropuestaResponse">
+      <class ref="com.culturarte.soap.gen.GetPropuestaResponse"/>
+    </bindings>
+  </bindings>
+  <bindings scd="x-schema::tns" xmlns:tns="http://www.culturarte.com/ws/usuarios">
+    <schemaBindings map="false">
+      <package name="com.culturarte.soap.gen"/>
+    </schemaBindings>
+    <bindings scd="~tns:usuarioType">
+      <class ref="com.culturarte.soap.gen.UsuarioType"/>
+    </bindings>
+    <bindings scd="tns:getUsuarioRequest">
+      <class ref="com.culturarte.soap.gen.GetUsuarioRequest"/>
+    </bindings>
+    <bindings scd="tns:getUsuarioResponse">
+      <class ref="com.culturarte.soap.gen.GetUsuarioResponse"/>
+    </bindings>
+  </bindings>
+  <bindings scd="x-schema::tns" xmlns:tns="http://www.culturarte.com/ws/tipos">
+    <schemaBindings map="false">
+      <package name="com.culturarte.soap.gen"/>
+    </schemaBindings>
+    <bindings scd="~tns:dtFecha">
+      <class ref="com.culturarte.soap.gen.DtFecha"/>
+    </bindings>
+    <bindings scd="~tns:dtHora">
+      <class ref="com.culturarte.soap.gen.DtHora"/>
+    </bindings>
+    <bindings scd="~tns:tipoEstado">
+      <typesafeEnumClass ref="com.culturarte.soap.gen.TipoEstado"/>
+    </bindings>
+    <bindings scd="~tns:tipoRetorno">
+      <typesafeEnumClass ref="com.culturarte.soap.gen.TipoRetorno"/>
+    </bindings>
+  </bindings>
+  <bindings scd="x-schema::tns" xmlns:tns="http://www.culturarte.com/ws/espectaculos">
+    <schemaBindings map="false">
+      <package name="com.culturarte.soap.gen"/>
+    </schemaBindings>
+    <bindings scd="tns:getEspectaculoRequest">
+      <class ref="com.culturarte.soap.gen.GetEspectaculoRequest"/>
+    </bindings>
+    <bindings scd="tns:getEspectaculoResponse">
+      <class ref="com.culturarte.soap.gen.GetEspectaculoResponse"/>
+    </bindings>
+    <bindings scd="~tns:espectaculoType">
+      <class ref="com.culturarte.soap.gen.EspectaculoType"/>
+    </bindings>
+    <bindings scd="~tns:funcionType">
+      <class ref="com.culturarte.soap.gen.FuncionType"/>
+    </bindings>
+  </bindings>
+</bindings>
+

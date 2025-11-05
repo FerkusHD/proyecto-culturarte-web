@@ -21,6 +21,7 @@ import javax.swing.tree.DefaultTreeModel;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 
@@ -32,6 +33,7 @@ public class Controlador implements IControlador{
     private final ManejadorCategoria mc;
     private final ManejadorColaboracion mcol;
 
+    @Autowired
     public Controlador(ManejadorPropuesta mp, ManejadorUsuario mu, ManejadorCategoria mc, ManejadorColaboracion mcol) {
         this.mp = mp;
         this.mu = mu;

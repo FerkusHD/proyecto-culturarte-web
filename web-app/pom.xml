@@ -71,6 +71,11 @@
 			<optional>true</optional>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.culturarte</groupId>
+			<artifactId>soap-service</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 
 	</dependencies>
 
