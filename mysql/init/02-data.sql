@@ -1,0 +1,2 @@
+DROP DATABASE IF EXISTS culturarte;
+CREATE DATABASE culturarte;
