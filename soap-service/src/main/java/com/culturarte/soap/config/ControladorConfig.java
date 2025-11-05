@@ -9,5 +9,5 @@ import org.springframework.stereotype.Component;
 @Configuration
 @Import({PersistenceConfig.class})
 public class ControladorConfig {
-    // La configuración se mantiene vacía ya que Spring Boot manejará la inyección automáticamente
+
 }
