@@ -12,6 +12,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -250,7 +252,7 @@ public class PropuestasController {
     }
 
     @GetMapping("/{titulo}")
-    public String mostrarPropuesta(Model model, HttpSession session, @PathVariable String titulo){
+    public String mostrarPropuesta(HttpServletRequest request,Model model, HttpSession session, @PathVariable String titulo){
         DTPropuesta propuesta = ctrl.getDTPropuesta(titulo);
 
         if(propuesta == null){
@@ -288,6 +290,12 @@ public class PropuestasController {
             model.addAttribute("colaboradores", new ArrayList<>()); // para evitar null
         }
 
+        String userAgent = request.getHeader("User-Agent");
+        boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
+
+        if (esMovil) {
+            return "consultarPropuestaMovil";
+        }
 
         return "consultarPropuesta";
     }

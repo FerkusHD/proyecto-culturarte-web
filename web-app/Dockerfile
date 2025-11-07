@@ -5,8 +5,6 @@ COPY web-app/pom.xml /build/
 RUN mvn -q -f /build/pom.xml -DskipTests dependency:go-offline
 COPY web-app/src /build/src
 RUN mvn -q -f /build/pom.xml -DskipTests package
-
-
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 RUN apt-get update \
