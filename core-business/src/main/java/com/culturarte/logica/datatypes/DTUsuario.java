@@ -38,6 +38,16 @@ public class DTUsuario {
         this.tipo = tipo;
     }
 
+     public DTUsuario(String nickname, String nombre, String apellido, String email, LocalDate fechaNacimiento,String imagen,ArrayList<DTUsuario> usuariosSeguidores) {
+        this.nickname = nickname;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.email = email;
+        this.fechaNacimiento = fechaNacimiento;
+        this.imagen = imagen;
+        this.usuariosSeguidores = usuariosSeguidores;
+    }
+
     public DTUsuario(String nickname, String nombre, String apellido, String email, LocalDate fechaNacimiento, ArrayList<String> usuariosSeguidos, String imagen){
         this.nickname = nickname;
         this.nombre = nombre;
@@ -77,6 +87,11 @@ public class DTUsuario {
 
 
 
+
+    public DTUsuario(String nickname2, String apellido2, String nombre2, String email2, LocalDate fechaNacimiento2,
+            String imagen2, int size) {
+        //TODO Auto-generated constructor stub
+    }
 
     public String getImagen() {
         return imagen;

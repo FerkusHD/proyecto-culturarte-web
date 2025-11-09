@@ -1,8 +1,8 @@
 package com.culturarte.web.controller;
-
 import com.culturarte.exepciones.EmailYaExiste;
 import com.culturarte.exepciones.UsuarioYaExiste;
 import com.culturarte.logica.IControlador;
+import com.culturarte.logica.clases.Usuario;
 import com.culturarte.logica.datatypes.DTUsuario;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -17,7 +17,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @Controller
 @RequestMapping("/usuarios")
@@ -30,6 +34,16 @@ public class UsuarioController {
     public String altaUsuario() {
         return "altaUsuario";
     }
+
+    @GetMapping("/ranking")
+    public String rankingUsu(Model model){
+
+        ArrayList<DTUsuario> usuarios=ctrl.listarUsuarios();
+        model.addAttribute("usuarios", usuarios);
+
+        return "rankingUsuarios";
+    }
+    
 
     @PostMapping("/alta")
     public String altaUsuario(
