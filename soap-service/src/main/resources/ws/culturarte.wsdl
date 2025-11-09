@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:tns="http://www.culturarte.com/ws"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             targetNamespace="http://www.culturarte.com/ws">
+
+    <types>
+        <xsd:schema>
+            <xsd:import namespace="http://www.culturarte.com/ws" schemaLocation="culturarte.xsd"/>
+        </xsd:schema>
+    </types>
+
+    <!-- Mensajes -->
+    <message name="getUsuariosRequest">
+        <part name="parameters" element="tns:getUsuariosRequest"/>
+    </message>
+    <message name="getUsuariosResponse">
+        <part name="parameters" element="tns:getUsuariosResponse"/>
+    </message>
+
+    <!-- PortType -->
+    <portType name="CulturartePortType">
+        <operation name="getUsuarios">
+            <input message="tns:getUsuariosRequest"/>
+            <output message="tns:getUsuariosResponse"/>
+        </operation>
+    </portType>
+
+    <!-- Binding -->
+    <binding name="CulturarteBinding" type="tns:CulturartePortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="getUsuarios">
+            <soap:operation soapAction="getUsuarios"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+    </binding>
+
+    <!-- Service -->
+    <service name="CulturarteService">
+        <port name="CulturartePort" binding="tns:CulturarteBinding">
+            <soap:address location="http://localhost:8081/soap/ws"/>
+        </port>
+    </service>
+</definitions>

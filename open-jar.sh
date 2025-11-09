@@ -36,7 +36,7 @@ if have docker && docker compose version >/dev/null 2>&1; then
 else
   echo "[open-jar] Docker Compose not found. Starting services manually..."
   echo "[open-jar] Make sure your DB is running locally before continuing."
-  
+
   echo "[open-jar] Starting SOAP service..."
   mvn -q -f "$ROOT_DIR/soap-service/pom.xml" spring-boot:run \
       -Dspring.profiles.active=mysql-local \
@@ -57,8 +57,9 @@ mkdir -p "$UPLOADS_DIR"
 export APP_UPLOADS_DIR="$UPLOADS_DIR"
 export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:-} -Djava.awt.headless=false"
 
-echo "[open-jar] Building and launching Swing app (JAR)..."
-mvn -q -f "$ROOT_DIR/pom.xml" -pl desktop-gui -am install -DskipTests -Djacoco.skip=true
+echo "[open-jar] Building and launching Swing app..."
+mvn -q -f "$ROOT_DIR/pom.xml" -pl desktop-gui -am install \
+    -DskipTests -Djacoco.skip=true
 
 if [ -n "${SOAP_PID:-}" ] && [ -n "${WEB_PID:-}" ]; then
   trap 'kill $SOAP_PID $WEB_PID 2>/dev/null || true' EXIT

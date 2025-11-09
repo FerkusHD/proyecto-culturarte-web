@@ -1,23 +1,22 @@
-# ---------- Build stage ----------
 FROM maven:3.9.9-eclipse-temurin-21 AS builder
 WORKDIR /build
 
-COPY core-business /build/core-business
-COPY web-app /build/web-app
+COPY pom.xml .
 
-RUN mvn -q -f core-business/pom.xml clean install -DskipTests
-RUN mvn -q -f web-app/pom.xml -DskipTests dependency:go-offline
-RUN mvn -q -f web-app/pom.xml clean package -DskipTests
+COPY core-business ./core-business
+COPY soap-service ./soap-service
+COPY web-app ./web-app
 
-# ---------- Runtime stage ----------
+RUN mvn -f core-business/pom.xml clean install -DskipTests
+RUN mvn -f soap-service/pom.xml clean install -DskipTests
+RUN mvn -f web-app/pom.xml clean package -DskipTests
+
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
-    && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /build/web-app/target/*.war /app/app.war
+COPY --from=builder /build/web-app/target/proyecto-culturarte-web-0.0.1-SNAPSHOT.war app.war
+COPY mysql/application.properties application-mysql.properties
 
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app/app.war"]
+ENTRYPOINT ["java", "-jar", "app.war"]
