@@ -1,5 +1,7 @@
 package com.culturarte.web.controller;
 import com.culturarte.logica.datatypes.DTUsuario;
+
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,14 +35,20 @@ public class MenuController {
     }
 
     @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
+    public String login(HttpServletRequest request, Model model) {
+        
+    String userAgent = request.getHeader("User-Agent");
+    boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
+   
+    model.addAttribute("esMovil", esMovil);
+    return "login";
+}
 
     @PostMapping("/login")
     public String procesarLogin(@RequestParam String nickOemail,
                                 @RequestParam String password,
                                 HttpSession session,
+                                HttpServletRequest request,
                                 Model model) {
 
         boolean existeUsuario = ctrl.verificarPassword(password, nickOemail);
@@ -50,7 +58,17 @@ public class MenuController {
             model.addAttribute("nickname", nickOemail);
             return "login";
         }
-        DTUsuario usuario = ctrl.getDTUsuario(nickOemail);
+        
+    DTUsuario usuario = ctrl.getDTUsuario(nickOemail);
+
+    String userAgent = request.getHeader("User-Agent");
+    boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
+
+    if (esMovil && !usuario.getTipo().equalsIgnoreCase("colaborador")) {
+        model.addAttribute("mensaje", "⚠️ Solo los colaboradores pueden iniciar sesión desde un dispositivo móvil.");
+        model.addAttribute("nickname", nickOemail);
+        return "login";
+    }
         session.setAttribute("usuarioLogueado", usuario);
         return "index";
     }
