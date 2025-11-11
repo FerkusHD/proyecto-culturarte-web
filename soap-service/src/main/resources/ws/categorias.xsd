@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.culturarte.com/ws/categorias"
+           xmlns:tns="http://www.culturarte.com/ws/categorias"
+           elementFormDefault="qualified">
+
+    <xs:element name="getCategoriasRequest" type="xs:anyType"/>
+
+    <xs:element name="getCategoriasResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="categoria" type="xs:string" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

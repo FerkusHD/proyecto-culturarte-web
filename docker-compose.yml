@@ -16,6 +16,27 @@ services:
       timeout: 3s
       retries: 20
 
+  soap:
+    build:
+      context: .
+      dockerfile: soap-service/Dockerfile
+    container_name: culturarte-soap
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://db:3306/culturarte?zeroDateTimeBehavior=CONVERT_TO_NULL"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "root"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "none"
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8081/soap/ws/categorias.wsdl || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
   web:
     build:
       context: .
@@ -24,12 +45,16 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      soap:
+        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: "jdbc:mysql://db:3306/culturarte?zeroDateTimeBehavior=CONVERT_TO_NULL"
       SPRING_DATASOURCE_USERNAME: "root"
       SPRING_DATASOURCE_PASSWORD: "root"
       SPRING_JPA_HIBERNATE_DDL_AUTO: "create-drop"
       APP_UPLOADS_DIR: "/app/uploads"
+      SOAP_SERVICE_URL: "http://soap:8081/soap/ws"
+      USE_SOAP: "true"
     ports:
       - "8080:8080"
     volumes:

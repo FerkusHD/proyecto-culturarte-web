@@ -53,4 +53,34 @@ public class WebServiceConfig {
     public XsdSchema categoriasSchema() {
         return new SimpleXsdSchema(new ClassPathResource("ws/categorias.xsd"));
     }
+
+    @Bean
+    public XsdSchema propuestasSchema() {
+        return new SimpleXsdSchema(new ClassPathResource("ws/propuestas.xsd"));
+    }
+
+    @Bean(name = "propuestas")
+    public DefaultWsdl11Definition propuestasWsdl(XsdSchema propuestasSchema) {
+        DefaultWsdl11Definition definition = new DefaultWsdl11Definition();
+        definition.setPortTypeName("PropuestasPort");
+        definition.setLocationUri("/ws");
+        definition.setTargetNamespace("http://www.culturarte.com/ws/propuestas");
+        definition.setSchema(propuestasSchema);
+        return definition;
+    }
+
+    @Bean
+    public XsdSchema usuariosSchema() {
+        return new SimpleXsdSchema(new ClassPathResource("ws/usuarios.xsd"));
+    }
+
+    @Bean(name = "usuarios")
+    public DefaultWsdl11Definition usuariosWsdl(XsdSchema usuariosSchema) {
+        DefaultWsdl11Definition definition = new DefaultWsdl11Definition();
+        definition.setPortTypeName("UsuariosPort");
+        definition.setLocationUri("/ws");
+        definition.setTargetNamespace("http://www.culturarte.com/ws/usuarios");
+        definition.setSchema(usuariosSchema);
+        return definition;
+    }
 }

@@ -6,11 +6,6 @@ import com.culturarte.soap.gen.PropuestaType;
 import com.culturarte.soap.gen.GetPropuestaResponse;
 import com.culturarte.soap.gen.GetPropuestaRequest;
 import com.culturarte.soap.gen.ObjectFactory;
-import com.culturarte.soap.gen.ListarPropuestasResponse;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
@@ -27,7 +22,7 @@ public class PropuestasEndpoint {
         this.ctrl = ctrl;
     }
 
-    @PayloadRoot(namespace = NAMESPACE, localPart = "getPropuestasRequest")
+    @PayloadRoot(namespace = NAMESPACE, localPart = "listarPropuestasRequest")
     @ResponsePayload
     public ListarPropuestasResponse listarPropuestas(@RequestPayload Object request) throws Exception {
         ListarPropuestasResponse resp = new ListarPropuestasResponse();
