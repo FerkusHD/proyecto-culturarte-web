@@ -15,26 +15,12 @@ public class DataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            System.out.println("🔍 Verificando si los datos de prueba ya están cargados...");
-            boolean datosYaCargados = false;
-
-            try {
-                controlador.buscarUsuarios("hrubino");
-                datosYaCargados = true;
-            } catch (Exception e) {
-                datosYaCargados = false;
-            }
-
-            if (!datosYaCargados) {
-                System.out.println("📦 Cargando datos de prueba...");
-                controlador.cargarDatosPrueba();
-                System.out.println("✅ Datos de prueba cargados al iniciar la app");
-            } else {
-                System.out.println("⚠️ Los datos de prueba ya estaban cargados. No se vuelven a insertar.");
-            }
-
+            System.out.println("📦 Cargando datos de prueba...");
+            controlador.cargarDatosPrueba();
+            System.out.println("✅ Datos de prueba cargados al iniciar la app");
         } catch (Exception e) {
             System.err.println("❌ Error cargando datos de prueba: " + e.getMessage());
         }
     }
+
 }
