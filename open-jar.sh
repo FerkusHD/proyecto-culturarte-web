@@ -27,12 +27,12 @@ wait_for_web() {
 }
 
 if have docker && docker compose version >/dev/null 2>&1; then
-  echo "[open-jar] Starting DB + Web with Docker Compose..."
-  (cd "$ROOT_DIR" && docker compose up -d db web)
+  echo "[open-jar] Starting DB + SOAP + Web with Docker Compose..."
+  (cd "$ROOT_DIR" && docker compose up -d db soap web)
   wait_for_web || true
 else
-  echo "[open-jar] Docker Compose not found. Skipping containerized DB/Web startup."
-  echo "[open-jar] Make sure your DB and Web are running locally before launching the app."
+  echo "[open-jar] Docker Compose not found. Skipping containerized DB/SOAP/Web startup."
+  echo "[open-jar] Make sure your DB, SOAP service, and Web are running locally before launching the app."
 fi
 
 export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:-} -Djava.awt.headless=false"
