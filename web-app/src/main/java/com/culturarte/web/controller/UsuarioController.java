@@ -2,7 +2,6 @@ package com.culturarte.web.controller;
 import com.culturarte.exepciones.EmailYaExiste;
 import com.culturarte.exepciones.UsuarioYaExiste;
 import com.culturarte.logica.IControlador;
-import com.culturarte.logica.clases.Usuario;
 import com.culturarte.logica.datatypes.DTUsuario;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -37,11 +36,16 @@ public class UsuarioController {
 
     @GetMapping("/ranking")
     public String rankingUsu(Model model){
-
-        ArrayList<DTUsuario> usuarios=ctrl.listarUsuarios();
-        model.addAttribute("usuarios", usuarios);
-
-        return "rankingUsuarios";
+        try {
+            ArrayList<DTUsuario> usuarios = ctrl.listarUsuarios();
+            model.addAttribute("usuarios", usuarios);
+            return "rankingUsuarios";
+        } catch (UnsupportedOperationException e) {
+            // Cuando se usa SOAP, listarUsuarios no está disponible
+            model.addAttribute("usuarios", new ArrayList<DTUsuario>());
+            model.addAttribute("mensaje", "⚠️ El ranking de usuarios no está disponible cuando se usa el servicio SOAP");
+            return "rankingUsuarios";
+        }
     }
     
 

@@ -9,7 +9,22 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @EntityScan(basePackages = {"com.culturarte.logica.clases"})
-@ComponentScan(basePackages = {"com.culturarte.web", "com.culturarte.logica"})
+@ComponentScan(
+    basePackages = {"com.culturarte.web", "com.culturarte.logica"},
+    excludeFilters = {
+        // Excluir Controlador y DataLoader del escaneo
+        // web-app SIEMPRE usa SOAP, por lo que no necesita acceso directo a Controlador
+        // Los datos se cargan solo en soap-service
+        @ComponentScan.Filter(
+            type = org.springframework.context.annotation.FilterType.REGEX,
+            pattern = "com\\.culturarte\\.logica\\.Controlador"
+        ),
+        @ComponentScan.Filter(
+            type = org.springframework.context.annotation.FilterType.REGEX,
+            pattern = "com\\.culturarte\\.logica\\.DataLoader"
+        )
+    }
+)
 public class PryectoCulturarteWebApplication extends SpringBootServletInitializer {
 
     @Override

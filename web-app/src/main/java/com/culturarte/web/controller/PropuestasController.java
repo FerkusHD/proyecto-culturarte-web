@@ -66,9 +66,8 @@ public class PropuestasController {
         @RequestParam("tituloPropuesta") String tituloPropuesta,
         @RequestParam("nickColaborador") String nickColaborador,
         RedirectAttributes redirectAttributes) throws ColaboracionYaExiste {
-
+        try {
             DTColaboracion existeColab = ctrl.getDTColaboracionPropuesta(nickColaborador, tituloPropuesta);
-            DTPropuesta propuesta = ctrl.getDTPropuesta(tituloPropuesta);
 
             if (existeColab != null) {
                 redirectAttributes.addFlashAttribute("mensajeError",
@@ -76,14 +75,20 @@ public class PropuestasController {
                 return "redirect:/"; 
             }
 
-    LocalDate fecha = LocalDate.now();
-    LocalTime hora = LocalTime.now();
+            LocalDate fecha = LocalDate.now();
+            LocalTime hora = LocalTime.now();
 
-    TipoRetorno tipoRetorno = TipoRetorno.valueOf(retorno.toUpperCase());
+            TipoRetorno tipoRetorno = TipoRetorno.valueOf(retorno.toUpperCase());
 
-    ctrl.altaColaboracion(monto, fecha, hora, tipoRetorno, tituloPropuesta, nickColaborador);
-    redirectAttributes.addFlashAttribute("mensajeExito", "Colaboración registrada correctamente!");
-    return "redirect:/";
+            ctrl.altaColaboracion(monto, fecha, hora, tipoRetorno, tituloPropuesta, nickColaborador);
+            redirectAttributes.addFlashAttribute("mensajeExito", "Colaboración registrada correctamente!");
+            return "redirect:/";
+        } catch (UnsupportedOperationException e) {
+            // Cuando se usa SOAP, altaColaboracion no está disponible
+            redirectAttributes.addFlashAttribute("mensajeError",
+                "⚠️ La funcionalidad de alta de colaboración no está disponible cuando se usa el servicio SOAP");
+            return "redirect:/";
+        }
     }
 
 

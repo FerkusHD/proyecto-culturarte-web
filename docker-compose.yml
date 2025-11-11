@@ -54,7 +54,6 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: "create-drop"
       APP_UPLOADS_DIR: "/app/uploads"
       SOAP_SERVICE_URL: "http://soap:8081/soap/ws"
-      USE_SOAP: "true"
     ports:
       - "8080:8080"
     volumes:
