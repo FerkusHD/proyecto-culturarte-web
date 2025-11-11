@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
              xmlns:tns="http://www.culturarte.com/ws"
-             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:xs="http://www.w3.org/2001/XMLSchema"
              xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
              targetNamespace="http://www.culturarte.com/ws">
 
+    <!-- Importar el XSD maestro -->
     <types>
-        <xsd:schema>
-            <xsd:import namespace="http://www.culturarte.com/ws" schemaLocation="culturarte.xsd"/>
-        </xsd:schema>
+        <xs:schema>
+            <xs:import namespace="http://www.culturarte.com/ws"
+                       schemaLocation="culturarte.xsd"/>
+        </xs:schema>
     </types>
 
     <!-- Mensajes -->
@@ -19,11 +21,33 @@
         <part name="parameters" element="tns:getUsuariosResponse"/>
     </message>
 
+    <message name="getPropuestasRequest">
+        <part name="parameters" element="tns:getPropuestasRequest"/>
+    </message>
+    <message name="getPropuestasResponse">
+        <part name="parameters" element="tns:getPropuestasResponse"/>
+    </message>
+
+    <message name="getCategoriasRequest">
+        <part name="parameters" element="tns:getCategoriasRequest"/>
+    </message>
+    <message name="getCategoriasResponse">
+        <part name="parameters" element="tns:getCategoriasResponse"/>
+    </message>
+
     <!-- PortType -->
     <portType name="CulturartePortType">
         <operation name="getUsuarios">
             <input message="tns:getUsuariosRequest"/>
             <output message="tns:getUsuariosResponse"/>
+        </operation>
+        <operation name="getPropuestas">
+            <input message="tns:getPropuestasRequest"/>
+            <output message="tns:getPropuestasResponse"/>
+        </operation>
+        <operation name="getCategorias">
+            <input message="tns:getCategoriasRequest"/>
+            <output message="tns:getCategoriasResponse"/>
         </operation>
     </portType>
 
@@ -35,6 +59,16 @@
             <input><soap:body use="literal"/></input>
             <output><soap:body use="literal"/></output>
         </operation>
+        <operation name="getPropuestas">
+            <soap:operation soapAction="getPropuestas"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="getCategorias">
+            <soap:operation soapAction="getCategorias"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
     </binding>
 
     <!-- Service -->
@@ -43,4 +77,5 @@
             <soap:address location="http://localhost:8081/soap/ws"/>
         </port>
     </service>
+
 </definitions>

@@ -32,4 +32,5 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:complexType name="getUsuariosResponse"></xs:complexType>
 </xs:schema>

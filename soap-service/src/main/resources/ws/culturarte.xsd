@@ -5,58 +5,31 @@
            xmlns:tipos="http://www.culturarte.com/ws/tipos"
            xmlns:usuarios="http://www.culturarte.com/ws/usuarios"
            xmlns:propuestas="http://www.culturarte.com/ws/propuestas"
+           xmlns:categorias="http://www.culturarte.com/ws/categorias"
+           xmlns:espectaculos="http://www.culturarte.com/ws/espectaculos"
            elementFormDefault="qualified">
 
-    <xs:import namespace="http://www.culturarte.com/ws/tipos" 
-               schemaLocation="tipos.xsd"/>
-    <xs:import namespace="http://www.culturarte.com/ws/usuarios" 
-               schemaLocation="usuarios.xsd"/>
-    <xs:import namespace="http://www.culturarte.com/ws/propuestas" 
-               schemaLocation="propuestas.xsd"/>
+    <!-- Imports de todos los XSD -->
+    <xs:import namespace="http://www.culturarte.com/ws/tipos" schemaLocation="tipos.xsd"/>
+    <xs:import namespace="http://www.culturarte.com/ws/usuarios" schemaLocation="usuarios.xsd"/>
+    <xs:import namespace="http://www.culturarte.com/ws/propuestas" schemaLocation="propuestas.xsd"/>
+    <xs:import namespace="http://www.culturarte.com/ws/categorias" schemaLocation="categorias.xsd"/>
+    <xs:import namespace="http://www.culturarte.com/ws/espectaculos" schemaLocation="espectaculos.xsd"/>
 
-    <xs:element name="pingRequest">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="message" type="xs:string" minOccurs="0"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+    <!-- Operaciones principales -->
+    <xs:element name="pingRequest" type="xs:anyType"/>
+    <xs:element name="pingResponse" type="xs:anyType"/>
 
-    <xs:element name="pingResponse">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="message" type="xs:string"/>
-                <xs:element name="timestamp" type="xs:dateTime"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+    <xs:element name="getUsuariosRequest" type="xs:anyType"/>
+    <xs:element name="getUsuariosResponse" type="usuarios:getUsuariosResponse"/>
 
-    <!-- Operaciones de alto nivel -->
-    <xs:element name="getPropuestasRequest">
-        <xs:complexType>
-            <xs:sequence/>
-        </xs:complexType>
-    </xs:element>
+    <xs:element name="getPropuestasRequest" type="xs:anyType"/>
+    <xs:element name="getPropuestasResponse" type="propuestas:listarPropuestasResponse"/>
 
-    <xs:element name="getPropuestasResponse">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="propuestas" type="propuestas:propuestaType" maxOccurs="unbounded"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+    <xs:element name="getCategoriasRequest" type="xs:anyType"/>
+    <xs:element name="getCategoriasResponse" type="categorias:getCategoriasResponse"/>
 
-    <xs:element name="getUsuariosRequest">
-        <xs:complexType>
-            <xs:sequence/>
-        </xs:complexType>
-    </xs:element>
+    <xs:element name="getEspectaculoRequest" type="espectaculos:getEspectaculoRequest"/>
+    <xs:element name="getEspectaculoResponse" type="espectaculos:getEspectaculoResponse"/>
 
-    <xs:element name="getUsuariosResponse">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="usuarios" type="usuarios:usuarioType" maxOccurs="unbounded"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
 </xs:schema>

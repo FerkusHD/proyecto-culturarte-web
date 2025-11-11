@@ -48,4 +48,6 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:complexType name="getEspectaculoRequest"></xs:complexType>
+    <xs:complexType name="getEspectaculoResponse"></xs:complexType>
 </xs:schema>

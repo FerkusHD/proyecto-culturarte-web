@@ -4,7 +4,8 @@
            xmlns:tns="http://www.culturarte.com/ws/categorias"
            elementFormDefault="qualified">
 
-    <xs:element name="getCategoriasRequest" type="xs:anyType"/>
+    <xs:complexType name="getCategoriasRequestType"/>
+    <xs:element name="getCategoriasRequest" type="tns:getCategoriasRequestType"/>
 
     <xs:element name="getCategoriasResponse">
         <xs:complexType>

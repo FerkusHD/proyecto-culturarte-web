@@ -3,6 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -23,13 +24,13 @@
     </properties>
 
     <dependencies>
-        <!-- Núcleo base de Spring (sin web ni JPA) -->
+        <!-- Núcleo base -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
-        <!-- Dependencia del módulo de lógica (core-business) -->
+        <!-- Lógica del negocio -->
         <dependency>
             <groupId>com.culturarte</groupId>
             <artifactId>core-business</artifactId>
@@ -58,24 +59,25 @@
             <version>4.0.2</version>
         </dependency>
 
-        <!-- JCalendar para Swing -->
+        <!-- JCalendar -->
         <dependency>
             <groupId>com.toedter</groupId>
             <artifactId>jcalendar</artifactId>
             <version>1.4</version>
         </dependency>
 
-        <!-- Logging (opcional pero recomendable) -->
+        <!-- Logging -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
         </dependency>
+
+        <!-- Dependencia SOAP -->
         <dependency>
             <groupId>com.culturarte</groupId>
             <artifactId>soap-service</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -85,6 +87,8 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+
+            <!-- Plugin para generar las clases cliente desde el WSDL -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxws-maven-plugin</artifactId>
@@ -96,11 +100,12 @@
                             <goal>wsimport</goal>
                         </goals>
                         <configuration>
-                            <wsdlUrls>
-                                <wsdlUrl>${project.build.outputDirectory}/wsdl/culturarte.wsdl</wsdlUrl>
-                            </wsdlUrls>
+                            <!-- 🔧 Ruta directa al WSDL del módulo soap-service -->
+                            <wsdl>${project.basedir}/../soap-service/src/main/resources/ws/culturarte.wsdl</wsdl>
                             <packageName>com.culturarte.soapclient</packageName>
                             <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
+                            <verbose>true</verbose>
+                            <xnocompile>true</xnocompile>
                         </configuration>
                     </execution>
                 </executions>

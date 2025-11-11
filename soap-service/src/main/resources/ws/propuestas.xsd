@@ -45,4 +45,5 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:complexType name="listarPropuestasResponse"></xs:complexType>
 </xs:schema>
