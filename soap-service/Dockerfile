@@ -17,7 +17,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /build/soap-service/target/*.jar /app/app.jar
+COPY --from=builder /build/soap-service/target/*-boot.jar /app/app.jar
 
 EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
