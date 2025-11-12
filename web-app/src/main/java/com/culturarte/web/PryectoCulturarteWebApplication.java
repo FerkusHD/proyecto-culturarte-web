@@ -6,9 +6,11 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
-@EntityScan(basePackages = {"com.culturarte.logica.clases"})
+@EnableAsync
+@EntityScan(basePackages = {"com.culturarte.logica.clases", "com.culturarte.web.entity"})
 @ComponentScan(
     basePackages = {"com.culturarte.web", "com.culturarte.logica"},
     excludeFilters = {

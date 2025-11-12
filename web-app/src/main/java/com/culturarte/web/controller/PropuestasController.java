@@ -6,6 +6,7 @@ import com.culturarte.logica.IControlador;
 import com.culturarte.logica.datatypes.*;
 import com.culturarte.logica.enums.TipoEstado;
 import com.culturarte.logica.enums.TipoRetorno;
+import com.culturarte.web.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,6 +37,9 @@ public class PropuestasController {
 
     @Autowired
     private IControlador ctrl;
+
+    @Autowired
+    private EmailService emailService;
 
     @ResponseBody
     @GetMapping("/listar")
@@ -81,6 +85,38 @@ public class PropuestasController {
             TipoRetorno tipoRetorno = TipoRetorno.valueOf(retorno.toUpperCase());
 
             ctrl.altaColaboracion(monto, fecha, hora, tipoRetorno, tituloPropuesta, nickColaborador);
+            
+            // Enviar notificaciones por correo electrónico (requisito 7.3)
+            try {
+                // Obtener información necesaria para los emails
+                DTColaborador colaborador = ctrl.getDTColaborador(nickColaborador);
+                DTPropuesta propuesta = ctrl.getDTPropuesta(tituloPropuesta);
+                
+                if (colaborador != null && propuesta != null && propuesta.getProponente() != null) {
+                    DTProponente proponente = ctrl.getDTProponente(propuesta.getProponente());
+                    
+                    if (proponente != null) {
+                        // Crear DTColaboracion con la información registrada
+                        DTColaboracion colaboracion = new DTColaboracion(
+                            nickColaborador, tituloPropuesta, fecha, hora, monto, tipoRetorno
+                        );
+                        
+                        // Enviar email al colaborador (con link a constancia de pago)
+                        emailService.enviarNotificacionColaborador(
+                            colaboracion, colaborador, propuesta, proponente);
+                        
+                        // Enviar email al proponente (sin link a constancia)
+                        emailService.enviarNotificacionProponente(
+                            colaboracion, colaborador, propuesta, proponente);
+                    }
+                }
+            } catch (Exception e) {
+                // Log del error pero no afectar el flujo principal
+                // Usar logger si está disponible, sino solo continuar
+                org.slf4j.LoggerFactory.getLogger(PropuestasController.class)
+                    .error("Error al enviar notificaciones por email: {}", e.getMessage(), e);
+            }
+            
             redirectAttributes.addFlashAttribute("mensajeExito", "Colaboración registrada correctamente!");
             return "redirect:/";
         } catch (UnsupportedOperationException e) {

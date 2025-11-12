@@ -30,7 +30,7 @@ public class MvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // Normaliza el path y asegura barra final
-        String dir = StringUtils.trimWhitespace(uploadsDir);
+        String dir = uploadsDir != null ? uploadsDir.trim() : "uploads";
         if (!StringUtils.hasText(dir)) {
             dir = "uploads";
         }

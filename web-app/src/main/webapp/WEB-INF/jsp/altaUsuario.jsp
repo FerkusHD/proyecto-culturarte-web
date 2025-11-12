@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/principal.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 <body>
 
@@ -63,6 +64,7 @@
                 <label for="nickname" class="form-label">Nickname</label>
                 <input id="nickname" name="nickname" type="text" maxlength="30" placeholder="nickname"
                        value="${nickname}" required class="form-control">
+                <div id="mensaje-nickname" class="mt-1" style="display: none;"></div>
             </div>
 
             <div class="mb-3">
@@ -78,6 +80,7 @@
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <input id="email" name="email" type="email" placeholder="email" value="${email}" required class="form-control">
+                <div id="mensaje-email" class="mt-1" style="display: none;"></div>
             </div>
 
             <div class="mb-3">
@@ -155,6 +158,7 @@
 </script>
 
 <script src="${pageContext.request.contextPath}/js/validarContraseña.js"></script>
+<script src="${pageContext.request.contextPath}/js/verificarDisponibilidad.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

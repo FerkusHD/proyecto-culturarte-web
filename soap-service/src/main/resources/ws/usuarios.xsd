@@ -20,6 +20,40 @@
         </xs:complexType>
     </xs:element>
 
+    <xs:element name="verificarNicknameRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="nickname" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="verificarNicknameResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="disponible" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="verificarEmailRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="email" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="verificarEmailResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="disponible" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
     <xs:complexType name="usuarioType">
         <xs:sequence>
             <xs:element name="nickname" type="xs:string"/>

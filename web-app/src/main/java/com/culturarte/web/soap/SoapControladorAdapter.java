@@ -26,8 +26,29 @@ public class SoapControladorAdapter implements IControlador {
 
     private final WebServiceTemplate webServiceTemplate;
     
-    @Value("${soap.service.url:http://localhost:8081/soap/ws}")
+    @Value("${soap.service.url:}")
     private String soapServiceUrl;
+    
+    @Value("${soap.service.host:localhost}")
+    private String soapServiceHost;
+    
+    @Value("${soap.service.port:8081}")
+    private String soapServicePort;
+    
+    @Value("${soap.service.context-path:/soap/ws}")
+    private String soapServiceContextPath;
+    
+    /**
+     * Obtiene la URL base del servicio SOAP.
+     * Si no está definida directamente, se construye desde los componentes.
+     */
+    private String getSoapServiceUrl() {
+        if (soapServiceUrl != null && !soapServiceUrl.isEmpty() && !soapServiceUrl.startsWith("${")) {
+            return soapServiceUrl;
+        }
+        // Construir URL desde componentes
+        return String.format("http://%s:%s%s", soapServiceHost, soapServicePort, soapServiceContextPath);
+    }
 
     public SoapControladorAdapter(WebServiceTemplate webServiceTemplate) {
         this.webServiceTemplate = webServiceTemplate;
@@ -41,7 +62,7 @@ public class SoapControladorAdapter implements IControlador {
             ObjectFactory of = new ObjectFactory();
             jakarta.xml.bind.JAXBElement<Object> request = of.createGetCategoriasRequest(new Object());
             GetCategoriasResponse response = (GetCategoriasResponse) webServiceTemplate.marshalSendAndReceive(
-                soapServiceUrl + "/categorias", request);
+                getSoapServiceUrl() + "/categorias", request);
             return response != null ? response.getCategoria() : new ArrayList<>();
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener categorías desde SOAP", e);
@@ -59,7 +80,7 @@ public class SoapControladorAdapter implements IControlador {
             ObjectFactory of = new ObjectFactory();
             jakarta.xml.bind.JAXBElement<Object> request = of.createListarPropuestasRequest(new Object());
             ListarPropuestasResponse response = (ListarPropuestasResponse) webServiceTemplate.marshalSendAndReceive(
-                soapServiceUrl + "/propuestas", request);
+                getSoapServiceUrl() + "/propuestas", request);
             
             ArrayList<DTPropuesta> result = new ArrayList<>();
             if (response != null && response.getPropuesta() != null) {
@@ -80,7 +101,7 @@ public class SoapControladorAdapter implements IControlador {
             GetPropuestaRequest request = new GetPropuestaRequest();
             request.setTitulo(titulo);
             GetPropuestaResponse response = (GetPropuestaResponse) webServiceTemplate.marshalSendAndReceive(
-                soapServiceUrl + "/propuestas", request);
+                getSoapServiceUrl() + "/propuestas", request);
             
             if (response.getPropuesta() != null) {
                 return convertPropuestaTypeToDT(response.getPropuesta());
@@ -97,7 +118,7 @@ public class SoapControladorAdapter implements IControlador {
             GetUsuarioRequest request = new GetUsuarioRequest();
             request.setNickname(nickname);
             GetUsuarioResponse response = (GetUsuarioResponse) webServiceTemplate.marshalSendAndReceive(
-                soapServiceUrl + "/usuarios", request);
+                getSoapServiceUrl() + "/usuarios", request);
             
             if (response.getUsuario() != null) {
                 return convertUsuarioTypeToDT(response.getUsuario());

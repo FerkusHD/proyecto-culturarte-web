@@ -46,5 +46,83 @@ public class UsuarioEndpoint {
         }
         return resp;
     }
+
+    @PayloadRoot(namespace = NAMESPACE, localPart = "verificarNicknameRequest")
+    @ResponsePayload
+    public com.culturarte.soap.gen.VerificarNicknameResponse verificarNickname(
+            @RequestPayload com.culturarte.soap.gen.VerificarNicknameRequest request) {
+        
+        com.culturarte.soap.gen.VerificarNicknameResponse response = 
+            new com.culturarte.soap.gen.VerificarNicknameResponse();
+        
+        String nickname = request.getNickname();
+        
+        if (nickname == null || nickname.trim().isEmpty()) {
+            response.setDisponible(false);
+            response.setMensaje("El nickname no puede estar vacío");
+            return response;
+        }
+
+        try {
+            com.culturarte.logica.datatypes.DTUsuario usuario = ctrl.getDTUsuario(nickname.trim());
+            if (usuario != null) {
+                response.setDisponible(false);
+                response.setMensaje("El nickname '" + nickname + "' ya está en uso");
+            } else {
+                response.setDisponible(true);
+                response.setMensaje("El nickname '" + nickname + "' está disponible");
+            }
+        } catch (Exception e) {
+            response.setDisponible(false);
+            response.setMensaje("Error al verificar disponibilidad");
+        }
+        
+        return response;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE, localPart = "verificarEmailRequest")
+    @ResponsePayload
+    public com.culturarte.soap.gen.VerificarEmailResponse verificarEmail(
+            @RequestPayload com.culturarte.soap.gen.VerificarEmailRequest request) {
+        
+        com.culturarte.soap.gen.VerificarEmailResponse response = 
+            new com.culturarte.soap.gen.VerificarEmailResponse();
+        
+        String email = request.getEmail();
+        
+        if (email == null || email.trim().isEmpty()) {
+            response.setDisponible(false);
+            response.setMensaje("El email no puede estar vacío");
+            return response;
+        }
+
+        // Validar formato básico de email
+        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            response.setDisponible(false);
+            response.setMensaje("El formato del email no es válido");
+            return response;
+        }
+
+        try {
+            // Buscar usuarios y verificar si alguno tiene ese email
+            java.util.ArrayList<com.culturarte.logica.datatypes.DTUsuario> usuarios = ctrl.listarUsuarios();
+            if (usuarios != null) {
+                for (com.culturarte.logica.datatypes.DTUsuario usuario : usuarios) {
+                    if (usuario.getEmail() != null && usuario.getEmail().equalsIgnoreCase(email.trim())) {
+                        response.setDisponible(false);
+                        response.setMensaje("El email '" + email + "' ya está en uso");
+                        return response;
+                    }
+                }
+            }
+            response.setDisponible(true);
+            response.setMensaje("El email '" + email + "' está disponible");
+        } catch (Exception e) {
+            response.setDisponible(false);
+            response.setMensaje("Error al verificar disponibilidad");
+        }
+        
+        return response;
+    }
 }
 

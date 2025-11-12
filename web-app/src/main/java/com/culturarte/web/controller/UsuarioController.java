@@ -3,6 +3,7 @@ import com.culturarte.exepciones.EmailYaExiste;
 import com.culturarte.exepciones.UsuarioYaExiste;
 import com.culturarte.logica.IControlador;
 import com.culturarte.logica.datatypes.DTUsuario;
+import com.culturarte.web.soap.VerificacionSoapService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class UsuarioController {
 
     @Autowired
     private IControlador ctrl;
+
+    @Autowired
+    private VerificacionSoapService verificacionSoapService;
 
     @GetMapping("/alta")
     public String altaUsuario() {
@@ -213,5 +217,142 @@ public class UsuarioController {
 
         String referer = request.getHeader("Referer");
         return "redirect:" + (referer != null ? referer : "/");
+    }
+
+    /**
+     * Endpoint REST para verificar disponibilidad de nickname mediante AJAX.
+     * Internamente usa SOAP para realizar la verificación.
+     * 
+     * @param nickname Nickname a verificar
+     * @return JSON con { "disponible": true/false, "mensaje": "..." }
+     */
+    @GetMapping("/verificar-nickname")
+    @ResponseBody
+    public VerificacionResponse verificarNickname(@RequestParam("nickname") String nickname) {
+        return verificarNicknameSoap(nickname);
+    }
+
+    /**
+     * Endpoint REST para verificar disponibilidad de email mediante AJAX.
+     * Internamente usa SOAP para realizar la verificación.
+     * 
+     * @param email Email a verificar
+     * @return JSON con { "disponible": true/false, "mensaje": "..." }
+     */
+    @GetMapping("/verificar-email")
+    @ResponseBody
+    public VerificacionResponse verificarEmail(@RequestParam("email") String email) {
+        return verificarEmailSoap(email);
+    }
+
+    /**
+     * Verifica disponibilidad de nickname usando SOAP directamente.
+     */
+    private VerificacionResponse verificarNicknameSoap(String nickname) {
+        if (nickname == null || nickname.trim().isEmpty()) {
+            return new VerificacionResponse(false, "El nickname no puede estar vacío");
+        }
+
+        try {
+            // Llamar al servicio SOAP para verificar disponibilidad
+            com.culturarte.soap.gen.VerificarNicknameResponse response = 
+                verificacionSoapService.verificarNickname(nickname.trim());
+            
+            if (response != null) {
+                return new VerificacionResponse(
+                    response.isDisponible(), 
+                    response.getMensaje()
+                );
+            } else {
+                return new VerificacionResponse(false, "Error al verificar disponibilidad");
+            }
+        } catch (Exception e) {
+            // Si falla SOAP, intentar con el controlador como fallback
+            try {
+                DTUsuario usuario = ctrl.getDTUsuario(nickname.trim());
+                if (usuario != null) {
+                    return new VerificacionResponse(false, "El nickname '" + nickname + "' ya está en uso");
+                } else {
+                    return new VerificacionResponse(true, "El nickname '" + nickname + "' está disponible");
+                }
+            } catch (Exception ex) {
+                return new VerificacionResponse(false, "Error al verificar disponibilidad");
+            }
+        }
+    }
+
+    /**
+     * Verifica disponibilidad de email usando SOAP directamente.
+     */
+    private VerificacionResponse verificarEmailSoap(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return new VerificacionResponse(false, "El email no puede estar vacío");
+        }
+
+        // Validar formato básico de email
+        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            return new VerificacionResponse(false, "El formato del email no es válido");
+        }
+
+        try {
+            // Llamar al servicio SOAP para verificar disponibilidad
+            com.culturarte.soap.gen.VerificarEmailResponse response = 
+                verificacionSoapService.verificarEmail(email.trim());
+            
+            if (response != null) {
+                return new VerificacionResponse(
+                    response.isDisponible(), 
+                    response.getMensaje()
+                );
+            } else {
+                return new VerificacionResponse(false, "Error al verificar disponibilidad");
+            }
+        } catch (Exception e) {
+            // Si falla SOAP, intentar con el controlador como fallback
+            try {
+                ArrayList<DTUsuario> usuarios = ctrl.listarUsuarios();
+                if (usuarios != null) {
+                    for (DTUsuario usuario : usuarios) {
+                        if (usuario.getEmail() != null && usuario.getEmail().equalsIgnoreCase(email.trim())) {
+                            return new VerificacionResponse(false, "El email '" + email + "' ya está en uso");
+                        }
+                    }
+                }
+                return new VerificacionResponse(true, "El email '" + email + "' está disponible");
+            } catch (UnsupportedOperationException ex) {
+                return new VerificacionResponse(true, "No se pudo verificar (verificación en servidor al registrar)");
+            } catch (Exception ex) {
+                return new VerificacionResponse(false, "Error al verificar disponibilidad");
+            }
+        }
+    }
+
+    /**
+     * Clase interna para la respuesta de verificación.
+     */
+    public static class VerificacionResponse {
+        private boolean disponible;
+        private String mensaje;
+
+        public VerificacionResponse(boolean disponible, String mensaje) {
+            this.disponible = disponible;
+            this.mensaje = mensaje;
+        }
+
+        public boolean isDisponible() {
+            return disponible;
+        }
+
+        public void setDisponible(boolean disponible) {
+            this.disponible = disponible;
+        }
+
+        public String getMensaje() {
+            return mensaje;
+        }
+
+        public void setMensaje(String mensaje) {
+            this.mensaje = mensaje;
+        }
     }
 }
