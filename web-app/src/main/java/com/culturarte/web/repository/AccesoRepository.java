@@ -13,14 +13,10 @@ import java.util.List;
 
 /**
  * Repositorio para la entidad Acceso.
- * Proporciona métodos para consultar y gestionar los registros de acceso.
  */
 @Repository
 public interface AccesoRepository extends JpaRepository<Acceso, Long> {
 
-    /**
-     * Cuenta el número total de accesos.
-     */
     long count();
 
     /**

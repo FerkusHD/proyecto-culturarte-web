@@ -11,13 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ws.client.core.WebServiceTemplate;
 
-/**
- * Servicio para verificar disponibilidad de nickname y email usando SOAP.
- * 
- * Este servicio llama directamente a los endpoints SOAP del Servidor Central
- * para verificar disponibilidad, cumpliendo con el requisito de que todo
- * funcione con SOAP.
- */
+
 @Service
 public class VerificacionSoapService {
 
@@ -38,9 +32,7 @@ public class VerificacionSoapService {
     @Value("${soap.service.context-path:/soap/ws}")
     private String soapServiceContextPath;
 
-    /**
-     * Obtiene la URL base del servicio SOAP.
-     */
+
     private String getSoapServiceUrl() {
         if (soapServiceUrl != null && !soapServiceUrl.isEmpty() && !soapServiceUrl.startsWith("${")) {
             return soapServiceUrl;

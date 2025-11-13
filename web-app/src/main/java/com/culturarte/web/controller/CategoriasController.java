@@ -34,7 +34,6 @@ public class CategoriasController {
             DefaultTreeModel model = ctrl.listarCategorias();
             DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
             List<DTCategoria> lista = new ArrayList<>();
-            // root children are the top-level categories
             if (root.getChildCount() > 0) {
                 for (int i = 0; i < root.getChildCount(); i++) {
                     DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(i);
@@ -43,10 +42,7 @@ public class CategoriasController {
             }
             return lista;
         } catch (UnsupportedOperationException e) {
-            // Cuando se usa SOAP, listarCategorias() no está disponible
-            // Retornamos una lista vacía o construimos el árbol desde listarCategoriasWeb()
             List<String> categorias = ctrl.listarCategoriasWeb();
-            // Convertir lista plana a estructura de árbol (implementación simplificada)
             List<DTCategoria> lista = new ArrayList<>();
             for (String cat : categorias) {
                 lista.add(new DTCategoria(cat));

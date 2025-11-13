@@ -17,13 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Servicio para enviar notificaciones por correo electrónico.
- * 
- * Según el requisito 7.3, cuando se confirma el pago de una colaboración,
- * se debe notificar al proponente y colaborador mediante correo electrónico
- * en formato HTML.
- */
+
 @Service
 public class EmailService {
 

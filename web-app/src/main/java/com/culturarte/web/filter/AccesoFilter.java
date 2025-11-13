@@ -13,21 +13,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/**
- * Filtro que intercepta todas las peticiones HTTP para registrar automáticamente
- * los accesos al sitio web.
- * 
- * Registra:
- * - Dirección IP del acceso
- * - URL accedida
- * - Navegador utilizado
- * - Sistema operativo utilizado
- * 
- * Este filtro se ejecuta automáticamente para cada petición, sin necesidad de
- * intervención manual del usuario, según el requisito 7.1.
- */
+
 @Component
-@Order(1) // Ejecutar este filtro primero
+@Order(1) 
 public class AccesoFilter extends OncePerRequestFilter {
 
     @Autowired

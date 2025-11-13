@@ -17,10 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 
-/**
- * Controlador para gestionar las colaboraciones, incluyendo la generación
- * de constancias de pago en PDF.
- */
 @Controller
 @RequestMapping("/colaboraciones")
 public class ColaboracionController {
@@ -108,7 +104,6 @@ public class ColaboracionController {
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
                         "Error al generar la constancia de pago: " + e.getMessage());
             } catch (IOException ioException) {
-                // Si no se puede enviar el error, simplemente loguear
                 e.printStackTrace();
             }
         }

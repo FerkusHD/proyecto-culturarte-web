@@ -5,9 +5,6 @@ import java.time.LocalDateTime;
 
 /**
  * Entidad que representa un acceso al sitio web.
- * Almacena información sobre cada acceso: IP, URL, navegador y sistema operativo.
- * 
- * Según el requisito 7.1, se guardan hasta 10,000 accesos de los últimos 30 días.
  */
 @Entity
 @Table(name = "accesos")
@@ -32,16 +29,10 @@ public class Acceso {
     @Column(nullable = false)
     private LocalDateTime fechaAcceso;
 
-    /**
-     * Constructor por defecto requerido por JPA.
-     */
     public Acceso() {
         this.fechaAcceso = LocalDateTime.now();
     }
 
-    /**
-     * Constructor con parámetros.
-     */
     public Acceso(String ip, String url, String browser, String sistemaOperativo) {
         this();
         this.ip = ip;
@@ -49,8 +40,6 @@ public class Acceso {
         this.browser = browser;
         this.sistemaOperativo = sistemaOperativo;
     }
-
-    // Getters y Setters
 
     public Long getId() {
         return id;

@@ -14,9 +14,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @ComponentScan(
     basePackages = {"com.culturarte.web", "com.culturarte.logica"},
     excludeFilters = {
-        // Excluir Controlador y DataLoader del escaneo
-        // web-app SIEMPRE usa SOAP, por lo que no necesita acceso directo a Controlador
-        // Los datos se cargan solo en soap-service
         @ComponentScan.Filter(
             type = org.springframework.context.annotation.FilterType.REGEX,
             pattern = "com\\.culturarte\\.logica\\.Controlador"

@@ -13,14 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Servicio para gestionar los registros de acceso al sitio.
- * 
- * Según el requisito 7.1:
- * - Se guardan hasta 10,000 accesos
- * - Se mantienen solo los accesos de los últimos 30 días
- * - El registro se realiza automáticamente sin intervención del usuario
- */
+
 @Service
 public class AccesoService {
 
@@ -45,7 +38,6 @@ public class AccesoService {
     @Transactional
     public void registrarAcceso(String ip, String url, String browser, String sistemaOperativo) {
         try {
-            // Limpiar accesos antiguos (más de 30 días)
             limpiarAccesosAntiguos();
 
             // Verificar si se ha alcanzado el límite de 10,000 accesos

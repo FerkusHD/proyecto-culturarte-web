@@ -45,12 +45,10 @@ public class UsuarioController {
             model.addAttribute("usuarios", usuarios);
             return "rankingUsuarios";
         } catch (UnsupportedOperationException e) {
-            // Cuando se usa SOAP, listarUsuarios no está disponible
             model.addAttribute("usuarios", new ArrayList<DTUsuario>());
             model.addAttribute("mensaje", "⚠️ El ranking de usuarios no está disponible cuando se usa el servicio SOAP");
             return "rankingUsuarios";
         } catch (Exception e) {
-            // Cualquier otro error (RuntimeException, etc.)
             model.addAttribute("usuarios", new ArrayList<DTUsuario>());
             model.addAttribute("mensaje", "⚠️ Error al cargar el ranking: " + e.getMessage());
             return "rankingUsuarios";
@@ -78,8 +76,6 @@ public class UsuarioController {
         String imagen = null;
 
         try {
-            //Si subió una imagen, la guardamos físicamente
-            //Obtener la carpeta absoluta del proyecto
             Path directorio = Paths.get(System.getProperty("user.dir"), "uploads", "imagenes");
 
             if (!Files.exists(directorio)) {
@@ -117,7 +113,7 @@ public class UsuarioController {
             model.addAttribute("mensaje", "⚠️ Error al procesar la imagen");
         }
 
-        // 🔑 Guardamos los datos para que vuelvan al JSP
+        // Guardamos los datos para que vuelvan al JSP
         model.addAttribute("nickname", nickname);
         model.addAttribute("nombre", nombre);
         model.addAttribute("password", password);
@@ -157,7 +153,6 @@ public class UsuarioController {
             try {
                 model.addAttribute("proponente", ctrl.getDTProponente(nick));
             } catch (UnsupportedOperationException e) {
-                // getDTProponente no está disponible vía SOAP
                 model.addAttribute("proponente", null);
             }
         }
@@ -206,7 +201,6 @@ public class UsuarioController {
         try {
             ctrl.seguirUsuario(usuarioLogueado.getNickname(), nickSeguido);
         } catch (Exception e) {
-            // TODO : Alerta si ya lo está siguiendo
         }
         usuarioLogueado = ctrl.getDTUsuario(usuarioLogueado.getNickname());
         session.setAttribute("usuarioLogueado", usuarioLogueado);
@@ -224,7 +218,6 @@ public class UsuarioController {
         try {
             ctrl.dejarDeSeguirUsuario(usuarioLogueado.getNickname(), nickSeguido);
         } catch (Exception e) {
-            // TODO : Alerta no lo sigue
         }
 
         usuarioLogueado = ctrl.getDTUsuario(usuarioLogueado.getNickname());

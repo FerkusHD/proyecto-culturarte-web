@@ -17,10 +17,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Adaptador SOAP que implementa IControlador usando el servicio SOAP.
- * Los métodos disponibles en SOAP se delegan al servicio, los demás lanzan UnsupportedOperationException.
- */
 @Service
 public class SoapControladorAdapter implements IControlador {
 
@@ -53,8 +49,6 @@ public class SoapControladorAdapter implements IControlador {
     public SoapControladorAdapter(WebServiceTemplate webServiceTemplate) {
         this.webServiceTemplate = webServiceTemplate;
     }
-
-    // ========== Métodos implementados vía SOAP ==========
 
     @Override
     public List<String> listarCategoriasWeb() {

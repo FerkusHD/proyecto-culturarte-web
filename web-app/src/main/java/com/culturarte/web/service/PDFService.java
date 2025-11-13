@@ -16,27 +16,13 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Servicio para generar constancias de pago en PDF usando iText.
- * 
- * Según el requisito 7.2, el PDF debe ser generado dinámicamente
- * cada vez que se solicita desde el Sitio Web.
- */
+
 @Service
 public class PDFService {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    /**
-     * Genera un PDF con la constancia de pago de una colaboración.
-     * 
-     * @param colaboracion Información de la colaboración
-     * @param colaborador Información del colaborador
-     * @param propuesta Información de la propuesta
-     * @return Array de bytes con el contenido del PDF
-     * @throws Exception Si ocurre un error al generar el PDF
-     */
     public byte[] generarConstanciaPago(DTColaboracion colaboracion, 
                                        DTColaborador colaborador, 
                                        DTPropuesta propuesta) throws Exception {

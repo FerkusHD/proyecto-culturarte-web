@@ -6,15 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.ws.client.core.WebServiceTemplate;
 
-/**
- * Configuración del cliente SOAP para conectarse al Servidor Central.
- * 
- * La URL del servicio se puede configurar de múltiples formas:
- * 1. Variable de entorno SOAP_SERVICE_URL
- * 2. Propiedad soap.service.url en application.properties
- * 3. Parámetro de contexto soap.service.url en web.xml
- * 4. Construcción automática desde host, port y context-path
- */
+
 @Configuration
 public class SoapClientConfig {
 

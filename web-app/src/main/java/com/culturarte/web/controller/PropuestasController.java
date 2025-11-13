@@ -86,14 +86,13 @@ public class PropuestasController {
 
             ctrl.altaColaboracion(monto, fecha, hora, tipoRetorno, tituloPropuesta, nickColaborador);
             
-            // Enviar notificaciones por correo electrónico (requisito 7.3)
+            // Enviar notificaciones por correo electrónico
             try {
                 // Obtener información necesaria para los emails
                 DTColaborador colaborador = null;
                 try {
                     colaborador = ctrl.getDTColaborador(nickColaborador);
                 } catch (UnsupportedOperationException e) {
-                    // getDTColaborador no está disponible vía SOAP
                 }
                 DTPropuesta propuesta = ctrl.getDTPropuesta(tituloPropuesta);
                 
@@ -102,16 +101,14 @@ public class PropuestasController {
                     try {
                         proponente = ctrl.getDTProponente(propuesta.getProponente());
                     } catch (UnsupportedOperationException e) {
-                        // getDTProponente no está disponible vía SOAP
                     }
                     
                     if (proponente != null) {
-                        // Crear DTColaboracion con la información registrada
                         DTColaboracion colaboracion = new DTColaboracion(
                             nickColaborador, tituloPropuesta, fecha, hora, monto, tipoRetorno
                         );
                         
-                        // Enviar email al colaborador (con link a constancia de pago)
+                        // Enviar email al colaborador (con link a constancia)
                         emailService.enviarNotificacionColaborador(
                             colaboracion, colaborador, propuesta, proponente);
                         
@@ -121,8 +118,6 @@ public class PropuestasController {
                     }
                 }
             } catch (Exception e) {
-                // Log del error pero no afectar el flujo principal
-                // Usar logger si está disponible, sino solo continuar
                 org.slf4j.LoggerFactory.getLogger(PropuestasController.class)
                     .error("Error al enviar notificaciones por email: {}", e.getMessage(), e);
             }
@@ -130,7 +125,6 @@ public class PropuestasController {
             redirectAttributes.addFlashAttribute("mensajeExito", "Colaboración registrada correctamente!");
             return "redirect:/";
         } catch (UnsupportedOperationException e) {
-            // Cuando se usa SOAP, altaColaboracion no está disponible
             redirectAttributes.addFlashAttribute("mensajeError",
                 "⚠️ La funcionalidad de alta de colaboración no está disponible cuando se usa el servicio SOAP");
             return "redirect:/";
@@ -215,7 +209,6 @@ public class PropuestasController {
             String proponente = usuario.getNickname();
             String imagen = null;
 
-            // 📸 Guardar la imagen si fue subida
             if (imagenFile != null && !imagenFile.isEmpty()) {
                 try {
                     // Carpeta donde se guardan las imágenes
