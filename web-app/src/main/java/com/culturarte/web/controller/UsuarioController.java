@@ -49,6 +49,11 @@ public class UsuarioController {
             model.addAttribute("usuarios", new ArrayList<DTUsuario>());
             model.addAttribute("mensaje", "⚠️ El ranking de usuarios no está disponible cuando se usa el servicio SOAP");
             return "rankingUsuarios";
+        } catch (Exception e) {
+            // Cualquier otro error (RuntimeException, etc.)
+            model.addAttribute("usuarios", new ArrayList<DTUsuario>());
+            model.addAttribute("mensaje", "⚠️ Error al cargar el ranking: " + e.getMessage());
+            return "rankingUsuarios";
         }
     }
     
@@ -149,12 +154,22 @@ public class UsuarioController {
 
         // Si es prop
         if (perfilVisitado.getTipo().equals("proponente")) {
-            model.addAttribute("proponente", ctrl.getDTProponente(nick));
+            try {
+                model.addAttribute("proponente", ctrl.getDTProponente(nick));
+            } catch (UnsupportedOperationException e) {
+                // getDTProponente no está disponible vía SOAP
+                model.addAttribute("proponente", null);
+            }
         }
 
         // Si es colab
         if (perfilVisitado.getTipo().equals("colaborador")) {
-            model.addAttribute("colaborador", ctrl.getDTColaborador(nick));
+            try {
+                model.addAttribute("colaborador", ctrl.getDTColaborador(nick));
+            } catch (UnsupportedOperationException e) {
+                // getDTColaborador no está disponible vía SOAP
+                model.addAttribute("colaborador", null);
+            }
         }
 
         // Si lo sigo

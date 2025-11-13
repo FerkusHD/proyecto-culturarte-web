@@ -89,11 +89,21 @@ public class PropuestasController {
             // Enviar notificaciones por correo electrónico (requisito 7.3)
             try {
                 // Obtener información necesaria para los emails
-                DTColaborador colaborador = ctrl.getDTColaborador(nickColaborador);
+                DTColaborador colaborador = null;
+                try {
+                    colaborador = ctrl.getDTColaborador(nickColaborador);
+                } catch (UnsupportedOperationException e) {
+                    // getDTColaborador no está disponible vía SOAP
+                }
                 DTPropuesta propuesta = ctrl.getDTPropuesta(tituloPropuesta);
                 
                 if (colaborador != null && propuesta != null && propuesta.getProponente() != null) {
-                    DTProponente proponente = ctrl.getDTProponente(propuesta.getProponente());
+                    DTProponente proponente = null;
+                    try {
+                        proponente = ctrl.getDTProponente(propuesta.getProponente());
+                    } catch (UnsupportedOperationException e) {
+                        // getDTProponente no está disponible vía SOAP
+                    }
                     
                     if (proponente != null) {
                         // Crear DTColaboracion con la información registrada
@@ -306,9 +316,12 @@ public class PropuestasController {
 
         String nickProponente = propuesta.getProponente();
 
-
-        DTProponente proponente = ctrl.getDTProponente(nickProponente);
-
+        DTProponente proponente = null;
+        try {
+            proponente = ctrl.getDTProponente(nickProponente);
+        } catch (UnsupportedOperationException e) {
+            // getDTProponente no está disponible vía SOAP
+        }
         model.addAttribute("proponente", proponente);
 
         DTUsuario usuario = (DTUsuario) session.getAttribute("usuarioLogueado");
