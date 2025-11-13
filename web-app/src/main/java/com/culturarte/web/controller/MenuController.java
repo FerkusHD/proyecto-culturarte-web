@@ -1,48 +1,45 @@
 package com.culturarte.web.controller;
-import com.culturarte.logica.datatypes.DTUsuario;
 
+import com.culturarte.soap.gen.*;
+import com.culturarte.web.soap.client.UsuarioSoapClient;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.culturarte.logica.IControlador;
 
 @Controller
 @RequestMapping("/")
 public class MenuController {
 
-    private final IControlador ctrl;
-
-    public MenuController(IControlador ctrl) {
-        this.ctrl = ctrl;
-    }
+    @Autowired
+    private UsuarioSoapClient soapClient;
 
     @GetMapping("/")
     public String index(HttpSession session, Model model) {
+        GetUsuarioResponse usuarioResp = (GetUsuarioResponse) session.getAttribute("usuarioLogueado");
 
-        DTUsuario u = (DTUsuario) session.getAttribute("usuarioLogueado");
-        if (u == null) {
-            u = new DTUsuario();
-            u.setNickname("visitante");
-            u.setTipo("visitante");
-            session.setAttribute("usuarioLogueado", u);
+        if (usuarioResp == null || usuarioResp.getUsuario() == null) {
+            UsuarioType visitante = new UsuarioType();
+            visitante.setNickname("visitante");
+            visitante.setTipo("visitante");
+            session.setAttribute("usuarioLogueado", visitante);
+            model.addAttribute("usuario", visitante);
+        } else {
+            model.addAttribute("usuario", usuarioResp.getUsuario());
         }
-
-        model.addAttribute("usuario", u);
 
         return "index";
     }
 
     @GetMapping("/login")
     public String login(HttpServletRequest request, Model model) {
-        
-    String userAgent = request.getHeader("User-Agent");
-    boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
-   
-    model.addAttribute("esMovil", esMovil);
-    return "login";
-}
+        String userAgent = request.getHeader("User-Agent");
+        boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
+        model.addAttribute("esMovil", esMovil);
+        return "login";
+    }
 
     @PostMapping("/login")
     public String procesarLogin(@RequestParam String nickOemail,
@@ -51,42 +48,25 @@ public class MenuController {
                                 HttpServletRequest request,
                                 Model model) {
 
-        try {
-            boolean existeUsuario = ctrl.verificarPassword(password, nickOemail);
-
-            if (!existeUsuario) {
-                model.addAttribute("mensaje", "⚠️ Contraseña o nickname/email incorrecto");
-                model.addAttribute("nickname", nickOemail);
-                return "login";
-            }
-        } catch (UnsupportedOperationException e) {
-            DTUsuario usuario = ctrl.getDTUsuario(nickOemail);
-            if (usuario == null) {
-                model.addAttribute("mensaje", "⚠️ Usuario no encontrado");
-                model.addAttribute("nickname", nickOemail);
-                return "login";
-            }
-            String userAgent = request.getHeader("User-Agent");
-            boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
-            if (esMovil && !usuario.getTipo().equalsIgnoreCase("colaborador")) {
-                model.addAttribute("mensaje", "⚠️ Solo los colaboradores pueden iniciar sesión desde un dispositivo móvil.");
-                model.addAttribute("nickname", nickOemail);
-                return "login";
-            }
-            session.setAttribute("usuarioLogueado", usuario);
-            return "index";
+        VerificarPasswordResponse verificacion = soapClient.verificarPassword(nickOemail, password);
+        if (!verificacion.isValido()) {
+            model.addAttribute("mensaje", "⚠️ Contraseña o usuario incorrecto");
+            model.addAttribute("nickname", nickOemail);
+            return "login";
         }
-        
-    DTUsuario usuario = ctrl.getDTUsuario(nickOemail);
 
-    String userAgent = request.getHeader("User-Agent");
-    boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
+        GetUsuarioResponse usuarioResp = soapClient.getUsuario(nickOemail);
+        UsuarioType usuario = usuarioResp.getUsuario();
 
-    if (esMovil && !usuario.getTipo().equalsIgnoreCase("colaborador")) {
-        model.addAttribute("mensaje", "⚠️ Solo los colaboradores pueden iniciar sesión desde un dispositivo móvil.");
-        model.addAttribute("nickname", nickOemail);
-        return "login";
-    }
+        String userAgent = request.getHeader("User-Agent");
+        boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
+
+        if (esMovil && !"colaborador".equalsIgnoreCase(usuario.getTipo())) {
+            model.addAttribute("mensaje", "⚠️ Solo los colaboradores pueden iniciar sesión desde un dispositivo móvil.");
+            model.addAttribute("nickname", nickOemail);
+            return "login";
+        }
+
         session.setAttribute("usuarioLogueado", usuario);
         return "index";
     }

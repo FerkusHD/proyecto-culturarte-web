@@ -96,4 +96,98 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:complexType name="respuestaType">
+        <xs:sequence>
+            <xs:element name="exito" type="xs:boolean"/>
+            <xs:element name="mensaje" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- AGREGAR USUARIO -->
+    <xs:element name="agregarColaboradorRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="nickname" type="xs:string"/>
+                <xs:element name="password" type="xs:string"/>
+                <xs:element name="nombre" type="xs:string"/>
+                <xs:element name="apellido" type="xs:string"/>
+                <xs:element name="email" type="xs:string"/>
+                <xs:element name="fechaNacimiento" type="xs:date"/>
+                <xs:element name="imagen" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="agregarColaboradorResponse" type="tns:respuestaType"/>
+
+    <xs:element name="agregarProponenteRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="nickname" type="xs:string"/>
+                <xs:element name="password" type="xs:string"/>
+                <xs:element name="nombre" type="xs:string"/>
+                <xs:element name="apellido" type="xs:string"/>
+                <xs:element name="email" type="xs:string"/>
+                <xs:element name="fechaNacimiento" type="xs:date"/>
+                <xs:element name="imagen" type="xs:string" minOccurs="0"/>
+                <xs:element name="direccion" type="xs:string" minOccurs="0"/>
+                <xs:element name="linkWeb" type="xs:string" minOccurs="0"/>
+                <xs:element name="bibliografia" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="agregarProponenteResponse" type="tns:respuestaType"/>
+
+    <!-- SEGUIR / DEJAR DE SEGUIR -->
+    <xs:element name="seguirUsuarioRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="nickSeguidor" type="xs:string"/>
+                <xs:element name="nickSeguido" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="seguirUsuarioResponse" type="tns:respuestaType"/>
+
+    <xs:element name="dejarDeSeguirUsuarioRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="nickSeguidor" type="xs:string"/>
+                <xs:element name="nickSeguido" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="dejarDeSeguirUsuarioResponse" type="tns:respuestaType"/>
+
+    <!-- FAVORITOS -->
+    <xs:element name="agregarPropuestaFavoritaRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="nickname" type="xs:string"/>
+                <xs:element name="tituloPropuesta" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="agregarPropuestaFavoritaResponse" type="tns:respuestaType"/>
+
+    <xs:element name="sacarPropuestaFavoritaRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="nickname" type="xs:string"/>
+                <xs:element name="tituloPropuesta" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="sacarPropuestaFavoritaResponse" type="tns:respuestaType"/>
+
+    <!-- VERIFICAR PASSWORD -->
+    <xs:element name="verificarPasswordRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="nickname" type="xs:string"/>
+                <xs:element name="password" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="verificarPasswordResponse" type="tns:respuestaType"/>
+
 </xs:schema>

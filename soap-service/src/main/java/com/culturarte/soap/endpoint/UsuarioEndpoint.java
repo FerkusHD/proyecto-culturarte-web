@@ -51,6 +51,114 @@ public class UsuarioEndpoint {
         return resp;
     }
 
+    @PayloadRoot(namespace = NAMESPACE, localPart = "agregarColaboradorRequest")
+    @ResponsePayload
+    public AgregarColaboradorResponse agregarColaborador(@RequestPayload AgregarColaboradorRequest request) {
+        AgregarColaboradorResponse resp = new AgregarColaboradorResponse();
+        try {
+            ctrl.altaColaborador(request.getNickname(), request.getPassword(), request.getNombre(),
+                    request.getApellido(), request.getEmail(),
+                    request.getFechaNacimiento().toGregorianCalendar().toZonedDateTime().toLocalDate(),
+                    request.getImagen());
+            resp.setExito(true);
+            resp.setMensaje("Colaborador agregado exitosamente");
+        } catch (UsuarioYaExiste | EmailYaExiste e) {
+            resp.setExito(false);
+            resp.setMensaje(e.getMessage());
+        } catch (Exception e) {
+            resp.setExito(false);
+            resp.setMensaje("Error inesperado");
+        }
+        return resp;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE, localPart = "agregarProponenteRequest")
+    @ResponsePayload
+    public AgregarProponenteResponse agregarProponente(@RequestPayload AgregarProponenteRequest request) {
+        AgregarProponenteResponse resp = new AgregarProponenteResponse();
+        try {
+            ctrl.altaProponente(request.getNickname(), request.getPassword(), request.getNombre(),
+                    request.getApellido(), request.getEmail(),
+                    request.getFechaNacimiento().toGregorianCalendar().toZonedDateTime().toLocalDate(),
+                    request.getImagen(), request.getDireccion(), request.getLinkWeb(), request.getBibliografia());
+            resp.setExito(true);
+            resp.setMensaje("Proponente agregado exitosamente");
+        } catch (UsuarioYaExiste | EmailYaExiste e) {
+            resp.setExito(false);
+            resp.setMensaje(e.getMessage());
+        } catch (Exception e) {
+            resp.setExito(false);
+            resp.setMensaje("Error inesperado");
+        }
+        return resp;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE, localPart = "seguirUsuarioRequest")
+    @ResponsePayload
+    public SeguirUsuarioResponse seguirUsuario(@RequestPayload SeguirUsuarioRequest request) {
+        SeguirUsuarioResponse resp = new SeguirUsuarioResponse();
+        try {
+            ctrl.seguirUsuario(request.getNickSeguidor(), request.getNickSeguido());
+            resp.setExito(true);
+            resp.setMensaje("Usuario seguido correctamente");
+        } catch (UsuarioYaSeguido e) {
+            resp.setExito(false);
+            resp.setMensaje(e.getMessage());
+        } catch (Exception e) {
+            resp.setExito(false);
+            resp.setMensaje("Error inesperado");
+        }
+        return resp;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE, localPart = "dejarDeSeguirUsuarioRequest")
+    @ResponsePayload
+    public DejarDeSeguirUsuarioResponse dejarDeSeguirUsuario(@RequestPayload DejarDeSeguirUsuarioRequest request) {
+        DejarDeSeguirUsuarioResponse resp = new DejarDeSeguirUsuarioResponse();
+        try {
+            ctrl.dejarDeSeguirUsuario(request.getNickSeguidor(), request.getNickSeguido());
+            resp.setExito(true);
+            resp.setMensaje("Usuario dejado de seguir correctamente");
+        } catch (UsuarioNoSeguido e) {
+            resp.setExito(false);
+            resp.setMensaje(e.getMessage());
+        } catch (Exception e) {
+            resp.setExito(false);
+            resp.setMensaje("Error inesperado");
+        }
+        return resp;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE, localPart = "agregarPropuestaFavoritaRequest")
+    @ResponsePayload
+    public AgregarPropuestaFavoritaResponse agregarPropuestaFavorita(@RequestPayload AgregarPropuestaFavoritaRequest request) {
+        AgregarPropuestaFavoritaResponse resp = new AgregarPropuestaFavoritaResponse();
+        try {
+            ctrl.agregarPropuestaFavorita(request.getNickname(), request.getTituloPropuesta());
+            resp.setExito(true);
+            resp.setMensaje("Propuesta agregada a favoritos");
+        } catch (Exception e) {
+            resp.setExito(false);
+            resp.setMensaje(e.getMessage());
+        }
+        return resp;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE, localPart = "sacarPropuestaFavoritaRequest")
+    @ResponsePayload
+    public SacarPropuestaFavoritaResponse sacarPropuestaFavorita(@RequestPayload SacarPropuestaFavoritaRequest request) {
+        SacarPropuestaFavoritaResponse resp = new SacarPropuestaFavoritaResponse();
+        try {
+            ctrl.sacarPropuestaFavorita(request.getNickname(), request.getTituloPropuesta());
+            resp.setExito(true);
+            resp.setMensaje("Propuesta removida de favoritos");
+        } catch (Exception e) {
+            resp.setExito(false);
+            resp.setMensaje(e.getMessage());
+        }
+        return resp;
+    }
+
     @PayloadRoot(namespace = NAMESPACE, localPart = "verificarNicknameRequest")
     @ResponsePayload
     public com.culturarte.soap.gen.VerificarNicknameResponse verificarNickname(
@@ -88,19 +196,19 @@ public class UsuarioEndpoint {
     @ResponsePayload
     public com.culturarte.soap.gen.VerificarEmailResponse verificarEmail(
             @RequestPayload com.culturarte.soap.gen.VerificarEmailRequest request) {
-        
-        com.culturarte.soap.gen.VerificarEmailResponse response = 
-            new com.culturarte.soap.gen.VerificarEmailResponse();
-        
+
+        com.culturarte.soap.gen.VerificarEmailResponse response =
+                new com.culturarte.soap.gen.VerificarEmailResponse();
+
         String email = request.getEmail();
-        
+
         if (email == null || email.trim().isEmpty()) {
             response.setDisponible(false);
             response.setMensaje("El email no puede estar vacío");
             return response;
         }
 
-        // Validar formato básico de email
+        // Validar formato de email
         if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
             response.setDisponible(false);
             response.setMensaje("El formato del email no es válido");
@@ -108,26 +216,34 @@ public class UsuarioEndpoint {
         }
 
         try {
-            // Buscar usuarios y verificar si alguno tiene ese email
-            java.util.ArrayList<com.culturarte.logica.datatypes.DTUsuario> usuarios = ctrl.listarUsuarios();
-            if (usuarios != null) {
-                for (com.culturarte.logica.datatypes.DTUsuario usuario : usuarios) {
-                    if (usuario.getEmail() != null && usuario.getEmail().equalsIgnoreCase(email.trim())) {
-                        response.setDisponible(false);
-                        response.setMensaje("El email '" + email + "' ya está en uso");
-                        return response;
-                    }
-                }
+            List<com.culturarte.logica.datatypes.DTUsuario> usuarios = ctrl.listarUsuarios();
+
+            if (usuarios == null || usuarios.isEmpty()) {
+                response.setDisponible(true);
+                response.setMensaje("El email está disponible (no hay usuarios registrados)");
+                return response;
             }
-            response.setDisponible(true);
-            response.setMensaje("El email '" + email + "' está disponible");
+
+            boolean emailOcupado = usuarios.stream()
+                    .anyMatch(u -> u.getEmail() != null && u.getEmail().equalsIgnoreCase(email.trim()));
+
+            if (emailOcupado) {
+                response.setDisponible(false);
+                response.setMensaje("El email '" + email + "' ya está en uso");
+            } else {
+                response.setDisponible(true);
+                response.setMensaje("El email '" + email + "' está disponible");
+            }
+
         } catch (Exception e) {
+            e.printStackTrace();
             response.setDisponible(false);
-            response.setMensaje("Error al verificar disponibilidad");
+            response.setMensaje("Error interno al verificar disponibilidad: " + e.getMessage());
         }
-        
+
         return response;
     }
+
 
     @PayloadRoot(namespace = NAMESPACE, localPart = "listarUsuariosRequest")
     @ResponsePayload
@@ -179,6 +295,21 @@ public class UsuarioEndpoint {
             resp.getUsuario().add(ut);
         }
 
+        return resp;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE, localPart = "verificarPasswordRequest")
+    @ResponsePayload
+    public VerificarPasswordResponse verificarPassword(@RequestPayload VerificarPasswordRequest request) {
+        VerificarPasswordResponse resp = new VerificarPasswordResponse();
+        try {
+            boolean valido = ctrl.verificarPassword(request.getPassword(), request.getNickname());
+            resp.setExito(valido);
+            resp.setMensaje(valido ? "Password correcta" : "Password incorrecta");
+        } catch (Exception e) {
+            resp.setExito(false);
+            resp.setMensaje("Error inesperado");
+        }
         return resp;
     }
 }

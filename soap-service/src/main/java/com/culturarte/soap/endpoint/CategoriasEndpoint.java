@@ -1,19 +1,18 @@
-package com.culturarte.soap.endpoint;
+package com.culturarte.soap.endpoints;
 
-import com.culturarte.logica.IControlador;
 import java.util.List;
+
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
-import com.culturarte.soap.gen.GetCategoriasResponse;
-import com.culturarte.soap.gen.GetCategoriasRequest;
+import com.culturarte.logica.IControlador;
+import com.culturarte.soap.gen.*;
 
 @Endpoint
 public class CategoriasEndpoint {
 
 	private static final String NAMESPACE = "http://www.culturarte.com/ws/categorias";
-
 	private final IControlador ctrl;
 
 	public CategoriasEndpoint(IControlador ctrl) {
@@ -23,11 +22,15 @@ public class CategoriasEndpoint {
 	@PayloadRoot(namespace = NAMESPACE, localPart = "getCategoriasRequest")
 	@ResponsePayload
 	public GetCategoriasResponse getCategorias(@RequestPayload GetCategoriasRequest request) {
+
 		GetCategoriasResponse response = new GetCategoriasResponse();
 
-		// Delegar a la lógica de negocio
-		List<String> categorias = ctrl.listarCategoriasWeb();
-		response.getCategoria().addAll(categorias);
+		List<String> categoriasRaiz = ctrl.listarCategoriasWebCompletas();
+		for (String catNombre : categoriasRaiz) {
+			CategoriaType catType = new CategoriaType();
+			catType.setNombre(catNombre);
+			response.getCategoria().add(catType);
+		}
 
 		return response;
 	}

@@ -4,18 +4,26 @@
            xmlns:tns="http://www.culturarte.com/ws/categorias"
            elementFormDefault="qualified">
 
-    <xs:element name="getCategoriasRequest">
-        <xs:complexType>
-            <xs:sequence/>
-        </xs:complexType>
-    </xs:element>
+    <!-- ======== Elementos principales ======== -->
+    <xs:element name="getCategoriasRequest" type="tns:GetCategoriasRequest"/>
+    <xs:element name="getCategoriasResponse" type="tns:GetCategoriasResponse"/>
 
-    <xs:element name="getCategoriasResponse">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="categoria" type="xs:string" maxOccurs="unbounded"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+    <!-- ======== Tipos complejos ======== -->
+    <xs:complexType name="GetCategoriasRequest">
+        <xs:sequence/>
+    </xs:complexType>
+
+    <xs:complexType name="GetCategoriasResponse">
+        <xs:sequence>
+            <xs:element name="categoria" type="tns:CategoriaType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="CategoriaType">
+        <xs:sequence>
+            <xs:element name="nombre" type="xs:string"/>
+            <xs:element name="hijos" type="tns:CategoriaType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 
 </xs:schema>

@@ -119,6 +119,7 @@
                             </args>
                             <schemas>
                                 <schema>culturarte.xsd</schema>
+                                <schema>colaboraciones.xsd</schema>
                                 <schema>categorias.xsd</schema>
                                 <schema>propuestas.xsd</schema>
                                 <schema>usuarios.xsd</schema>

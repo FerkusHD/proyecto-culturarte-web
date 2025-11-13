@@ -4,12 +4,38 @@
            xmlns:tns="http://www.culturarte.com/ws/propuestas"
            elementFormDefault="qualified">
 
-    <xs:element name="listarPropuestasRequest">
-        <xs:complexType>
-            <xs:sequence/>
-        </xs:complexType>
-    </xs:element>
+    <!-- Propuesta -->
+    <xs:complexType name="propuestaType">
+        <xs:sequence>
+            <xs:element name="titulo" type="xs:string"/>
+            <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
+            <xs:element name="proponente" type="xs:string" minOccurs="0"/>
+            <xs:element name="categoria" type="xs:string" minOccurs="0"/>
+            <xs:element name="estado" type="xs:string" minOccurs="0"/>
+            <xs:element name="imagenBase64" type="xs:string" minOccurs="0"/>
+            <xs:element name="fechaPrevista" type="xs:date" minOccurs="0"/>
+            <xs:element name="montoEntrada" type="xs:float" minOccurs="0"/>
+            <xs:element name="montoNecesario" type="xs:float" minOccurs="0"/>
+            <xs:element name="montoRecaudado" type="xs:float" minOccurs="0"/>
+            <xs:element name="cantColaboradores" type="xs:int" minOccurs="0"/>
+            <xs:element name="colaboradores" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="comentarios" type="tns:comentarioType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 
+    <!-- Comentario -->
+    <xs:complexType name="comentarioType">
+        <xs:sequence>
+            <xs:element name="nickColaborador" type="xs:string"/>
+            <xs:element name="texto" type="xs:string"/>
+            <xs:element name="fecha" type="xs:date"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Requests y Responses -->
+
+    <!-- Listar todas las propuestas -->
+    <xs:element name="listarPropuestasRequest"/>
     <xs:element name="listarPropuestasResponse">
         <xs:complexType>
             <xs:sequence>
@@ -18,6 +44,7 @@
         </xs:complexType>
     </xs:element>
 
+    <!-- Obtener propuesta por título -->
     <xs:element name="getPropuestaRequest">
         <xs:complexType>
             <xs:sequence>
@@ -25,7 +52,6 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-
     <xs:element name="getPropuestaResponse">
         <xs:complexType>
             <xs:sequence>
@@ -34,19 +60,140 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:complexType name="propuestaType">
-        <xs:sequence>
-            <xs:element name="titulo" type="xs:string"/>
-            <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
-            <xs:element name="proponente" type="xs:string" minOccurs="0"/>
-            <xs:element name="categoria" type="xs:string" minOccurs="0"/>
-            <xs:element name="estado" type="xs:string" minOccurs="0"/>
-            <xs:element name="imagen" type="xs:string" minOccurs="0"/>
-            <xs:element name="fechaPrevista" type="xs:date" minOccurs="0"/>
-            <xs:element name="montoNecesario" type="xs:float" minOccurs="0"/>
-            <xs:element name="montoRecaudado" type="xs:float" minOccurs="0"/>
-            <xs:element name="cantColaboradores" type="xs:int" minOccurs="0"/>
-        </xs:sequence>
-    </xs:complexType>
+    <!-- Alta de propuesta -->
+    <xs:element name="altaPropuestaRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="titulo" type="xs:string"/>
+                <xs:element name="descripcion" type="xs:string"/>
+                <xs:element name="lugar" type="xs:string"/>
+                <xs:element name="fechaPrevista" type="xs:date"/>
+                <xs:element name="categoria" type="xs:string"/>
+                <xs:element name="tiposRetorno" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="montoEntrada" type="xs:float"/>
+                <xs:element name="montoNecesario" type="xs:float"/>
+                <xs:element name="imagenBase64" type="xs:string" minOccurs="0"/>
+                <xs:element name="nickProponente" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="altaPropuestaResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exito" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Alta colaboración -->
+    <xs:element name="altaColaboracionRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="tituloPropuesta" type="xs:string"/>
+                <xs:element name="nickColaborador" type="xs:string"/>
+                <xs:element name="monto" type="xs:float"/>
+                <xs:element name="tipoRetorno" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="altaColaboracionResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exito" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Cancelar propuesta -->
+    <xs:element name="cancelarPropuestaRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="tituloPropuesta" type="xs:string"/>
+                <xs:element name="nickUsuario" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="cancelarPropuestaResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exito" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Extender financiación -->
+    <xs:element name="extenderFinanciacionRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="tituloPropuesta" type="xs:string"/>
+                <xs:element name="nuevaFecha" type="xs:date"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="extenderFinanciacionResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exito" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Agregar comentario -->
+    <xs:element name="agregarComentarioRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="tituloPropuesta" type="xs:string"/>
+                <xs:element name="nickColaborador" type="xs:string"/>
+                <xs:element name="texto" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="agregarComentarioResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exito" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Favoritas -->
+    <xs:element name="agregarFavoritaRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="tituloPropuesta" type="xs:string"/>
+                <xs:element name="nickUsuario" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="agregarFavoritaResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exito" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="quitarFavoritaRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="tituloPropuesta" type="xs:string"/>
+                <xs:element name="nickUsuario" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="quitarFavoritaResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exito" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
 
 </xs:schema>

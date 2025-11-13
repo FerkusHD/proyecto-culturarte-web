@@ -103,5 +103,74 @@ public class VerificacionSoapService {
         response.setMensaje("Error al verificar disponibilidad");
         return response;
     }
+
+    // ======================= USUARIOS =======================
+    public GetUsuarioResponse getUsuario(String nickname) {
+        GetUsuarioRequest request = new GetUsuarioRequest();
+        request.setNickname(nickname);
+        return (GetUsuarioResponse) webServiceTemplate.marshalSendAndReceive(
+                getSoapServiceUrl() + "/usuarios", request);
+    }
+
+    public AgregarProponenteResponse agregarProponente(AgregarProponenteRequest request) {
+        return (AgregarProponenteResponse) webServiceTemplate.marshalSendAndReceive(
+                getSoapServiceUrl() + "/usuarios", request);
+    }
+
+    public AgregarColaboradorResponse agregarColaborador(AgregarColaboradorRequest request) {
+        return (AgregarColaboradorResponse) webServiceTemplate.marshalSendAndReceive(
+                getSoapServiceUrl() + "/usuarios", request);
+    }
+
+    // ======================= SEGUIR / FAVORITOS =======================
+    public void seguirUsuario(String nickSeguidor, String nickSeguido) {
+        SeguirUsuarioRequest req = new SeguirUsuarioRequest();
+        req.setNickSeguidor(nickSeguidor);
+        req.setNickSeguido(nickSeguido);
+        webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl() + "/usuarios", req);
+    }
+
+    public void dejarDeSeguirUsuario(String nickSeguidor, String nickSeguido) {
+        DejarDeSeguirUsuarioRequest req = new DejarDeSeguirUsuarioRequest();
+        req.setNickSeguidor(nickSeguidor);
+        req.setNickSeguido(nickSeguido);
+        webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl() + "/usuarios", req);
+    }
+
+    public void agregarPropuestaFavorita(String nickname, String titulo) {
+        AgregarPropuestaFavoritaRequest req = new AgregarPropuestaFavoritaRequest();
+        req.setNickname(nickname);
+        req.setTitulo(titulo);
+        webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl() + "/usuarios", req);
+    }
+
+    public void sacarPropuestaFavorita(String nickname, String titulo) {
+        SacarPropuestaFavoritaRequest req = new SacarPropuestaFavoritaRequest();
+        req.setNickname(nickname);
+        req.setTitulo(titulo);
+        webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl() + "/usuarios", req);
+    }
+
+    public GetPropuestasFavoritasResponse getPropuestasFavoritas(String nickname) {
+        GetPropuestasFavoritasRequest req = new GetPropuestasFavoritasRequest();
+        req.setNickname(nickname);
+        return (GetPropuestasFavoritasResponse) webServiceTemplate.marshalSendAndReceive(
+                getSoapServiceUrl() + "/usuarios", req);
+    }
+
+    // ======================= LISTADOS =======================
+    public ListarUsuariosResponse listarUsuarios() {
+        ListarUsuariosRequest req = new ListarUsuariosRequest();
+        return (ListarUsuariosResponse) webServiceTemplate.marshalSendAndReceive(
+                getSoapServiceUrl() + "/usuarios", req);
+    }
+
+    public BuscarUsuariosResponse buscarUsuarios(String nombre) {
+        BuscarUsuariosRequest req = new BuscarUsuariosRequest();
+        req.setNombre(nombre);
+        return (BuscarUsuariosResponse) webServiceTemplate.marshalSendAndReceive(
+                getSoapServiceUrl() + "/usuarios", req);
+    }
+
 }
 

@@ -1,66 +1,65 @@
 package com.culturarte.web.controller;
-import java.util.List;
+
+import com.culturarte.soap.gen.GetCategoriasRequest;
+import com.culturarte.soap.gen.GetCategoriasResponse;
+import com.culturarte.web.soap.CategoriasSoapClient;
+import com.culturarte.logica.datatypes.DTCategoria;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import com.culturarte.logica.IControlador;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import java.util.ArrayList;
-
-import com.culturarte.logica.datatypes.DTCategoria;
+import java.util.List;
 
 @Controller
 @RequestMapping("/categorias")
 public class CategoriasController {
 
     @Autowired
-    private IControlador ctrl;
+    private CategoriasSoapClient categoriasSoapClient;
 
     @ResponseBody
     @GetMapping("/lista")
-    List<String> categorias(){
-        return ctrl.listarCategoriasWebCompletas();
+    public List<String> categorias() {
+        try {
+            // Creamos el request vacío (según el XSD)
+            GetCategoriasRequest request = new GetCategoriasRequest();
+
+            // Llamamos al servicio SOAP
+            GetCategoriasResponse response = categoriasSoapClient.obtenerCategorias(request);
+
+            // Retornamos la lista de categorías
+            return response.getCategoria();
+        } catch (Exception e) {
+            e.printStackTrace();
+            List<String> error = new ArrayList<>();
+            error.add("Error al obtener categorías vía SOAP: " + e.getMessage());
+            return error;
+        }
     }
 
     @ResponseBody
     @GetMapping("/tree")
     public List<DTCategoria> categoriasTree() {
         try {
-            DefaultTreeModel model = ctrl.listarCategorias();
-            DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+            // Por ahora simplemente mapeamos las categorías planas a un formato simple
+            GetCategoriasRequest request = new GetCategoriasRequest();
+            GetCategoriasResponse response = categoriasSoapClient.obtenerCategorias(request);
+
             List<DTCategoria> lista = new ArrayList<>();
-            if (root.getChildCount() > 0) {
-                for (int i = 0; i < root.getChildCount(); i++) {
-                    DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(i);
-                    lista.add(nodeToDto(child));
-                }
-            }
-            return lista;
-        } catch (UnsupportedOperationException e) {
-            List<String> categorias = ctrl.listarCategoriasWeb();
-            List<DTCategoria> lista = new ArrayList<>();
-            for (String cat : categorias) {
+            for (String cat : response.getCategoria()) {
                 lista.add(new DTCategoria(cat));
             }
-            return lista;
-        }
-    }
 
-    private DTCategoria nodeToDto(DefaultMutableTreeNode node) {
-        Object user = node.getUserObject();
-        String nombre = user != null ? user.toString() : "";
-        DTCategoria dto = new DTCategoria(nombre);
-        if (node.getChildCount() > 0) {
-            for (int i = 0; i < node.getChildCount(); i++) {
-                DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
-                dto.addHijo(nodeToDto(child));
-            }
+            return lista;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            List<DTCategoria> error = new ArrayList<>();
+            DTCategoria errorCat = new DTCategoria("Error al obtener categorías: " + e.getMessage());
+            error.add(errorCat);
+            return error;
         }
-        return dto;
     }
 }

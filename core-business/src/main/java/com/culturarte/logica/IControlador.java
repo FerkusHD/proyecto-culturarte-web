@@ -21,10 +21,6 @@ import java.util.List;
 
 import javax.swing.tree.DefaultTreeModel;
 
-/**
- *
- * @author maicol
- */
 public interface IControlador {
 
     public abstract void cargarDatosPrueba() throws CargaFallida;
