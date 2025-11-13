@@ -3,6 +3,10 @@ package com.culturarte.soap.endpoint;
 import com.culturarte.logica.IControlador;
 import com.culturarte.soap.gen.GetUsuarioRequest;
 import com.culturarte.soap.gen.GetUsuarioResponse;
+import com.culturarte.soap.gen.ListarUsuariosRequest;
+import com.culturarte.soap.gen.ListarUsuariosResponse;
+import com.culturarte.soap.gen.BuscarUsuariosRequest;
+import com.culturarte.soap.gen.BuscarUsuariosResponse;
 import com.culturarte.soap.gen.UsuarioType;
 import com.culturarte.soap.gen.ObjectFactory;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
@@ -123,6 +127,59 @@ public class UsuarioEndpoint {
         }
         
         return response;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE, localPart = "listarUsuariosRequest")
+    @ResponsePayload
+    public ListarUsuariosResponse listarUsuarios(@RequestPayload ListarUsuariosRequest request) throws Exception {
+        ListarUsuariosResponse resp = new ListarUsuariosResponse();
+        ObjectFactory of = new ObjectFactory();
+
+        java.util.List<com.culturarte.logica.datatypes.DTUsuario> usuarios = ctrl.listarUsuarios();
+        for (com.culturarte.logica.datatypes.DTUsuario du : usuarios) {
+            UsuarioType ut = of.createUsuarioType();
+            ut.setNickname(du.getNickname());
+            ut.setNombre(du.getNombre());
+            ut.setApellido(du.getApellido());
+            ut.setEmail(du.getEmail());
+            ut.setImagen(du.getImagen());
+            if (du.getFechaNacimiento() != null) {
+                javax.xml.datatype.XMLGregorianCalendar xgc = javax.xml.datatype.DatatypeFactory.newInstance()
+                        .newXMLGregorianCalendarDate(du.getFechaNacimiento().getYear(), du.getFechaNacimiento().getMonthValue(), du.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
+                ut.setFechaNacimiento(xgc);
+            }
+            ut.setTipo(du.getTipo());
+            resp.getUsuario().add(ut);
+        }
+
+        return resp;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE, localPart = "buscarUsuariosRequest")
+    @ResponsePayload
+    public BuscarUsuariosResponse buscarUsuarios(@RequestPayload BuscarUsuariosRequest request) throws Exception {
+        BuscarUsuariosResponse resp = new BuscarUsuariosResponse();
+        ObjectFactory of = new ObjectFactory();
+
+        String nombre = request.getNombre();
+        java.util.List<com.culturarte.logica.datatypes.DTUsuario> usuarios = ctrl.buscarUsuarios(nombre);
+        for (com.culturarte.logica.datatypes.DTUsuario du : usuarios) {
+            UsuarioType ut = of.createUsuarioType();
+            ut.setNickname(du.getNickname());
+            ut.setNombre(du.getNombre());
+            ut.setApellido(du.getApellido());
+            ut.setEmail(du.getEmail());
+            ut.setImagen(du.getImagen());
+            if (du.getFechaNacimiento() != null) {
+                javax.xml.datatype.XMLGregorianCalendar xgc = javax.xml.datatype.DatatypeFactory.newInstance()
+                        .newXMLGregorianCalendarDate(du.getFechaNacimiento().getYear(), du.getFechaNacimiento().getMonthValue(), du.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
+                ut.setFechaNacimiento(xgc);
+            }
+            ut.setTipo(du.getTipo());
+            resp.getUsuario().add(ut);
+        }
+
+        return resp;
     }
 }
 

@@ -4,7 +4,11 @@
            xmlns:tns="http://www.culturarte.com/ws/propuestas"
            elementFormDefault="qualified">
 
-    <xs:element name="listarPropuestasRequest" type="xs:anyType"/>
+    <xs:element name="listarPropuestasRequest">
+        <xs:complexType>
+            <xs:sequence/>
+        </xs:complexType>
+    </xs:element>
 
     <xs:element name="listarPropuestasResponse">
         <xs:complexType>

@@ -37,8 +37,10 @@ public class PropuestasEndpointTest {
     Class<?> cls = Class.forName("com.culturarte.soap.endpoint.PropuestasEndpoint");
     java.lang.reflect.Constructor<?> ctor = cls.getConstructor(IControlador.class);
     Object endpoint = ctor.newInstance(ctrl);
-    java.lang.reflect.Method listar = cls.getMethod("listarPropuestas", Object.class);
-    Object resp = listar.invoke(endpoint, new Object[] { null });
+    Class<?> requestClass = Class.forName("com.culturarte.soap.gen.ListarPropuestasRequest");
+    Object request = requestClass.getDeclaredConstructor().newInstance();
+    java.lang.reflect.Method listar = cls.getMethod("listarPropuestas", requestClass);
+    Object resp = listar.invoke(endpoint, new Object[] { request });
 
     assertNotNull(resp);
     assertEquals("com.culturarte.soap.gen.ListarPropuestasResponse", resp.getClass().getName());

@@ -59,8 +59,8 @@ public class SoapControladorAdapter implements IControlador {
     @Override
     public List<String> listarCategoriasWeb() {
         try {
-            ObjectFactory of = new ObjectFactory();
-            jakarta.xml.bind.JAXBElement<Object> request = of.createGetCategoriasRequest(new Object());
+            // Usar la clase generada para el request (ya no es anyType)
+            GetCategoriasRequest request = new GetCategoriasRequest();
             GetCategoriasResponse response = (GetCategoriasResponse) webServiceTemplate.marshalSendAndReceive(
                 getSoapServiceUrl() + "/categorias", request);
             return response != null ? response.getCategoria() : new ArrayList<>();
@@ -77,8 +77,8 @@ public class SoapControladorAdapter implements IControlador {
     @Override
     public ArrayList<DTPropuesta> getDTPropuestasWeb() {
         try {
-            ObjectFactory of = new ObjectFactory();
-            jakarta.xml.bind.JAXBElement<Object> request = of.createListarPropuestasRequest(new Object());
+            // Usar la clase generada para el request (ya no es anyType)
+            ListarPropuestasRequest request = new ListarPropuestasRequest();
             ListarPropuestasResponse response = (ListarPropuestasResponse) webServiceTemplate.marshalSendAndReceive(
                 getSoapServiceUrl() + "/propuestas", request);
             
@@ -291,7 +291,23 @@ public class SoapControladorAdapter implements IControlador {
 
     @Override
     public List<DTUsuario> buscarUsuarios(String nombre) {
-        throw new UnsupportedOperationException("buscarUsuarios no está disponible vía SOAP");
+        try {
+            BuscarUsuariosRequest request = new BuscarUsuariosRequest();
+            request.setNombre(nombre != null ? nombre : "");
+            BuscarUsuariosResponse response = (BuscarUsuariosResponse) webServiceTemplate.marshalSendAndReceive(
+                getSoapServiceUrl() + "/usuarios", request);
+            
+            ArrayList<DTUsuario> result = new ArrayList<>();
+            if (response != null && response.getUsuario() != null) {
+                for (UsuarioType ut : response.getUsuario()) {
+                    DTUsuario dtu = convertUsuarioTypeToDT(ut);
+                    result.add(dtu);
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al buscar usuarios desde SOAP", e);
+        }
     }
 
     @Override
@@ -316,7 +332,22 @@ public class SoapControladorAdapter implements IControlador {
 
     @Override
     public ArrayList<DTUsuario> listarUsuarios() {
-        throw new UnsupportedOperationException("listarUsuarios no está disponible vía SOAP");
+        try {
+            ListarUsuariosRequest request = new ListarUsuariosRequest();
+            ListarUsuariosResponse response = (ListarUsuariosResponse) webServiceTemplate.marshalSendAndReceive(
+                getSoapServiceUrl() + "/usuarios", request);
+            
+            ArrayList<DTUsuario> result = new ArrayList<>();
+            if (response != null && response.getUsuario() != null) {
+                for (UsuarioType ut : response.getUsuario()) {
+                    DTUsuario dtu = convertUsuarioTypeToDT(ut);
+                    result.add(dtu);
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al listar usuarios desde SOAP", e);
+        }
     }
 
     // ========== Métodos auxiliares de conversión ==========

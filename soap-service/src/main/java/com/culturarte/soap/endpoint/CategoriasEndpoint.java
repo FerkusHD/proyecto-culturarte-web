@@ -7,6 +7,7 @@ import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 import com.culturarte.soap.gen.GetCategoriasResponse;
+import com.culturarte.soap.gen.GetCategoriasRequest;
 
 @Endpoint
 public class CategoriasEndpoint {
@@ -21,7 +22,7 @@ public class CategoriasEndpoint {
 
 	@PayloadRoot(namespace = NAMESPACE, localPart = "getCategoriasRequest")
 	@ResponsePayload
-	public GetCategoriasResponse getCategorias(@RequestPayload Object request) {
+	public GetCategoriasResponse getCategorias(@RequestPayload GetCategoriasRequest request) {
 		GetCategoriasResponse response = new GetCategoriasResponse();
 
 		// Delegar a la lógica de negocio

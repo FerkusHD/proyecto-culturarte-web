@@ -2,6 +2,7 @@ package com.culturarte.soap.endpoint;
 
 import com.culturarte.logica.IControlador;
 import com.culturarte.soap.gen.ListarPropuestasResponse;
+import com.culturarte.soap.gen.ListarPropuestasRequest;
 import com.culturarte.soap.gen.PropuestaType;
 import com.culturarte.soap.gen.GetPropuestaResponse;
 import com.culturarte.soap.gen.GetPropuestaRequest;
@@ -24,7 +25,7 @@ public class PropuestasEndpoint {
 
     @PayloadRoot(namespace = NAMESPACE, localPart = "listarPropuestasRequest")
     @ResponsePayload
-    public ListarPropuestasResponse listarPropuestas(@RequestPayload Object request) throws Exception {
+    public ListarPropuestasResponse listarPropuestas(@RequestPayload ListarPropuestasRequest request) throws Exception {
         ListarPropuestasResponse resp = new ListarPropuestasResponse();
         ObjectFactory of = new ObjectFactory();
 

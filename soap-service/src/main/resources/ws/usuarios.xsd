@@ -54,6 +54,36 @@
         </xs:complexType>
     </xs:element>
 
+    <xs:element name="listarUsuariosRequest">
+        <xs:complexType>
+            <xs:sequence/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="listarUsuariosResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="usuario" type="tns:usuarioType" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="buscarUsuariosRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="nombre" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="buscarUsuariosResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="usuario" type="tns:usuarioType" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
     <xs:complexType name="usuarioType">
         <xs:sequence>
             <xs:element name="nickname" type="xs:string"/>
