@@ -1,4 +1,4 @@
-package com.culturarte.web.soap;
+package com.culturarte.web.soap.client;
 
 import com.culturarte.soap.gen.GetCategoriasRequest;
 import com.culturarte.soap.gen.GetCategoriasResponse;
@@ -36,14 +36,10 @@ public class CategoriasSoapClient {
     public GetCategoriasResponse obtenerCategorias(GetCategoriasRequest request) {
         try {
             logger.info("Llamando servicio SOAP de categorías en {}", getSoapUrl());
-            GetCategoriasResponse response = (GetCategoriasResponse)
-                    webServiceTemplate.marshalSendAndReceive(getSoapUrl(), request);
-            return response;
+            return (GetCategoriasResponse) webServiceTemplate.marshalSendAndReceive(getSoapUrl(), request);
         } catch (Exception e) {
             logger.error("Error al invocar SOAP categorías: {}", e.getMessage(), e);
-            GetCategoriasResponse errorResponse = new GetCategoriasResponse();
-            errorResponse.getCategoria().add("Error SOAP: " + e.getMessage());
-            return errorResponse;
+            throw new RuntimeException("Error al invocar SOAP de categorías", e);
         }
     }
 }

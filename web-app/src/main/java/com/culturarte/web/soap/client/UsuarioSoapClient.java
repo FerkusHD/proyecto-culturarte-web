@@ -1,11 +1,34 @@
 package com.culturarte.web.soap.client;
 
-import com.culturarte.soap.gen.*;
+import com.culturarte.soap.gen.AgregarColaboradorRequest;
+import com.culturarte.soap.gen.AgregarProponenteRequest;
+import com.culturarte.soap.gen.AgregarPropuestaFavoritaRequest;
+import com.culturarte.soap.gen.BuscarUsuariosRequest;
+import com.culturarte.soap.gen.BuscarUsuariosResponse;
+import com.culturarte.soap.gen.DejarDeSeguirUsuarioRequest;
+import com.culturarte.soap.gen.GetUsuarioRequest;
+import com.culturarte.soap.gen.GetUsuarioResponse;
+import com.culturarte.soap.gen.ListarUsuariosRequest;
+import com.culturarte.soap.gen.ListarUsuariosResponse;
+import com.culturarte.soap.gen.PropuestaType;
+import com.culturarte.soap.gen.SacarPropuestaFavoritaRequest;
+import com.culturarte.soap.gen.SeguirUsuarioRequest;
+import com.culturarte.soap.gen.UsuarioType;
+import com.culturarte.soap.gen.VerificarEmailRequest;
+import com.culturarte.soap.gen.VerificarEmailResponse;
+import com.culturarte.soap.gen.VerificarNicknameRequest;
+import com.culturarte.soap.gen.VerificarNicknameResponse;
+import com.culturarte.soap.gen.VerificarPasswordRequest;
+import com.culturarte.soap.gen.VerificarPasswordResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ws.client.core.WebServiceTemplate;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class UsuarioSoapClient {
@@ -37,8 +60,6 @@ public class UsuarioSoapClient {
         return String.format("http://%s:%s%s/usuarios", soapServiceHost, soapServicePort, soapServiceContextPath);
     }
 
-    // --- 📦 Métodos SOAP disponibles ---
-
     public GetUsuarioResponse getUsuario(String nickname) {
         try {
             GetUsuarioRequest request = new GetUsuarioRequest();
@@ -50,11 +71,41 @@ public class UsuarioSoapClient {
         }
     }
 
-    public VerificarPasswordResponse verificarPassword(String password, String nickname) {
+    public void agregarProponente(String nickname, String password, String nombre, String apellido, String email,
+                                  XMLGregorianCalendar fechaNacimiento, String imagen, String direccion,
+                                  String linkWeb, String bibliografia) {
+        AgregarProponenteRequest request = new AgregarProponenteRequest();
+        request.setNickname(nickname);
+        request.setPassword(password);
+        request.setNombre(nombre);
+        request.setApellido(apellido);
+        request.setEmail(email);
+        request.setFechaNacimiento(fechaNacimiento);
+        request.setImagen(imagen);
+        request.setDireccion(direccion);
+        request.setLinkWeb(linkWeb);
+        request.setBibliografia(bibliografia);
+        webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), request);
+    }
+
+    public void agregarColaborador(String nickname, String password, String nombre, String apellido, String email,
+                                   XMLGregorianCalendar fechaNacimiento, String imagen) {
+        AgregarColaboradorRequest request = new AgregarColaboradorRequest();
+        request.setNickname(nickname);
+        request.setPassword(password);
+        request.setNombre(nombre);
+        request.setApellido(apellido);
+        request.setEmail(email);
+        request.setFechaNacimiento(fechaNacimiento);
+        request.setImagen(imagen);
+        webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), request);
+    }
+
+    public VerificarPasswordResponse verificarPassword(String nickname, String password) {
         try {
             VerificarPasswordRequest req = new VerificarPasswordRequest();
-            req.setPassword(password);
             req.setNickname(nickname);
+            req.setPassword(password);
             return (VerificarPasswordResponse) webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
         } catch (Exception e) {
             logger.error("Error al verificar password vía SOAP: {}", e.getMessage());
@@ -93,24 +144,67 @@ public class UsuarioSoapClient {
         }
     }
 
-    public ListarUsuariosResponse listarUsuarios() {
+    public List<UsuarioType> listarUsuarios() {
         try {
             ListarUsuariosRequest req = new ListarUsuariosRequest();
-            return (ListarUsuariosResponse) webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
+            ListarUsuariosResponse response = (ListarUsuariosResponse)
+                    webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
+            if (response == null || response.getUsuario() == null) {
+                return Collections.emptyList();
+            }
+            return response.getUsuario();
         } catch (Exception e) {
             logger.error("Error al listar usuarios vía SOAP: {}", e.getMessage());
-            return new ListarUsuariosResponse();
+            return Collections.emptyList();
         }
     }
 
-    public BuscarUsuariosResponse buscarUsuarios(String nombre) {
+    public List<UsuarioType> buscarUsuarios(String nombre) {
         try {
             BuscarUsuariosRequest req = new BuscarUsuariosRequest();
             req.setNombre(nombre);
-            return (BuscarUsuariosResponse) webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
+            BuscarUsuariosResponse response = (BuscarUsuariosResponse)
+                    webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
+            if (response == null || response.getUsuario() == null) {
+                return Collections.emptyList();
+            }
+            return response.getUsuario();
         } catch (Exception e) {
             logger.error("Error al buscar usuarios vía SOAP: {}", e.getMessage());
-            return new BuscarUsuariosResponse();
+            return Collections.emptyList();
         }
+    }
+
+    public void seguirUsuario(String nickSeguidor, String nickSeguido) {
+        SeguirUsuarioRequest req = new SeguirUsuarioRequest();
+        req.setNickSeguidor(nickSeguidor);
+        req.setNickSeguido(nickSeguido);
+        webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
+    }
+
+    public void dejarDeSeguirUsuario(String nickSeguidor, String nickSeguido) {
+        DejarDeSeguirUsuarioRequest req = new DejarDeSeguirUsuarioRequest();
+        req.setNickSeguidor(nickSeguidor);
+        req.setNickSeguido(nickSeguido);
+        webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
+    }
+
+    public void agregarPropuestaFavorita(String nickname, String titulo) {
+        AgregarPropuestaFavoritaRequest req = new AgregarPropuestaFavoritaRequest();
+        req.setNickname(nickname);
+        req.setTituloPropuesta(titulo);
+        webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
+    }
+
+    public void sacarPropuestaFavorita(String nickname, String titulo) {
+        SacarPropuestaFavoritaRequest req = new SacarPropuestaFavoritaRequest();
+        req.setNickname(nickname);
+        req.setTituloPropuesta(titulo);
+        webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
+    }
+
+    public List<PropuestaType> getPropuestasFavoritas(String nickname) {
+        logger.info("El contrato SOAP todavía no soporta getPropuestasFavoritas; se devuelve una lista vacía para {}", nickname);
+        return Collections.emptyList();
     }
 }

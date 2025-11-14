@@ -3,7 +3,6 @@ package com.culturarte.web.soap;
 import com.culturarte.exepciones.CargaFallida;
 import com.culturarte.exepciones.CategoriaYaExiste;
 import com.culturarte.exepciones.ColaboracionYaExiste;
-import com.culturarte.exepciones.ColaboradorYaExiste;
 import com.culturarte.exepciones.DatosIncorrectos;
 import com.culturarte.exepciones.EmailYaExiste;
 import com.culturarte.exepciones.PropuestaYaExiste;
@@ -20,6 +19,7 @@ import com.culturarte.logica.enums.TipoEstado;
 import com.culturarte.logica.enums.TipoRetorno;
 import com.culturarte.soap.gen.BuscarUsuariosRequest;
 import com.culturarte.soap.gen.BuscarUsuariosResponse;
+import com.culturarte.soap.gen.CategoriaType;
 import com.culturarte.soap.gen.GetCategoriasRequest;
 import com.culturarte.soap.gen.GetCategoriasResponse;
 import com.culturarte.soap.gen.GetPropuestaRequest;
@@ -84,7 +84,10 @@ public class SoapControladorAdapter implements IControlador {
             GetCategoriasRequest request = new GetCategoriasRequest();
             GetCategoriasResponse response = (GetCategoriasResponse) webServiceTemplate.marshalSendAndReceive(
                 getSoapServiceUrl() + "/categorias", request);
-            return response != null ? response.getCategoria() : new ArrayList<>();
+            if (response != null && response.getCategoria() != null) {
+                return mapCategoriaResponse(response.getCategoria());
+            }
+            return new ArrayList<>();
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener categorías desde SOAP", e);
         }
@@ -404,7 +407,7 @@ public class SoapControladorAdapter implements IControlador {
             montoRecaudado,
             montoNecesario,
             fechaPrevista,
-            pt.getImagen() != null ? pt.getImagen() : "",
+            pt.getImagenBase64() != null ? pt.getImagenBase64() : "",
             pt.getCategoria() != null ? pt.getCategoria() : "",
             pt.getProponente() != null ? pt.getProponente() : ""
         );
@@ -437,6 +440,12 @@ public class SoapControladorAdapter implements IControlador {
             dtu.setTipo(ut.getTipo());
         }
         return dtu;
+    }
+
+    private ArrayList<String> mapCategoriaResponse(List<CategoriaType> categorias) {
+        return categorias.stream()
+                .map(CategoriaType::getNombre)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }
 

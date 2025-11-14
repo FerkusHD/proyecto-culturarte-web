@@ -1,10 +1,9 @@
-package com.culturarte.web.soapclient;
+package com.culturarte.web.soap.client;
 
-import culturarte.soap.colaboraciones.GetColaboracionRequest;
-import culturarte.soap.colaboraciones.GetColaboracionResponse;
+import com.culturarte.soap.gen.GetColaboracionRequest;
+import com.culturarte.soap.gen.GetColaboracionResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ws.client.core.WebServiceTemplate;
@@ -14,8 +13,7 @@ public class ColaboracionSoapClient {
 
     private static final Logger logger = LoggerFactory.getLogger(ColaboracionSoapClient.class);
 
-    @Autowired
-    private WebServiceTemplate webServiceTemplate;
+    private final WebServiceTemplate webServiceTemplate;
 
     @Value("${soap.service.url:}")
     private String soapServiceUrl;
@@ -29,11 +27,15 @@ public class ColaboracionSoapClient {
     @Value("${soap.service.context-path:/soap/ws}")
     private String soapServiceContextPath;
 
+    public ColaboracionSoapClient(WebServiceTemplate webServiceTemplate) {
+        this.webServiceTemplate = webServiceTemplate;
+    }
+
     private String getSoapServiceUrl() {
         if (soapServiceUrl != null && !soapServiceUrl.isEmpty() && !soapServiceUrl.startsWith("${")) {
             return soapServiceUrl;
         }
-        return String.format("http://%s:%s%s", soapServiceHost, soapServicePort, soapServiceContextPath);
+        return String.format("http://%s:%s%s/colaboraciones", soapServiceHost, soapServicePort, soapServiceContextPath);
     }
 
     public GetColaboracionResponse getColaboracion(String nickColaborador, String tituloPropuesta) {
@@ -42,16 +44,8 @@ public class ColaboracionSoapClient {
             request.setNickColaborador(nickColaborador);
             request.setTituloPropuesta(tituloPropuesta);
 
-            String endpointUrl = getSoapServiceUrl() + "/colaboraciones";
-
-            logger.info("📡 Enviando solicitud SOAP a {}", endpointUrl);
-
-            GetColaboracionResponse response = (GetColaboracionResponse)
-                    webServiceTemplate.marshalSendAndReceive(endpointUrl, request);
-
-            logger.info("✅ Respuesta SOAP recibida correctamente para {}", nickColaborador);
-
-            return response;
+            logger.info("📡 Enviando solicitud SOAP a {}", getSoapServiceUrl());
+            return (GetColaboracionResponse) webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), request);
         } catch (Exception e) {
             logger.error("❌ Error al comunicarse con el servicio SOAP de colaboraciones: {}", e.getMessage(), e);
             return null;

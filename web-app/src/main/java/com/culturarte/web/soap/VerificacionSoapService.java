@@ -1,5 +1,19 @@
 package com.culturarte.web.soap;
 
+import com.culturarte.soap.gen.AgregarColaboradorRequest;
+import com.culturarte.soap.gen.AgregarColaboradorResponse;
+import com.culturarte.soap.gen.AgregarProponenteRequest;
+import com.culturarte.soap.gen.AgregarProponenteResponse;
+import com.culturarte.soap.gen.AgregarPropuestaFavoritaRequest;
+import com.culturarte.soap.gen.BuscarUsuariosRequest;
+import com.culturarte.soap.gen.BuscarUsuariosResponse;
+import com.culturarte.soap.gen.DejarDeSeguirUsuarioRequest;
+import com.culturarte.soap.gen.GetUsuarioRequest;
+import com.culturarte.soap.gen.GetUsuarioResponse;
+import com.culturarte.soap.gen.ListarUsuariosRequest;
+import com.culturarte.soap.gen.ListarUsuariosResponse;
+import com.culturarte.soap.gen.SacarPropuestaFavoritaRequest;
+import com.culturarte.soap.gen.SeguirUsuarioRequest;
 import com.culturarte.soap.gen.VerificarEmailRequest;
 import com.culturarte.soap.gen.VerificarEmailResponse;
 import com.culturarte.soap.gen.VerificarNicknameRequest;
@@ -140,22 +154,15 @@ public class VerificacionSoapService {
     public void agregarPropuestaFavorita(String nickname, String titulo) {
         AgregarPropuestaFavoritaRequest req = new AgregarPropuestaFavoritaRequest();
         req.setNickname(nickname);
-        req.setTitulo(titulo);
+        req.setTituloPropuesta(titulo);
         webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl() + "/usuarios", req);
     }
 
     public void sacarPropuestaFavorita(String nickname, String titulo) {
         SacarPropuestaFavoritaRequest req = new SacarPropuestaFavoritaRequest();
         req.setNickname(nickname);
-        req.setTitulo(titulo);
+        req.setTituloPropuesta(titulo);
         webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl() + "/usuarios", req);
-    }
-
-    public GetPropuestasFavoritasResponse getPropuestasFavoritas(String nickname) {
-        GetPropuestasFavoritasRequest req = new GetPropuestasFavoritasRequest();
-        req.setNickname(nickname);
-        return (GetPropuestasFavoritasResponse) webServiceTemplate.marshalSendAndReceive(
-                getSoapServiceUrl() + "/usuarios", req);
     }
 
     // ======================= LISTADOS =======================

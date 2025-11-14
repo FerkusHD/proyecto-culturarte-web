@@ -49,7 +49,7 @@ public class MenuController {
                                 Model model) {
 
         VerificarPasswordResponse verificacion = soapClient.verificarPassword(nickOemail, password);
-        if (!verificacion.isValido()) {
+        if (!verificacion.isExito()) {
             model.addAttribute("mensaje", "⚠️ Contraseña o usuario incorrecto");
             model.addAttribute("nickname", nickOemail);
             return "login";

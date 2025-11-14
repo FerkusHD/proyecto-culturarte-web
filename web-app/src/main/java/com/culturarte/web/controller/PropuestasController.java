@@ -1,7 +1,17 @@
 package com.culturarte.web.controller;
 
+import com.culturarte.soap.gen.AgregarComentarioRequest;
+import com.culturarte.soap.gen.AgregarComentarioResponse;
+import com.culturarte.soap.gen.AgregarFavoritaRequest;
+import com.culturarte.soap.gen.AgregarFavoritaResponse;
+import com.culturarte.soap.gen.AltaColaboracionRequest;
+import com.culturarte.soap.gen.AltaColaboracionResponse;
+import com.culturarte.soap.gen.CancelarPropuestaRequest;
+import com.culturarte.soap.gen.CancelarPropuestaResponse;
+import com.culturarte.soap.gen.PropuestaType;
+import com.culturarte.soap.gen.QuitarFavoritaRequest;
+import com.culturarte.soap.gen.QuitarFavoritaResponse;
 import com.culturarte.web.soap.client.PropuestasSoapClient;
-import com.culturarte.web.soap.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;

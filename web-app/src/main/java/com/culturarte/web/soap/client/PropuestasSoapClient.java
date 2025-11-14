@@ -1,131 +1,90 @@
 package com.culturarte.web.soap.client;
 
-import com.culturarte.web.soap.*;
+import com.culturarte.soap.gen.AgregarComentarioRequest;
+import com.culturarte.soap.gen.AgregarComentarioResponse;
+import com.culturarte.soap.gen.AgregarFavoritaRequest;
+import com.culturarte.soap.gen.AgregarFavoritaResponse;
+import com.culturarte.soap.gen.AltaColaboracionRequest;
+import com.culturarte.soap.gen.AltaColaboracionResponse;
+import com.culturarte.soap.gen.CancelarPropuestaRequest;
+import com.culturarte.soap.gen.CancelarPropuestaResponse;
+import com.culturarte.soap.gen.GetPropuestaRequest;
+import com.culturarte.soap.gen.GetPropuestaResponse;
+import com.culturarte.soap.gen.ListarPropuestasRequest;
+import com.culturarte.soap.gen.ListarPropuestasResponse;
+import com.culturarte.soap.gen.PropuestaType;
+import com.culturarte.soap.gen.QuitarFavoritaRequest;
+import com.culturarte.soap.gen.QuitarFavoritaResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.ws.client.core.WebServiceTemplate;
 
-import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @Component
 public class PropuestasSoapClient {
 
     private final WebServiceTemplate webServiceTemplate;
-    private static final String URI = "http://localhost:8080/ws/propuestas";
+
+    @Value("${soap.service.url:}")
+    private String soapServiceUrl;
+
+    @Value("${soap.service.host:localhost}")
+    private String soapServiceHost;
+
+    @Value("${soap.service.port:8081}")
+    private String soapServicePort;
+
+    @Value("${soap.service.context-path:/soap/ws}")
+    private String soapServiceContextPath;
 
     public PropuestasSoapClient(WebServiceTemplate webServiceTemplate) {
         this.webServiceTemplate = webServiceTemplate;
     }
 
-    // ------------------ LISTAR PROPUESTAS -------------------
+    private String getEndpoint() {
+        if (soapServiceUrl != null && !soapServiceUrl.isEmpty() && !soapServiceUrl.startsWith("${")) {
+            return soapServiceUrl;
+        }
+        return String.format("http://%s:%s%s/propuestas", soapServiceHost, soapServicePort, soapServiceContextPath);
+    }
+
     public List<PropuestaType> listarPropuestas() {
         ListarPropuestasRequest request = new ListarPropuestasRequest();
         ListarPropuestasResponse response = (ListarPropuestasResponse)
-                webServiceTemplate.marshalSendAndReceive(URI, request);
+                webServiceTemplate.marshalSendAndReceive(getEndpoint(), request);
+        if (response == null || response.getPropuesta() == null) {
+            return Collections.emptyList();
+        }
         return response.getPropuesta();
     }
 
-    // ------------------ OBTENER PROPUESTA -------------------
     public PropuestaType getPropuesta(String titulo) {
         GetPropuestaRequest request = new GetPropuestaRequest();
         request.setTitulo(titulo);
         GetPropuestaResponse response = (GetPropuestaResponse)
-                webServiceTemplate.marshalSendAndReceive(URI, request);
-        return response.getPropuesta();
+                webServiceTemplate.marshalSendAndReceive(getEndpoint(), request);
+        return response != null ? response.getPropuesta() : null;
     }
 
-    // ------------------ ALTA DE PROPUESTA -------------------
-    public boolean altaPropuesta(String titulo, String descripcion, String lugar,
-                                 LocalDate fechaPrevista, String categoria, List<String> tiposRetorno,
-                                 Float montoEntrada, Float montoNecesario, String imagenBase64,
-                                 String nickProponente) {
-        AltaPropuestaRequest request = new AltaPropuestaRequest();
-        request.setTitulo(titulo);
-        request.setDescripcion(descripcion);
-        request.setLugar(lugar);
-        request.setFechaPrevista(fechaPrevista);
-        request.setCategoria(categoria);
-        request.getTiposRetorno().addAll(tiposRetorno);
-        request.setMontoEntrada(montoEntrada);
-        request.setMontoNecesario(montoNecesario);
-        request.setImagenBase64(imagenBase64);
-        request.setNickProponente(nickProponente);
-
-        AltaPropuestaResponse response = (AltaPropuestaResponse)
-                webServiceTemplate.marshalSendAndReceive(URI, request);
-        System.out.println(response.getMensaje());
-        return response.isExito();
+    public AltaColaboracionResponse altaColaboracion(AltaColaboracionRequest request) {
+        return (AltaColaboracionResponse) webServiceTemplate.marshalSendAndReceive(getEndpoint(), request);
     }
 
-    // ------------------ ALTA DE COLABORACIÓN -------------------
-    public boolean altaColaboracion(String nickColaborador, String tituloPropuesta,
-                                    float monto, String tipoRetorno) {
-        AltaColaboracionRequest request = new AltaColaboracionRequest();
-        request.setNickColaborador(nickColaborador);
-        request.setTituloPropuesta(tituloPropuesta);
-        request.setMonto(monto);
-        request.setTipoRetorno(tipoRetorno);
-
-        AltaColaboracionResponse response = (AltaColaboracionResponse)
-                webServiceTemplate.marshalSendAndReceive(URI, request);
-        System.out.println(response.getMensaje());
-        return response.isExito();
+    public AgregarComentarioResponse agregarComentario(AgregarComentarioRequest request) {
+        return (AgregarComentarioResponse) webServiceTemplate.marshalSendAndReceive(getEndpoint(), request);
     }
 
-    // ------------------ CANCELAR PROPUESTA -------------------
-    public boolean cancelarPropuesta(String tituloPropuesta) {
-        CancelarPropuestaRequest request = new CancelarPropuestaRequest();
-        request.setTituloPropuesta(tituloPropuesta);
-        CancelarPropuestaResponse response = (CancelarPropuestaResponse)
-                webServiceTemplate.marshalSendAndReceive(URI, request);
-        System.out.println(response.getMensaje());
-        return response.isExito();
+    public AgregarFavoritaResponse agregarFavorita(AgregarFavoritaRequest request) {
+        return (AgregarFavoritaResponse) webServiceTemplate.marshalSendAndReceive(getEndpoint(), request);
     }
 
-    // ------------------ EXTENDER FINANCIACIÓN -------------------
-    public boolean extenderFinanciacion(String tituloPropuesta, LocalDate nuevaFecha) {
-        ExtenderFinanciacionRequest request = new ExtenderFinanciacionRequest();
-        request.setTituloPropuesta(tituloPropuesta);
-        request.setNuevaFecha(nuevaFecha);
-        ExtenderFinanciacionResponse response = (ExtenderFinanciacionResponse)
-                webServiceTemplate.marshalSendAndReceive(URI, request);
-        System.out.println(response.getMensaje());
-        return response.isExito();
+    public QuitarFavoritaResponse quitarFavorita(QuitarFavoritaRequest request) {
+        return (QuitarFavoritaResponse) webServiceTemplate.marshalSendAndReceive(getEndpoint(), request);
     }
 
-    // ------------------ AGREGAR COMENTARIO -------------------
-    public boolean agregarComentario(String nickColaborador, String tituloPropuesta, String texto) {
-        AgregarComentarioRequest request = new AgregarComentarioRequest();
-        request.setNickColaborador(nickColaborador);
-        request.setTituloPropuesta(tituloPropuesta);
-        request.setTexto(texto);
-
-        AgregarComentarioResponse response = (AgregarComentarioResponse)
-                webServiceTemplate.marshalSendAndReceive(URI, request);
-        System.out.println(response.getMensaje());
-        return response.isExito();
-    }
-
-    // ------------------ FAVORITAS -------------------
-    public boolean agregarFavorita(String nickUsuario, String tituloPropuesta) {
-        AgregarFavoritaRequest request = new AgregarFavoritaRequest();
-        request.setNickUsuario(nickUsuario);
-        request.setTituloPropuesta(tituloPropuesta);
-
-        AgregarFavoritaResponse response = (AgregarFavoritaResponse)
-                webServiceTemplate.marshalSendAndReceive(URI, request);
-        System.out.println(response.getMensaje());
-        return response.isExito();
-    }
-
-    public boolean quitarFavorita(String nickUsuario, String tituloPropuesta) {
-        QuitarFavoritaRequest request = new QuitarFavoritaRequest();
-        request.setNickUsuario(nickUsuario);
-        request.setTituloPropuesta(tituloPropuesta);
-
-        QuitarFavoritaResponse response = (QuitarFavoritaResponse)
-                webServiceTemplate.marshalSendAndReceive(URI, request);
-        System.out.println(response.getMensaje());
-        return response.isExito();
+    public CancelarPropuestaResponse cancelarPropuesta(CancelarPropuestaRequest request) {
+        return (CancelarPropuestaResponse) webServiceTemplate.marshalSendAndReceive(getEndpoint(), request);
     }
 }

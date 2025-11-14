@@ -2,6 +2,10 @@ package com.culturarte.web.controller;
 
 import com.culturarte.logica.datatypes.DTPropuesta;
 import com.culturarte.logica.datatypes.DTUsuario;
+import com.culturarte.logica.enums.TipoEstado;
+import com.culturarte.soap.gen.PropuestaType;
+import com.culturarte.soap.gen.VerificarEmailResponse;
+import com.culturarte.soap.gen.VerificarNicknameResponse;
 import com.culturarte.web.soap.client.UsuarioSoapClient;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -12,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.xml.datatype.DatatypeFactory;
-import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -128,8 +131,8 @@ public class UsuarioController {
     @GetMapping("/ranking")
     public String rankingUsu(Model model) {
         try {
-            List<DTUsuario> usuarios = usuariosSoapClient.listarUsuarios()
-                    .stream().map(this::convertirDT).collect(Collectors.toList());
+        List<DTUsuario> usuarios = usuariosSoapClient.listarUsuarios()
+                .stream().map(this::convertirDT).collect(Collectors.toList());
             model.addAttribute("usuarios", usuarios);
         } catch (Exception e) {
             model.addAttribute("usuarios", new ArrayList<>());
@@ -206,13 +209,15 @@ public class UsuarioController {
     @GetMapping("/verificar-nickname")
     @ResponseBody
     public VerificacionResponse verificarNickname(@RequestParam("nickname") String nickname) {
-        return usuariosSoapClient.verificarNickname(nickname);
+        VerificarNicknameResponse resp = usuariosSoapClient.verificarNickname(nickname);
+        return new VerificacionResponse(resp.isDisponible(), resp.getMensaje());
     }
 
     @GetMapping("/verificar-email")
     @ResponseBody
     public VerificacionResponse verificarEmail(@RequestParam("email") String email) {
-        return usuariosSoapClient.verificarEmail(email);
+        VerificarEmailResponse resp = usuariosSoapClient.verificarEmail(email);
+        return new VerificacionResponse(resp.isDisponible(), resp.getMensaje());
     }
 
     // ------------------- UTILIDADES -------------------
@@ -230,14 +235,36 @@ public class UsuarioController {
         return dt;
     }
 
-    private DTPropuesta convertirPropuesta(com.culturarte.soap.gen.PropuestaType p) {
-        DTPropuesta dp = new DTPropuesta();
-        dp.setTitulo(p.getTitulo());
-        dp.setDescripcion(p.getDescripcion());
-        dp.setImagen(p.getImagen());
-        dp.setFechaCreacion(p.getFechaCreacion() != null ? p.getFechaCreacion().toGregorianCalendar().toZonedDateTime().toLocalDate() : null);
-        dp.setEstado(p.getEstado());
-        return dp;
+    private DTPropuesta convertirPropuesta(PropuestaType p) {
+        if (p == null) {
+            return null;
+        }
+        TipoEstado estado = null;
+        if (p.getEstado() != null) {
+            try {
+                estado = TipoEstado.valueOf(p.getEstado());
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        java.time.LocalDate fechaPrevista = null;
+        if (p.getFechaPrevista() != null) {
+            fechaPrevista = p.getFechaPrevista().toGregorianCalendar().toZonedDateTime().toLocalDate();
+        }
+        int cantColaboradores = p.getCantColaboradores() != null ? p.getCantColaboradores() : 0;
+        float montoRecaudado = p.getMontoRecaudado() != null ? p.getMontoRecaudado() : 0f;
+        float montoNecesario = p.getMontoNecesario() != null ? p.getMontoNecesario() : 0f;
+        return new DTPropuesta(
+                p.getTitulo(),
+                p.getDescripcion() != null ? p.getDescripcion() : "",
+                estado,
+                cantColaboradores,
+                montoRecaudado,
+                montoNecesario,
+                fechaPrevista,
+                p.getImagenBase64(),
+                p.getCategoria(),
+                p.getProponente()
+        );
     }
 
     public static class VerificacionResponse {
