@@ -117,7 +117,14 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="agregarColaboradorResponse" type="tns:respuestaType"/>
+    <xs:element name="agregarColaboradorResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exito" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
 
     <xs:element name="agregarProponenteRequest">
         <xs:complexType>
@@ -135,7 +142,14 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="agregarProponenteResponse" type="tns:respuestaType"/>
+    <xs:element name="agregarProponenteResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exito" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
 
     <!-- SEGUIR / DEJAR DE SEGUIR -->
     <xs:element name="seguirUsuarioRequest">
@@ -146,7 +160,14 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="seguirUsuarioResponse" type="tns:respuestaType"/>
+    <xs:element name="seguirUsuarioResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exito" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
 
     <xs:element name="dejarDeSeguirUsuarioRequest">
         <xs:complexType>
@@ -156,7 +177,14 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="dejarDeSeguirUsuarioResponse" type="tns:respuestaType"/>
+    <xs:element name="dejarDeSeguirUsuarioResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exito" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
 
     <!-- FAVORITOS -->
     <xs:element name="agregarPropuestaFavoritaRequest">
@@ -167,7 +195,14 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="agregarPropuestaFavoritaResponse" type="tns:respuestaType"/>
+    <xs:element name="agregarPropuestaFavoritaResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exito" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
 
     <xs:element name="sacarPropuestaFavoritaRequest">
         <xs:complexType>
@@ -177,7 +212,14 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="sacarPropuestaFavoritaResponse" type="tns:respuestaType"/>
+    <xs:element name="sacarPropuestaFavoritaResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exito" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
 
     <!-- VERIFICAR PASSWORD -->
     <xs:element name="verificarPasswordRequest">
@@ -188,6 +230,13 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="verificarPasswordResponse" type="tns:respuestaType"/>
+    <xs:element name="verificarPasswordResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exito" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
 
 </xs:schema>

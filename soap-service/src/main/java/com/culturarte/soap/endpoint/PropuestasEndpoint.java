@@ -1,18 +1,44 @@
-package com.culturarte.web.soap;
+package com.culturarte.soap.endpoint;
 
 import com.culturarte.exepciones.ColaboracionYaExiste;
 import com.culturarte.exepciones.PropuestaYaExiste;
 import com.culturarte.logica.IControlador;
-import com.culturarte.logica.datatypes.*;
+import com.culturarte.logica.datatypes.DTColaboracion;
+import com.culturarte.logica.datatypes.DTPropuesta;
 import com.culturarte.logica.enums.TipoEstado;
 import com.culturarte.logica.enums.TipoRetorno;
+import com.culturarte.soap.gen.AgregarComentarioRequest;
+import com.culturarte.soap.gen.AgregarComentarioResponse;
+import com.culturarte.soap.gen.AgregarFavoritaRequest;
+import com.culturarte.soap.gen.AgregarFavoritaResponse;
+import com.culturarte.soap.gen.AltaColaboracionRequest;
+import com.culturarte.soap.gen.AltaColaboracionResponse;
+import com.culturarte.soap.gen.AltaPropuestaRequest;
+import com.culturarte.soap.gen.AltaPropuestaResponse;
+import com.culturarte.soap.gen.CancelarPropuestaRequest;
+import com.culturarte.soap.gen.CancelarPropuestaResponse;
+import com.culturarte.soap.gen.ComentarioType;
+import com.culturarte.soap.gen.ExtenderFinanciacionRequest;
+import com.culturarte.soap.gen.ExtenderFinanciacionResponse;
+import com.culturarte.soap.gen.GetPropuestaRequest;
+import com.culturarte.soap.gen.GetPropuestaResponse;
+import com.culturarte.soap.gen.ListarPropuestasRequest;
+import com.culturarte.soap.gen.ListarPropuestasResponse;
+import com.culturarte.soap.gen.PropuestaType;
+import com.culturarte.soap.gen.QuitarFavoritaRequest;
+import com.culturarte.soap.gen.QuitarFavoritaResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.ws.server.endpoint.annotation.*;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -20,14 +46,27 @@ import java.util.stream.Collectors;
 public class PropuestasEndpoint {
 
     private static final String NAMESPACE_URI = "http://www.culturarte.com/ws/propuestas";
+    private static final DatatypeFactory DATATYPE_FACTORY = createDatatypeFactory();
+
+    private final IControlador ctrl;
 
     @Autowired
-    private IControlador ctrl;
+    public PropuestasEndpoint(IControlador ctrl) {
+        this.ctrl = ctrl;
+    }
+
+    private static DatatypeFactory createDatatypeFactory() {
+        try {
+            return DatatypeFactory.newInstance();
+        } catch (DatatypeConfigurationException e) {
+            throw new IllegalStateException("No se pudo inicializar DatatypeFactory", e);
+        }
+    }
 
     // ------------------ LISTAR PROPUESTAS -------------------
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "listarPropuestasRequest")
     @ResponsePayload
-    public ListarPropuestasResponse listarPropuestas() {
+    public ListarPropuestasResponse listarPropuestas(@RequestPayload ListarPropuestasRequest request) {
         ListarPropuestasResponse response = new ListarPropuestasResponse();
         List<DTPropuesta> propuestas = ctrl.getDTPropuestasWeb();
         if (propuestas != null) {
@@ -57,12 +96,13 @@ public class PropuestasEndpoint {
             EnumSet<TipoRetorno> tiposRet = request.getTiposRetorno().stream()
                     .map(TipoRetorno::valueOf)
                     .collect(Collectors.toCollection(() -> EnumSet.noneOf(TipoRetorno.class)));
+            LocalDate fechaPrevista = toLocalDate(request.getFechaPrevista());
 
             ctrl.altaPropuesta(
                     request.getTitulo(),
                     request.getDescripcion(),
                     request.getLugar(),
-                    request.getFechaPrevista(),
+                    fechaPrevista != null ? fechaPrevista : LocalDate.now(),
                     request.getMontoEntrada(),
                     request.getMontoNecesario(),
                     tiposRet,
@@ -140,7 +180,8 @@ public class PropuestasEndpoint {
     public ExtenderFinanciacionResponse extenderFinanciacion(@RequestPayload ExtenderFinanciacionRequest request) {
         ExtenderFinanciacionResponse response = new ExtenderFinanciacionResponse();
         try {
-            ctrl.extenderFinanciacion(request.getTituloPropuesta(), request.getNuevaFecha());
+            LocalDate nuevaFecha = toLocalDate(request.getNuevaFecha());
+            ctrl.extenderFinanciacion(request.getTituloPropuesta(), nuevaFecha);
             response.setExito(true);
             response.setMensaje("Financiación extendida con éxito");
         } catch (Exception e) {
@@ -212,21 +253,45 @@ public class PropuestasEndpoint {
         p.setCategoria(dt.getCategoria());
         p.setEstado(dt.getEstadoActual() != null ? dt.getEstadoActual().toString() : null);
         p.setImagenBase64(dt.getImagen());
-        p.setFechaPrevista(dt.getFechaPrevista());
-        p.setMontoEntrada(dt.getMontoEntrada());
+        p.setFechaPrevista(toXmlDate(dt.getFechaPrevista()));
+        p.setMontoEntrada(dt.getPrecioEntrada());
         p.setMontoNecesario(dt.getMontoNecesario());
         p.setMontoRecaudado(dt.getMontoRecaudado());
-        p.setCantColaboradores(dt.getColaboradores() != null ? dt.getColaboradores().size() : 0);
+        int cantColabs = dt.getCantColaboradores();
+        if (cantColabs == 0 && dt.getColaboradores() != null) {
+            cantColabs = dt.getColaboradores().size();
+        }
+        p.setCantColaboradores(cantColabs);
         if (dt.getColaboradores() != null) p.getColaboradores().addAll(dt.getColaboradores());
         if (dt.getComentarios() != null) {
             dt.getComentarios().forEach(c -> {
                 ComentarioType ct = new ComentarioType();
-                ct.setNickColaborador(c.getNickColaborador());
+                String nick = c.getColaborador() != null ? c.getColaborador().getNickname() : null;
+                ct.setNickColaborador(nick);
                 ct.setTexto(c.getTexto());
-                ct.setFecha(c.getFecha());
+                ct.setFecha(toXmlDate(c.getFecha()));
                 p.getComentarios().add(ct);
             });
         }
         return p;
+    }
+
+    private LocalDate toLocalDate(XMLGregorianCalendar calendar) {
+        if (calendar == null) {
+            return null;
+        }
+        return calendar.toGregorianCalendar().toZonedDateTime().toLocalDate();
+    }
+
+    private XMLGregorianCalendar toXmlDate(LocalDate date) {
+        if (date == null) {
+            return null;
+        }
+        return DATATYPE_FACTORY.newXMLGregorianCalendarDate(
+                date.getYear(),
+                date.getMonthValue(),
+                date.getDayOfMonth(),
+                DatatypeConstants.FIELD_UNDEFINED
+        );
     }
 }

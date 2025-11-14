@@ -1,18 +1,14 @@
 package com.culturarte.soap.endpoint;
 
+import com.culturarte.exepciones.*;
 import com.culturarte.logica.IControlador;
-import com.culturarte.soap.gen.GetUsuarioRequest;
-import com.culturarte.soap.gen.GetUsuarioResponse;
-import com.culturarte.soap.gen.ListarUsuariosRequest;
-import com.culturarte.soap.gen.ListarUsuariosResponse;
-import com.culturarte.soap.gen.BuscarUsuariosRequest;
-import com.culturarte.soap.gen.BuscarUsuariosResponse;
-import com.culturarte.soap.gen.UsuarioType;
-import com.culturarte.soap.gen.ObjectFactory;
+import com.culturarte.soap.gen.*;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+
+import java.util.List;
 
 @Endpoint
 public class UsuarioEndpoint {

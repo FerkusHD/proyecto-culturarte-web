@@ -35,7 +35,11 @@
     <!-- Requests y Responses -->
 
     <!-- Listar todas las propuestas -->
-    <xs:element name="listarPropuestasRequest"/>
+    <xs:element name="listarPropuestasRequest">
+        <xs:complexType>
+            <xs:sequence/>
+        </xs:complexType>
+    </xs:element>
     <xs:element name="listarPropuestasResponse">
         <xs:complexType>
             <xs:sequence>

@@ -111,19 +111,15 @@
                             <goal>xjc</goal>
                         </goals>
                         <configuration>
-                            <schemaDirectory>${project.basedir}/src/main/xsd</schemaDirectory>
+                            <sources>
+                                <source>${project.basedir}/src/main/xsd/culturarte.xsd</source>
+                                <source>${project.basedir}/src/main/xsd/colaboraciones.xsd</source>
+                                <source>${project.basedir}/src/main/xsd/categorias.xsd</source>
+                                <source>${project.basedir}/src/main/xsd/propuestas.xsd</source>
+                                <source>${project.basedir}/src/main/xsd/usuarios.xsd</source>
+                            </sources>
                             <outputDirectory>${project.build.directory}/generated-sources/xjc</outputDirectory>
                             <packageName>com.culturarte.soap.gen</packageName>
-                            <args>
-                                <arg>-Xjakarta-xml</arg>
-                            </args>
-                            <schemas>
-                                <schema>culturarte.xsd</schema>
-                                <schema>colaboraciones.xsd</schema>
-                                <schema>categorias.xsd</schema>
-                                <schema>propuestas.xsd</schema>
-                                <schema>usuarios.xsd</schema>
-                            </schemas>
                         </configuration>
                     </execution>
                 </executions>

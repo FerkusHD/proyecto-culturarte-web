@@ -1,4 +1,4 @@
-package com.culturarte.soap.endpoints;
+package com.culturarte.soap.endpoint;
 
 import java.util.List;
 
