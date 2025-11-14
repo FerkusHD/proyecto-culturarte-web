@@ -237,7 +237,7 @@
                                     <i class="bi bi-person-plus"></i> No puedes seguirte a ti mismo
                                 </button>
                             </c:when>
-                            <c:when test="${sessionScope.usuarioLogueado.buscarUsuarioSeguido(propuesta.proponente)}">
+                            <c:when test="${usuarioLogueado != null && usuarioLogueado.buscarUsuarioSeguido(propuesta.proponente)}">
                                 <form action="${pageContext.request.contextPath}/usuarios/dejarDeSeguir" method="post" class="d-inline">
                                     <input type="hidden" name="nickSeguido" value="${propuesta.proponente}"/>
                                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
@@ -506,7 +506,7 @@
 
             <c:if test="${sessionScope.usuarioLogueado.tipo eq 'proponente' && sessionScope.usuarioLogueado.nickname eq propuesta.proponente && propuesta.estadoActual ne 'CANCELADA'}">
                 <div class="text-center mb-3">
-                    <form method="post" action="/propuestas/cancelar/${propuesta.titulo}">
+                    <form method="post" action="${pageContext.request.contextPath}/propuestas/cancelar/${propuesta.titulo}">
                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                         <button type="submit" class="btn btn-danger btn-lg"
                                 onclick="return confirm('¿Estás seguro de cancelar ${propuesta.titulo}?')">
@@ -517,7 +517,7 @@
 
                 <c:if test="${propuesta.estadoActual.toString() eq 'PUBLICADA' || propuesta.estadoActual.toString() eq 'EN_FINANCIACION'}">
                     <div class="text-center">
-                         <form method="post" action="/propuestas/extender/${propuesta.titulo}">
+                         <form method="post" action="${pageContext.request.contextPath}/propuestas/extender/${propuesta.titulo}">
                              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                              <button type="submit" class="btn btn-warning btn-lg"
                                      onclick="return confirm('¿Estás seguro de extender la fecha prevista de ${propuesta.titulo} por 30 días?')">

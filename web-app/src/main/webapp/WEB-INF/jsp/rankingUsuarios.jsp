@@ -116,8 +116,6 @@
     </form>
 
     <!-- Resultados -->
-    <main class="container mt-4">
-
 <h2 class="mb-3">Ranking de Usuarios</h2>
 
 <c:choose>
@@ -153,8 +151,6 @@
         </div>
     </c:otherwise>
 </c:choose>
-</main>
-
 </main>
 
 <script src="${pageContext.request.contextPath}/js/busquedaAjax.js"></script>

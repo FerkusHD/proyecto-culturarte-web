@@ -9,9 +9,12 @@ import com.culturarte.soap.gen.AltaColaboracionResponse;
 import com.culturarte.soap.gen.CancelarPropuestaRequest;
 import com.culturarte.soap.gen.CancelarPropuestaResponse;
 import com.culturarte.soap.gen.PropuestaType;
+import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.soap.gen.QuitarFavoritaRequest;
 import com.culturarte.soap.gen.QuitarFavoritaResponse;
+import com.culturarte.soap.gen.UsuarioType;
 import com.culturarte.web.soap.client.PropuestasSoapClient;
+import com.culturarte.web.soap.client.UsuarioSoapClient;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -27,6 +31,9 @@ public class PropuestasController {
 
     @Autowired
     private PropuestasSoapClient soapClient; // Cliente SOAP inyectado
+
+    @Autowired
+    private UsuarioSoapClient usuarioSoapClient; // Cliente SOAP de usuarios
 
     // --- Listar todas las propuestas ---
     @GetMapping("/listar")
@@ -58,9 +65,84 @@ public class PropuestasController {
 
             model.addAttribute("propuesta", propuesta);
 
-            // Usuario logueado (si existe)
-            String nickUsuario = (String) session.getAttribute("usuarioLogueado");
+            // Obtener proponente completo
+            if (propuesta.getProponente() != null && !propuesta.getProponente().isEmpty()) {
+                try {
+                    UsuarioType proponente = usuarioSoapClient.getUsuario(propuesta.getProponente()).getUsuario();
+                    model.addAttribute("proponente", proponente);
+                } catch (Exception e) {
+                    // Si falla, no se agrega proponente (el JSP manejará el caso null)
+                }
+            }
+
+            // Obtener colaboradores completos
+            List<UsuarioType> colaboradores = new ArrayList<>();
+            if (propuesta.getColaboradores() != null && !propuesta.getColaboradores().isEmpty()) {
+                for (String nickColaborador : propuesta.getColaboradores()) {
+                    try {
+                        UsuarioType colaborador = usuarioSoapClient.getUsuario(nickColaborador).getUsuario();
+                        if (colaborador != null) {
+                            colaboradores.add(colaborador);
+                        }
+                    } catch (Exception e) {
+                        // Continuar con el siguiente colaborador si falla
+                    }
+                }
+            }
+            model.addAttribute("colaboradores", colaboradores);
+
+            // Obtener usuario logueado completo
+            Object usuarioLogueadoObj = session.getAttribute("usuarioLogueado");
+            DTUsuario usuarioLogueado = null;
+            String nickUsuarioFinal = null;
+            
+            if (usuarioLogueadoObj instanceof DTUsuario) {
+                usuarioLogueado = (DTUsuario) usuarioLogueadoObj;
+                nickUsuarioFinal = usuarioLogueado.getNickname();
+            } else if (usuarioLogueadoObj instanceof com.culturarte.soap.gen.GetUsuarioResponse) {
+                com.culturarte.soap.gen.GetUsuarioResponse resp = (com.culturarte.soap.gen.GetUsuarioResponse) usuarioLogueadoObj;
+                if (resp.getUsuario() != null) {
+                    usuarioLogueado = convertirDT(resp.getUsuario());
+                    nickUsuarioFinal = resp.getUsuario().getNickname();
+                }
+            } else if (usuarioLogueadoObj instanceof UsuarioType) {
+                UsuarioType u = (UsuarioType) usuarioLogueadoObj;
+                usuarioLogueado = convertirDT(u);
+                nickUsuarioFinal = u.getNickname();
+            }
+            
+            if (usuarioLogueado == null) {
+                usuarioLogueado = new DTUsuario();
+                usuarioLogueado.setTipo("visitante");
+                usuarioLogueado.setNickname("visitante");
+            }
+            
+            final String nickUsuario = nickUsuarioFinal != null ? nickUsuarioFinal : "visitante";
+            model.addAttribute("usuarioLogueado", usuarioLogueado);
             model.addAttribute("nickUsuario", nickUsuario);
+
+            // Verificar si es favorita
+            boolean esFavorita = false;
+            if (nickUsuario != null && !"visitante".equals(nickUsuario)) {
+                try {
+                    List<PropuestaType> favoritas = usuarioSoapClient.getPropuestasFavoritas(nickUsuario);
+                    final String tituloFinal = titulo;
+                    esFavorita = favoritas != null && favoritas.stream()
+                            .anyMatch(p -> p.getTitulo() != null && p.getTitulo().equals(tituloFinal));
+                } catch (Exception e) {
+                    // Si falla, se asume que no es favorita
+                }
+            }
+            model.addAttribute("esFavorita", esFavorita);
+
+            // Verificar si puede comentar (colaborador que ha colaborado)
+            boolean puedeComentar = false;
+            if (usuarioLogueado != null && "colaborador".equals(usuarioLogueado.getTipo()) && nickUsuario != null) {
+                final String nickUsuarioParaLambda = nickUsuario;
+                puedeComentar = colaboradores.stream()
+                        .anyMatch(c -> c.getNickname() != null && c.getNickname().equals(nickUsuarioParaLambda));
+            }
+            model.addAttribute("puedeComentar", puedeComentar);
 
             // Detección de dispositivo
             String userAgent = request.getHeader("User-Agent");
@@ -73,6 +155,24 @@ public class PropuestasController {
             model.addAttribute("mensajeError", "❌ Error al cargar la propuesta.");
             return "error";
         }
+    }
+
+    // Método auxiliar para convertir UsuarioType a DTUsuario
+    private DTUsuario convertirDT(UsuarioType u) {
+        if (u == null) return null;
+        DTUsuario dt = new DTUsuario();
+        dt.setNickname(u.getNickname());
+        dt.setNombre(u.getNombre());
+        dt.setApellido(u.getApellido());
+        dt.setEmail(u.getEmail());
+        dt.setImagen(u.getImagen());
+        dt.setTipo(u.getTipo());
+        if (u.getFechaNacimiento() != null) {
+            dt.setFechaNacimiento(u.getFechaNacimiento().toGregorianCalendar().toZonedDateTime().toLocalDate());
+        }
+        // Nota: UsuarioType no tiene getUsuariosSeguidos(), 
+        // los usuarios seguidos se cargan cuando se necesita desde el servicio
+        return dt;
     }
 
     // --- Alta de colaboración ---
