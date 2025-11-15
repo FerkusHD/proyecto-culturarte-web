@@ -237,73 +237,125 @@ function renderTreeFromDTO(list, container) {
 const BASE = (typeof window !== 'undefined' && window.CTX) ? window.CTX : '';
 
 // === CATEGORÍAS ===
-fetch(BASE + '/categorias/tree')
-    .then(response => response.json())
-    .then(data => {
-        console.debug('categorias/tree data:', data);
-        const contenedor = document.getElementById('categorias');
-        if (!contenedor) return;
-        contenedor.innerHTML = '';
+function cargarCategorias() {
+    const contenedor = document.getElementById('categorias');
+    if (!contenedor) return;
 
-        // Header
-        const header = document.createElement('h6');
-        header.className = 'fw-bold text-uppercase mb-2';
-        header.textContent = 'CATEGORÍAS';
-        contenedor.appendChild(header);
+    fetch(BASE + '/categorias/tree')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.debug('categorias/tree data:', data);
+            contenedor.innerHTML = '';
 
-        // If the server returned an array of objects with 'nombre' use the DTO renderer
-        if (Array.isArray(data) && data.length > 0 && (typeof data[0] === 'object')) {
-            const treeDiv = document.createElement('div');
-            treeDiv.className = 'categoria-tree';
-            renderTreeFromDTO(data, treeDiv);
-            contenedor.appendChild(treeDiv);
-            // ensure children are collapsed by default
-            collapseAllTreeNodes(treeDiv);
-        } else {
-            // fallback to previous behavior (flat list)
-            const treeRoot = buildTreeFromList(data || []);
-            const treeDiv = document.createElement('div');
-            treeDiv.className = 'categoria-tree';
-            renderTree(treeRoot, treeDiv);
-            contenedor.appendChild(treeDiv);
-            collapseAllTreeNodes(treeDiv);
-        }
-    })
-    .catch(err => {
-        console.error('Error cargando categorías:', err);
-        // fallback to lista endpoint if tree fails
-        fetch(BASE + '/categorias/lista')
-            .then(r => r.json())
-            .then(list => {
-                console.debug('categorias/lista data:', list);
-                const contenedor = document.getElementById('categorias');
-                if (!contenedor) return;
-                contenedor.innerHTML = '';
-                const header = document.createElement('h6');
-                header.className = 'fw-bold text-uppercase mb-2';
-                header.textContent = 'CATEGORÍAS';
-                contenedor.appendChild(header);
-                const treeRoot = buildTreeFromList(list || []);
+            // Header
+            const header = document.createElement('h6');
+            header.className = 'fw-bold text-uppercase mb-2';
+            header.textContent = 'CATEGORÍAS';
+            contenedor.appendChild(header);
+
+            // Si no hay datos, mostrar mensaje
+            if (!Array.isArray(data) || data.length === 0) {
+                const mensaje = document.createElement('p');
+                mensaje.className = 'text-muted small';
+                mensaje.textContent = 'No hay categorías disponibles';
+                contenedor.appendChild(mensaje);
+                return;
+            }
+
+            // If the server returned an array of objects with 'nombre' use the DTO renderer
+            if (typeof data[0] === 'object' && data[0].nombre !== undefined) {
+                const treeDiv = document.createElement('div');
+                treeDiv.className = 'categoria-tree';
+                renderTreeFromDTO(data, treeDiv);
+                contenedor.appendChild(treeDiv);
+                collapseAllTreeNodes(treeDiv);
+            } else {
+                // fallback to previous behavior (flat list)
+                const treeRoot = buildTreeFromList(data || []);
                 const treeDiv = document.createElement('div');
                 treeDiv.className = 'categoria-tree';
                 renderTree(treeRoot, treeDiv);
                 contenedor.appendChild(treeDiv);
                 collapseAllTreeNodes(treeDiv);
-            })
-            .catch(e => console.error('Fallback error cargando lista de categorias:', e));
-    });
+            }
+        })
+        .catch(err => {
+            console.error('Error cargando categorías (tree):', err);
+            // fallback to lista endpoint if tree fails
+            fetch(BASE + '/categorias/lista')
+                .then(r => {
+                    if (!r.ok) {
+                        throw new Error(`HTTP error! status: ${r.status}`);
+                    }
+                    return r.json();
+                })
+                .then(list => {
+                    console.debug('categorias/lista data:', list);
+                    const contenedor = document.getElementById('categorias');
+                    if (!contenedor) return;
+                    contenedor.innerHTML = '';
+                    const header = document.createElement('h6');
+                    header.className = 'fw-bold text-uppercase mb-2';
+                    header.textContent = 'CATEGORÍAS';
+                    contenedor.appendChild(header);
+                    
+                    if (!Array.isArray(list) || list.length === 0) {
+                        const mensaje = document.createElement('p');
+                        mensaje.className = 'text-muted small';
+                        mensaje.textContent = 'No hay categorías disponibles';
+                        contenedor.appendChild(mensaje);
+                        return;
+                    }
+                    
+                    const treeRoot = buildTreeFromList(list || []);
+                    const treeDiv = document.createElement('div');
+                    treeDiv.className = 'categoria-tree';
+                    renderTree(treeRoot, treeDiv);
+                    contenedor.appendChild(treeDiv);
+                    collapseAllTreeNodes(treeDiv);
+                })
+                .catch(e => {
+                    console.error('Fallback error cargando lista de categorias:', e);
+                    const contenedor = document.getElementById('categorias');
+                    if (contenedor) {
+                        contenedor.innerHTML = '<p class="text-muted small">Error al cargar categorías</p>';
+                    }
+                });
+        });
+}
+
+// Cargar categorías cuando el DOM esté listo
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', cargarCategorias);
+} else {
+    cargarCategorias();
+}
 
 // === PROPUESTAS ===
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Cargar todas las propuestas
     fetch(BASE + '/propuestas/listar')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
-            todasLasPropuestas = data || [];
-
+            todasLasPropuestas = Array.isArray(data) ? data : [];
+            console.log('Propuestas cargadas:', todasLasPropuestas.length);
             inicializarFiltros();
         })
-        .catch(err => console.error("Error cargando propuestas:", err));
+        .catch(err => {
+            console.error("Error cargando propuestas:", err);
+            todasLasPropuestas = [];
+            inicializarFiltros();
+        });
 
     const tabsContainer = document.getElementById('proposalTabs');
 
@@ -316,7 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-const imagenPorDefecto = '/uploads/imagenes/noimg.jpg'; // Ajusta según tu estructura
+const imagenPorDefecto = BASE + '/uploads/imagenes/noimg.jpg'; // Ajusta según tu estructura
 
 function mostrarPropuestas(lista) {
     const contenedor = document.getElementById('tarjetas');
@@ -335,15 +387,20 @@ function mostrarPropuestas(lista) {
         const diasRestantes = calcularDiasRestantes(p.fechaPrevista);
 
         // Si no tiene imagen, usar la default
-        const imgSrc = p.imagen && p.imagen.trim() !== ''
-            ? p.imagen
-            : imagenPorDefecto;
+        let imgSrc = imagenPorDefecto;
+        if (p.imagenBase64 && p.imagenBase64.trim() !== '') {
+            // Si es base64, usar data URI
+            imgSrc = 'data:image/jpeg;base64,' + p.imagenBase64;
+        } else if (p.imagen && p.imagen.trim() !== '') {
+            // Si es una ruta, usar BASE para construir la URL completa
+            imgSrc = p.imagen.startsWith('http') ? p.imagen : (BASE + '/' + p.imagen);
+        }
 
         const col = document.createElement('div');
         col.classList.add('col');
 
         col.innerHTML = `
-        <a href="/propuestas/${encodeURIComponent(p.titulo)}" class="text-decoration-none text-dark">
+        <a href="${BASE}/propuestas/${encodeURIComponent(p.titulo)}" class="text-decoration-none text-dark">
             <div class="card h-100 border p-2 shadow-sm hover-shadow">
                 <img src="${imgSrc}" class="card-img-top" alt="${p.titulo}" style="height: 150px; object-fit: cover;">
                 <div class="card-body p-2">

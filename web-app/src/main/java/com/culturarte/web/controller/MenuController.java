@@ -18,18 +18,26 @@ public class MenuController {
 
     @GetMapping("/")
     public String index(HttpSession session, Model model) {
-        GetUsuarioResponse usuarioResp = (GetUsuarioResponse) session.getAttribute("usuarioLogueado");
+        Object usuarioLogueadoObj = session.getAttribute("usuarioLogueado");
+        UsuarioType usuario = null;
 
-        if (usuarioResp == null || usuarioResp.getUsuario() == null) {
-            UsuarioType visitante = new UsuarioType();
-            visitante.setNickname("visitante");
-            visitante.setTipo("visitante");
-            session.setAttribute("usuarioLogueado", visitante);
-            model.addAttribute("usuario", visitante);
-        } else {
-            model.addAttribute("usuario", usuarioResp.getUsuario());
+        if (usuarioLogueadoObj instanceof GetUsuarioResponse) {
+            GetUsuarioResponse usuarioResp = (GetUsuarioResponse) usuarioLogueadoObj;
+            if (usuarioResp != null && usuarioResp.getUsuario() != null) {
+                usuario = usuarioResp.getUsuario();
+            }
+        } else if (usuarioLogueadoObj instanceof UsuarioType) {
+            usuario = (UsuarioType) usuarioLogueadoObj;
         }
 
+        if (usuario == null) {
+            usuario = new UsuarioType();
+            usuario.setNickname("visitante");
+            usuario.setTipo("visitante");
+            session.setAttribute("usuarioLogueado", usuario);
+        }
+
+        model.addAttribute("usuario", usuario);
         return "index";
     }
 
@@ -68,7 +76,7 @@ public class MenuController {
         }
 
         session.setAttribute("usuarioLogueado", usuario);
-        return "index";
+        return "redirect:/";
     }
 
     @GetMapping("/logout")

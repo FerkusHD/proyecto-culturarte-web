@@ -32,15 +32,19 @@ public class CategoriasController {
             // Llamamos al servicio SOAP
             GetCategoriasResponse response = categoriasSoapClient.obtenerCategorias(request);
 
+            if (response == null || response.getCategoria() == null || response.getCategoria().isEmpty()) {
+                return new ArrayList<>();
+            }
+
             return response.getCategoria()
                     .stream()
+                    .filter(cat -> cat != null && cat.getNombre() != null)
                     .map(CategoriaType::getNombre)
                     .collect(Collectors.toList());
         } catch (Exception e) {
             e.printStackTrace();
-            List<String> error = new ArrayList<>();
-            error.add("Error al obtener categorías vía SOAP: " + e.getMessage());
-            return error;
+            // Retornar lista vacía en lugar de error para evitar problemas en el frontend
+            return new ArrayList<>();
         }
     }
 
@@ -52,18 +56,21 @@ public class CategoriasController {
             GetCategoriasRequest request = new GetCategoriasRequest();
             GetCategoriasResponse response = categoriasSoapClient.obtenerCategorias(request);
 
+            if (response == null || response.getCategoria() == null || response.getCategoria().isEmpty()) {
+                return new ArrayList<>();
+            }
+
             return response.getCategoria()
                     .stream()
+                    .filter(cat -> cat != null && cat.getNombre() != null)
                     .map(CategoriaType::getNombre)
                     .map(DTCategoria::new)
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
             e.printStackTrace();
-            List<DTCategoria> error = new ArrayList<>();
-            DTCategoria errorCat = new DTCategoria("Error al obtener categorías: " + e.getMessage());
-            error.add(errorCat);
-            return error;
+            // Retornar lista vacía en lugar de error para evitar problemas en el frontend
+            return new ArrayList<>();
         }
     }
 }

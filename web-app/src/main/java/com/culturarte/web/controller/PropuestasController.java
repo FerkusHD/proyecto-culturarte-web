@@ -57,10 +57,15 @@ public class PropuestasController {
     @ResponseBody
     public List<PropuestaType> listarPropuestas() {
         try {
-            return soapClient.listarPropuestas();
+            List<PropuestaType> propuestas = soapClient.listarPropuestas();
+            if (propuestas == null) {
+                return new ArrayList<>();
+            }
+            return propuestas;
         } catch (Exception e) {
             e.printStackTrace();
-            return List.of();
+            // Retornar lista vacía en caso de error para evitar errores 500
+            return new ArrayList<>();
         }
     }
 
