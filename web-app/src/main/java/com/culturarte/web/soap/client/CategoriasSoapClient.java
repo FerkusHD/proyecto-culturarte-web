@@ -34,11 +34,46 @@ public class CategoriasSoapClient {
     }
 
     public GetCategoriasResponse obtenerCategorias(GetCategoriasRequest request) {
+        String soapUrl = getSoapUrl();
+        logger.info("=== INICIO obtenerCategorias ===");
+        logger.info("URL SOAP: {}", soapUrl);
+        logger.info("Host: {}, Port: {}, ContextPath: {}", soapHost, soapPort, soapContextPath);
+        
         try {
-            logger.info("Llamando servicio SOAP de categorías en {}", getSoapUrl());
-            return (GetCategoriasResponse) webServiceTemplate.marshalSendAndReceive(getSoapUrl(), request);
+            logger.debug("Enviando request SOAP para obtener categorías");
+            long startTime = System.currentTimeMillis();
+            GetCategoriasResponse response = (GetCategoriasResponse) webServiceTemplate.marshalSendAndReceive(soapUrl, request);
+            long duration = System.currentTimeMillis() - startTime;
+            
+            logger.info("Respuesta SOAP recibida en {} ms", duration);
+            
+            if (response == null) {
+                logger.warn("La respuesta SOAP es null");
+                throw new RuntimeException("Respuesta SOAP null al obtener categorías");
+            }
+            
+            if (response.getCategoria() == null) {
+                logger.warn("La lista de categorías en la respuesta es null");
+            } else {
+                int cantidad = response.getCategoria().size();
+                logger.info("Se obtuvieron {} categorías exitosamente", cantidad);
+            }
+            
+            logger.debug("=== FIN obtenerCategorias (exitoso) ===");
+            return response;
+            
         } catch (Exception e) {
-            logger.error("Error al invocar SOAP categorías: {}", e.getMessage(), e);
+            logger.error("=== ERROR en obtenerCategorias ===", e);
+            logger.error("Tipo de excepción: {}", e.getClass().getName());
+            logger.error("Mensaje de error: {}", e.getMessage());
+            if (e.getCause() != null) {
+                logger.error("Causa: {}", e.getCause().getMessage());
+                if (e.getCause().getCause() != null) {
+                    logger.error("Causa raíz: {}", e.getCause().getCause().getMessage());
+                }
+            }
+            logger.error("URL que falló: {}", soapUrl);
+            logger.error("Stack trace completo:", e);
             throw new RuntimeException("Error al invocar SOAP de categorías", e);
         }
     }

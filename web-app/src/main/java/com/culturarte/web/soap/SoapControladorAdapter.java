@@ -32,6 +32,8 @@ import com.culturarte.soap.gen.ListarUsuariosRequest;
 import com.culturarte.soap.gen.ListarUsuariosResponse;
 import com.culturarte.soap.gen.PropuestaType;
 import com.culturarte.soap.gen.UsuarioType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ws.client.core.WebServiceTemplate;
@@ -46,6 +48,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class SoapControladorAdapter implements IControlador {
+
+    private static final Logger logger = LoggerFactory.getLogger(SoapControladorAdapter.class);
 
     private final WebServiceTemplate webServiceTemplate;
     
@@ -79,16 +83,31 @@ public class SoapControladorAdapter implements IControlador {
 
     @Override
     public List<String> listarCategoriasWeb() {
+        String endpoint = getSoapServiceUrl() + "/categorias";
+        logger.info("=== INICIO listarCategoriasWeb ===");
+        logger.info("Endpoint: {}", endpoint);
         try {
-            // Usar la clase generada para el request (ya no es anyType)
             GetCategoriasRequest request = new GetCategoriasRequest();
-            GetCategoriasResponse response = (GetCategoriasResponse) webServiceTemplate.marshalSendAndReceive(
-                getSoapServiceUrl() + "/categorias", request);
-            if (response != null && response.getCategoria() != null) {
-                return mapCategoriaResponse(response.getCategoria());
+            logger.debug("Enviando request SOAP para listar categorías web");
+            GetCategoriasResponse response = (GetCategoriasResponse) webServiceTemplate.marshalSendAndReceive(endpoint, request);
+            
+            if (response == null) {
+                logger.warn("Respuesta SOAP null en listarCategoriasWeb");
+                return new ArrayList<>();
             }
-            return new ArrayList<>();
+            
+            if (response.getCategoria() == null) {
+                logger.warn("Lista de categorías null en respuesta");
+                return new ArrayList<>();
+            }
+            
+            List<String> resultado = mapCategoriaResponse(response.getCategoria());
+            logger.info("Se obtuvieron {} categorías web exitosamente", resultado.size());
+            logger.debug("=== FIN listarCategoriasWeb (exitoso) ===");
+            return resultado;
         } catch (Exception e) {
+            logger.error("=== ERROR en listarCategoriasWeb ===", e);
+            logger.error("Endpoint que falló: {}", endpoint);
             throw new RuntimeException("Error al obtener categorías desde SOAP", e);
         }
     }
@@ -100,21 +119,41 @@ public class SoapControladorAdapter implements IControlador {
 
     @Override
     public ArrayList<DTPropuesta> getDTPropuestasWeb() {
+        String endpoint = getSoapServiceUrl() + "/propuestas";
+        logger.info("=== INICIO getDTPropuestasWeb ===");
+        logger.info("Endpoint: {}", endpoint);
         try {
-            // Usar la clase generada para el request (ya no es anyType)
             ListarPropuestasRequest request = new ListarPropuestasRequest();
-            ListarPropuestasResponse response = (ListarPropuestasResponse) webServiceTemplate.marshalSendAndReceive(
-                getSoapServiceUrl() + "/propuestas", request);
+            logger.debug("Enviando request SOAP para obtener propuestas web");
+            ListarPropuestasResponse response = (ListarPropuestasResponse) webServiceTemplate.marshalSendAndReceive(endpoint, request);
             
             ArrayList<DTPropuesta> result = new ArrayList<>();
-            if (response != null && response.getPropuesta() != null) {
-                for (PropuestaType pt : response.getPropuesta()) {
+            if (response == null) {
+                logger.warn("Respuesta SOAP null en getDTPropuestasWeb");
+                return result;
+            }
+            
+            if (response.getPropuesta() == null) {
+                logger.warn("Lista de propuestas null en respuesta");
+                return result;
+            }
+            
+            logger.debug("Convirtiendo {} propuestas de PropuestaType a DTPropuesta", response.getPropuesta().size());
+            for (PropuestaType pt : response.getPropuesta()) {
+                try {
                     DTPropuesta dtp = convertPropuestaTypeToDT(pt);
                     result.add(dtp);
+                } catch (Exception e) {
+                    logger.error("Error al convertir propuesta '{}' a DTPropuesta", pt.getTitulo(), e);
                 }
             }
+            
+            logger.info("Se obtuvieron {} propuestas web exitosamente", result.size());
+            logger.debug("=== FIN getDTPropuestasWeb (exitoso) ===");
             return result;
         } catch (Exception e) {
+            logger.error("=== ERROR en getDTPropuestasWeb ===", e);
+            logger.error("Endpoint que falló: {}", endpoint);
             throw new RuntimeException("Error al obtener propuestas desde SOAP", e);
         }
     }

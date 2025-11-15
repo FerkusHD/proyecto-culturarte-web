@@ -6,6 +6,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -18,34 +20,42 @@ import java.io.IOException;
 @Order(1) 
 public class AccesoFilter extends OncePerRequestFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(AccesoFilter.class);
+
     @Autowired
     private AccesoService accesoService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, 
                                     FilterChain filterChain) throws ServletException, IOException {
-        
-        // Obtener la IP del cliente
-        String ip = obtenerIpCliente(request);
-        
-        // Obtener la URL completa accedida
-        String url = obtenerUrlCompleta(request);
-        
-        // Obtener el User-Agent
-        String userAgent = request.getHeader("User-Agent");
-        if (userAgent == null) {
-            userAgent = "";
+        try {
+            // Obtener la IP del cliente
+            String ip = obtenerIpCliente(request);
+            
+            // Obtener la URL completa accedida
+            String url = obtenerUrlCompleta(request);
+            
+            // Obtener el User-Agent
+            String userAgent = request.getHeader("User-Agent");
+            if (userAgent == null) {
+                userAgent = "";
+            }
+            
+            // Parsear el navegador y sistema operativo desde el User-Agent
+            String browser = UserAgentParser.parseBrowser(userAgent);
+            String sistemaOperativo = UserAgentParser.parseOperatingSystem(userAgent);
+            
+            logger.debug("Acceso registrado: IP={}, URL={}, Browser={}, SO={}", ip, url, browser, sistemaOperativo);
+            
+            // Registrar el acceso de forma asíncrona (no bloquea la respuesta)
+            accesoService.registrarAcceso(ip, url, browser, sistemaOperativo);
+            
+            // Continuar con la cadena de filtros
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            logger.error("Error en AccesoFilter", e);
+            filterChain.doFilter(request, response);
         }
-        
-        // Parsear el navegador y sistema operativo desde el User-Agent
-        String browser = UserAgentParser.parseBrowser(userAgent);
-        String sistemaOperativo = UserAgentParser.parseOperatingSystem(userAgent);
-        
-        // Registrar el acceso de forma asíncrona (no bloquea la respuesta)
-        accesoService.registrarAcceso(ip, url, browser, sistemaOperativo);
-        
-        // Continuar con la cadena de filtros
-        filterChain.doFilter(request, response);
     }
 
     /**

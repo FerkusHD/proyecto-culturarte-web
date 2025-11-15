@@ -9,6 +9,8 @@ import com.culturarte.soap.gen.VerificarNicknameResponse;
 import com.culturarte.web.soap.client.UsuarioSoapClient;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,12 +28,15 @@ import java.util.stream.Collectors;
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
+    private static final Logger logger = LoggerFactory.getLogger(UsuarioController.class);
+
     @Autowired
     private UsuarioSoapClient usuariosSoapClient;
 
     // ------------------- ALTA USUARIO -------------------
     @GetMapping("/alta")
     public String altaUsuario() {
+        logger.info("Mostrando formulario de alta de usuario");
         return "altaUsuario";
     }
 
@@ -51,12 +56,15 @@ public class UsuarioController {
             Model model,
             HttpSession session
     ) {
-        LocalDate fechaNac = LocalDate.parse(fecha);
-        String imagen = null;
-
+        logger.info("=== INICIO altaUsuario (POST) ===");
+        logger.info("Alta de usuario: nickname={}, rol={}, email={}", nickname, rol, email);
         try {
+            LocalDate fechaNac = LocalDate.parse(fecha);
+            String imagen = null;
+
             // Guardar imagen si se sube
             if (imagenFile != null && !imagenFile.isEmpty()) {
+                logger.debug("Procesando imagen para usuario: {}", nickname);
                 Path directorio = Paths.get(System.getProperty("user.dir"), "uploads", "imagenes");
                 if (!Files.exists(directorio)) Files.createDirectories(directorio);
 
@@ -64,27 +72,36 @@ public class UsuarioController {
                 Path rutaCompleta = directorio.resolve(nombreArchivo);
                 Files.copy(imagenFile.getInputStream(), rutaCompleta, StandardCopyOption.REPLACE_EXISTING);
                 imagen = "uploads/imagenes/" + nombreArchivo;
+                logger.debug("Imagen guardada: {}", imagen);
             }
 
             // Crear usuario según tipo
             if ("proponente".equalsIgnoreCase(rol)) {
+                logger.info("Creando proponente: {}", nickname);
                 usuariosSoapClient.agregarProponente(nickname, password, nombre, apellido, email,
                         DatatypeFactory.newInstance().newXMLGregorianCalendar(fechaNac.toString()),
                         imagen, direccion, web, biografia);
             } else if ("colaborador".equalsIgnoreCase(rol)) {
+                logger.info("Creando colaborador: {}", nickname);
                 usuariosSoapClient.agregarColaborador(nickname, password, nombre, apellido, email,
                         DatatypeFactory.newInstance().newXMLGregorianCalendar(fechaNac.toString()), imagen);
             } else {
+                logger.warn("Rol inválido en alta de usuario: {}", rol);
                 model.addAttribute("mensaje", "⚠️ Debe seleccionar un rol válido");
                 return "altaUsuario";
             }
 
             // Obtener usuario recién creado y guardarlo en sesión
+            logger.debug("Obteniendo usuario recién creado: {}", nickname);
             DTUsuario usuario = convertirDT(usuariosSoapClient.getUsuario(nickname).getUsuario());
             session.setAttribute("usuarioLogueado", usuario);
+            logger.info("Usuario creado exitosamente: {} (rol: {})", nickname, rol);
+            logger.debug("=== FIN altaUsuario (exitoso) ===");
             return "redirect:/";
 
         } catch (Exception e) {
+            logger.error("=== ERROR en altaUsuario ===", e);
+            logger.error("Error al crear usuario: nickname={}, rol={}", nickname, rol);
             model.addAttribute("mensaje", "⚠️ " + e.getMessage());
             model.addAttribute("nickname", nickname);
             model.addAttribute("nombre", nombre);
@@ -103,38 +120,56 @@ public class UsuarioController {
     // ------------------- PERFIL USUARIO -------------------
     @GetMapping("/{nick}")
     public String mostrarPerfil(@PathVariable String nick, HttpSession session, Model model) {
-        DTUsuario usuarioLogueado = (DTUsuario) session.getAttribute("usuarioLogueado");
-        if (usuarioLogueado == null) {
-            usuarioLogueado = new DTUsuario();
-            usuarioLogueado.setTipo("visitante");
-            usuarioLogueado.setNickname("visitante");
-            session.setAttribute("usuarioLogueado", usuarioLogueado);
+        logger.info("=== INICIO mostrarPerfil ===");
+        logger.info("Mostrando perfil de usuario: {}", nick);
+        try {
+            DTUsuario usuarioLogueado = (DTUsuario) session.getAttribute("usuarioLogueado");
+            if (usuarioLogueado == null) {
+                logger.debug("No hay usuario en sesión, creando visitante");
+                usuarioLogueado = new DTUsuario();
+                usuarioLogueado.setTipo("visitante");
+                usuarioLogueado.setNickname("visitante");
+                session.setAttribute("usuarioLogueado", usuarioLogueado);
+            }
+            model.addAttribute("usuarioLogueado", usuarioLogueado);
+
+            DTUsuario perfilVisitado = convertirDT(usuariosSoapClient.getUsuario(nick).getUsuario());
+            if (perfilVisitado == null) {
+                logger.warn("Usuario no encontrado: {}", nick);
+                return "error/404";
+            }
+
+            model.addAttribute("perfilVisitado", perfilVisitado);
+            model.addAttribute("esMiPropioPerfil", perfilVisitado.getNickname().equals(usuarioLogueado.getNickname()));
+            model.addAttribute("loSigo", usuarioLogueado.buscarUsuarioSeguido(perfilVisitado.getNickname()));
+
+            // Propuestas favoritas del usuario
+            logger.debug("Obteniendo propuestas favoritas de: {}", nick);
+            List<DTPropuesta> favoritas = usuariosSoapClient.getPropuestasFavoritas(perfilVisitado.getNickname())
+                    .stream().map(this::convertirPropuesta).collect(Collectors.toList());
+            model.addAttribute("propuestasFavoritas", favoritas);
+            logger.info("Perfil mostrado exitosamente: {} ({} favoritas)", nick, favoritas.size());
+            logger.debug("=== FIN mostrarPerfil ===");
+            return "perfil";
+        } catch (Exception e) {
+            logger.error("=== ERROR en mostrarPerfil ===", e);
+            return "error/404";
         }
-        model.addAttribute("usuarioLogueado", usuarioLogueado);
-
-        DTUsuario perfilVisitado = convertirDT(usuariosSoapClient.getUsuario(nick).getUsuario());
-        if (perfilVisitado == null) return "error/404";
-
-        model.addAttribute("perfilVisitado", perfilVisitado);
-        model.addAttribute("esMiPropioPerfil", perfilVisitado.getNickname().equals(usuarioLogueado.getNickname()));
-        model.addAttribute("loSigo", usuarioLogueado.buscarUsuarioSeguido(perfilVisitado.getNickname()));
-
-        // Propuestas favoritas del usuario
-        List<DTPropuesta> favoritas = usuariosSoapClient.getPropuestasFavoritas(perfilVisitado.getNickname())
-                .stream().map(this::convertirPropuesta).collect(Collectors.toList());
-        model.addAttribute("propuestasFavoritas", favoritas);
-
-        return "perfil";
     }
 
     // ------------------- RANKING -------------------
     @GetMapping("/ranking")
     public String rankingUsu(Model model) {
+        logger.info("=== INICIO rankingUsu ===");
         try {
-        List<DTUsuario> usuarios = usuariosSoapClient.listarUsuarios()
-                .stream().map(this::convertirDT).collect(Collectors.toList());
+            logger.debug("Obteniendo lista de usuarios para ranking");
+            List<DTUsuario> usuarios = usuariosSoapClient.listarUsuarios()
+                    .stream().map(this::convertirDT).collect(Collectors.toList());
             model.addAttribute("usuarios", usuarios);
+            logger.info("Ranking cargado exitosamente: {} usuarios", usuarios.size());
+            logger.debug("=== FIN rankingUsu (exitoso) ===");
         } catch (Exception e) {
+            logger.error("=== ERROR en rankingUsu ===", e);
             model.addAttribute("usuarios", new ArrayList<>());
             model.addAttribute("mensaje", "⚠️ Error al cargar el ranking: " + e.getMessage());
         }
@@ -144,10 +179,18 @@ public class UsuarioController {
     // ------------------- BUSCAR -------------------
     @GetMapping("/buscar")
     public String buscarUsuarios(@RequestParam(required = false) String nombre, Model model) {
-        List<DTUsuario> resultados = usuariosSoapClient.buscarUsuarios(nombre)
-                .stream().map(this::convertirDT).collect(Collectors.toList());
-        model.addAttribute("resultados", resultados);
-        model.addAttribute("nombre", nombre);
+        logger.info("=== INICIO buscarUsuarios ===");
+        logger.info("Búsqueda de usuarios: nombre={}", nombre);
+        try {
+            List<DTUsuario> resultados = usuariosSoapClient.buscarUsuarios(nombre)
+                    .stream().map(this::convertirDT).collect(Collectors.toList());
+            model.addAttribute("resultados", resultados);
+            model.addAttribute("nombre", nombre);
+            logger.info("Búsqueda completada: {} resultados", resultados.size());
+            logger.debug("=== FIN buscarUsuarios ===");
+        } catch (Exception e) {
+            logger.error("=== ERROR en buscarUsuarios ===", e);
+        }
         return "busquedaUsuario";
     }
 
@@ -209,15 +252,31 @@ public class UsuarioController {
     @GetMapping("/verificar-nickname")
     @ResponseBody
     public VerificacionResponse verificarNickname(@RequestParam("nickname") String nickname) {
-        VerificarNicknameResponse resp = usuariosSoapClient.verificarNickname(nickname);
-        return new VerificacionResponse(resp.isDisponible(), resp.getMensaje());
+        logger.debug("Verificando disponibilidad de nickname: {}", nickname);
+        try {
+            VerificarNicknameResponse resp = usuariosSoapClient.verificarNickname(nickname);
+            boolean disponible = resp.isDisponible();
+            logger.debug("Nickname '{}' disponible: {}", nickname, disponible);
+            return new VerificacionResponse(disponible, resp.getMensaje());
+        } catch (Exception e) {
+            logger.error("Error al verificar nickname: {}", nickname, e);
+            return new VerificacionResponse(false, "Error al verificar disponibilidad");
+        }
     }
 
     @GetMapping("/verificar-email")
     @ResponseBody
     public VerificacionResponse verificarEmail(@RequestParam("email") String email) {
-        VerificarEmailResponse resp = usuariosSoapClient.verificarEmail(email);
-        return new VerificacionResponse(resp.isDisponible(), resp.getMensaje());
+        logger.debug("Verificando disponibilidad de email: {}", email);
+        try {
+            VerificarEmailResponse resp = usuariosSoapClient.verificarEmail(email);
+            boolean disponible = resp.isDisponible();
+            logger.debug("Email '{}' disponible: {}", email, disponible);
+            return new VerificacionResponse(disponible, resp.getMensaje());
+        } catch (Exception e) {
+            logger.error("Error al verificar email: {}", email, e);
+            return new VerificacionResponse(false, "Error al verificar disponibilidad");
+        }
     }
 
     // ------------------- UTILIDADES -------------------

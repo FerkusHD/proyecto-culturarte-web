@@ -11,6 +11,8 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -20,20 +22,25 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class PDFService {
 
+    private static final Logger logger = LoggerFactory.getLogger(PDFService.class);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     public byte[] generarConstanciaPago(DTColaboracion colaboracion, 
                                        DTColaborador colaborador, 
                                        DTPropuesta propuesta) throws Exception {
-        
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PdfWriter writer = new PdfWriter(baos);
-        PdfDocument pdf = new PdfDocument(writer);
-        Document document = new Document(pdf);
-
+        logger.info("=== INICIO generarConstanciaPago ===");
+        logger.info("Generando PDF para colaboración: colaborador={}, propuesta={}", 
+                colaboracion != null ? colaboracion.getNickColaborador() : "null",
+                colaboracion != null ? colaboracion.getTituloPropuesta() : "null");
         try {
-            // Título del documento
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PdfWriter writer = new PdfWriter(baos);
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+
+            try {
+                // Título del documento
             Paragraph titulo = new Paragraph("CONSTANCIA DE PAGO DE COLABORACIÓN")
                     .setFontSize(18)
                     .setBold()
@@ -139,13 +146,20 @@ public class PDFService {
                     .setTextAlignment(TextAlignment.CENTER)
                     .setMarginTop(30)
                     .setFontColor(ColorConstants.GRAY);
-            document.add(piePagina);
+                document.add(piePagina);
 
-        } finally {
-            document.close();
+            } finally {
+                document.close();
+            }
+
+            byte[] pdfBytes = baos.toByteArray();
+            logger.info("PDF generado exitosamente: {} bytes", pdfBytes.length);
+            logger.debug("=== FIN generarConstanciaPago (exitoso) ===");
+            return pdfBytes;
+        } catch (Exception e) {
+            logger.error("=== ERROR en generarConstanciaPago ===", e);
+            throw e;
         }
-
-        return baos.toByteArray();
     }
 
     /**

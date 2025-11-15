@@ -28,6 +28,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeFactory;
 import java.nio.file.Files;
@@ -43,6 +45,8 @@ import java.util.List;
 @RequestMapping("/propuestas")
 public class PropuestasController {
 
+    private static final Logger logger = LoggerFactory.getLogger(PropuestasController.class);
+
     @Autowired
     private PropuestasSoapClient soapClient; // Cliente SOAP inyectado
 
@@ -56,14 +60,23 @@ public class PropuestasController {
     @GetMapping("/listar")
     @ResponseBody
     public List<PropuestaType> listarPropuestas() {
+        logger.info("=== INICIO listarPropuestas  ===");
         try {
             List<PropuestaType> propuestas = soapClient.listarPropuestas();
             if (propuestas == null) {
+                logger.warn("Lista de propuestas es null, retornando lista vacía");
                 return new ArrayList<>();
             }
+            logger.info("Retornando {} propuestas al cliente", propuestas.size());
+            logger.debug("=== FIN listarPropuestas (exitoso) ===");
             return propuestas;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("=== ERROR en listarPropuestas (REST endpoint) ===", e);
+            logger.error("Tipo de excepción: {}", e.getClass().getName());
+            logger.error("Mensaje: {}", e.getMessage());
+            if (e.getCause() != null) {
+                logger.error("Causa: {}", e.getCause().getMessage());
+            }
             // Retornar lista vacía en caso de error para evitar errores 500
             return new ArrayList<>();
         }

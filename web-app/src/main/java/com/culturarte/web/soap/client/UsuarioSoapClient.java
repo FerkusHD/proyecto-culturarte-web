@@ -61,12 +61,19 @@ public class UsuarioSoapClient {
     }
 
     public GetUsuarioResponse getUsuario(String nickname) {
+        logger.debug("Obteniendo usuario vía SOAP: {}", nickname);
         try {
             GetUsuarioRequest request = new GetUsuarioRequest();
             request.setNickname(nickname);
-            return (GetUsuarioResponse) webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), request);
+            GetUsuarioResponse response = (GetUsuarioResponse) webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), request);
+            if (response != null && response.getUsuario() != null) {
+                logger.debug("Usuario obtenido exitosamente: {}", nickname);
+            } else {
+                logger.warn("Usuario no encontrado: {}", nickname);
+            }
+            return response;
         } catch (Exception e) {
-            logger.error("Error al obtener usuario vía SOAP: {}", e.getMessage());
+            logger.error("Error al obtener usuario vía SOAP: {}", nickname, e);
             return new GetUsuarioResponse();
         }
     }
@@ -102,13 +109,18 @@ public class UsuarioSoapClient {
     }
 
     public VerificarPasswordResponse verificarPassword(String nickname, String password) {
+        logger.debug("Verificando password vía SOAP para: {}", nickname);
         try {
             VerificarPasswordRequest req = new VerificarPasswordRequest();
             req.setNickname(nickname);
             req.setPassword(password);
-            return (VerificarPasswordResponse) webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
+            VerificarPasswordResponse response = (VerificarPasswordResponse) webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
+            if (response != null) {
+                logger.debug("Verificación de password completada: exito={}", response.isExito());
+            }
+            return response;
         } catch (Exception e) {
-            logger.error("Error al verificar password vía SOAP: {}", e.getMessage());
+            logger.error("Error al verificar password vía SOAP para: {}", nickname, e);
             VerificarPasswordResponse r = new VerificarPasswordResponse();
             r.setExito(false);
             r.setMensaje("Error de conexión SOAP");

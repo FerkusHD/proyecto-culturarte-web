@@ -4,6 +4,8 @@ import com.culturarte.soap.gen.*;
 import com.culturarte.web.soap.client.UsuarioSoapClient;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,40 +15,61 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/")
 public class MenuController {
 
+    private static final Logger logger = LoggerFactory.getLogger(MenuController.class);
+
     @Autowired
     private UsuarioSoapClient soapClient;
 
     @GetMapping("/")
     public String index(HttpSession session, Model model) {
-        Object usuarioLogueadoObj = session.getAttribute("usuarioLogueado");
-        UsuarioType usuario = null;
+        logger.info("=== INICIO index (página principal) ===");
+        try {
+            Object usuarioLogueadoObj = session.getAttribute("usuarioLogueado");
+            UsuarioType usuario = null;
 
-        if (usuarioLogueadoObj instanceof GetUsuarioResponse) {
-            GetUsuarioResponse usuarioResp = (GetUsuarioResponse) usuarioLogueadoObj;
-            if (usuarioResp != null && usuarioResp.getUsuario() != null) {
-                usuario = usuarioResp.getUsuario();
+            if (usuarioLogueadoObj instanceof GetUsuarioResponse) {
+                GetUsuarioResponse usuarioResp = (GetUsuarioResponse) usuarioLogueadoObj;
+                if (usuarioResp != null && usuarioResp.getUsuario() != null) {
+                    usuario = usuarioResp.getUsuario();
+                    logger.debug("Usuario obtenido de GetUsuarioResponse: {}", usuario.getNickname());
+                }
+            } else if (usuarioLogueadoObj instanceof UsuarioType) {
+                usuario = (UsuarioType) usuarioLogueadoObj;
+                logger.debug("Usuario obtenido de UsuarioType: {}", usuario.getNickname());
             }
-        } else if (usuarioLogueadoObj instanceof UsuarioType) {
-            usuario = (UsuarioType) usuarioLogueadoObj;
-        }
 
-        if (usuario == null) {
-            usuario = new UsuarioType();
-            usuario.setNickname("visitante");
-            usuario.setTipo("visitante");
-            session.setAttribute("usuarioLogueado", usuario);
-        }
+            if (usuario == null) {
+                logger.debug("No hay usuario en sesión, creando usuario visitante");
+                usuario = new UsuarioType();
+                usuario.setNickname("visitante");
+                usuario.setTipo("visitante");
+                session.setAttribute("usuarioLogueado", usuario);
+            }
 
-        model.addAttribute("usuario", usuario);
-        return "index";
+            model.addAttribute("usuario", usuario);
+            logger.info("Página principal cargada para usuario: {}", usuario.getNickname());
+            logger.debug("=== FIN index (exitoso) ===");
+            return "index";
+        } catch (Exception e) {
+            logger.error("=== ERROR en index ===", e);
+            return "index";
+        }
     }
 
     @GetMapping("/login")
     public String login(HttpServletRequest request, Model model) {
-        String userAgent = request.getHeader("User-Agent");
-        boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
-        model.addAttribute("esMovil", esMovil);
-        return "login";
+        logger.info("=== INICIO login (GET) ===");
+        try {
+            String userAgent = request.getHeader("User-Agent");
+            boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
+            model.addAttribute("esMovil", esMovil);
+            logger.debug("Mostrando formulario de login. Es móvil: {}", esMovil);
+            logger.debug("=== FIN login (GET) ===");
+            return "login";
+        } catch (Exception e) {
+            logger.error("=== ERROR en login (GET) ===", e);
+            return "login";
+        }
     }
 
     @PostMapping("/login")
@@ -55,38 +78,73 @@ public class MenuController {
                                 HttpSession session,
                                 HttpServletRequest request,
                                 Model model) {
+        logger.info("=== INICIO procesarLogin ===");
+        logger.info("Intento de login para: {}", nickOemail);
+        try {
+            VerificarPasswordResponse verificacion = soapClient.verificarPassword(nickOemail, password);
+            if (!verificacion.isExito()) {
+                logger.warn("Login fallido para: {} - {}", nickOemail, verificacion.getMensaje());
+                model.addAttribute("mensaje", "⚠️ Contraseña o usuario incorrecto");
+                model.addAttribute("nickname", nickOemail);
+                return "login";
+            }
 
-        VerificarPasswordResponse verificacion = soapClient.verificarPassword(nickOemail, password);
-        if (!verificacion.isExito()) {
-            model.addAttribute("mensaje", "⚠️ Contraseña o usuario incorrecto");
+            logger.debug("Password verificado correctamente, obteniendo datos del usuario");
+            GetUsuarioResponse usuarioResp = soapClient.getUsuario(nickOemail);
+            if (usuarioResp == null || usuarioResp.getUsuario() == null) {
+                logger.error("No se pudo obtener usuario después de verificar password: {}", nickOemail);
+                model.addAttribute("mensaje", "⚠️ Error al obtener datos del usuario");
+                model.addAttribute("nickname", nickOemail);
+                return "login";
+            }
+
+            UsuarioType usuario = usuarioResp.getUsuario();
+            String userAgent = request.getHeader("User-Agent");
+            boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
+
+            if (esMovil && !"colaborador".equalsIgnoreCase(usuario.getTipo())) {
+                logger.warn("Intento de login desde móvil para usuario no colaborador: {} (tipo: {})", 
+                        nickOemail, usuario.getTipo());
+                model.addAttribute("mensaje", "⚠️ Solo los colaboradores pueden iniciar sesión desde un dispositivo móvil.");
+                model.addAttribute("nickname", nickOemail);
+                return "login";
+            }
+
+            session.setAttribute("usuarioLogueado", usuario);
+            logger.info("Login exitoso para: {} (tipo: {}, móvil: {})", 
+                    usuario.getNickname(), usuario.getTipo(), esMovil);
+            logger.debug("=== FIN procesarLogin (exitoso) ===");
+            return "redirect:/";
+        } catch (Exception e) {
+            logger.error("=== ERROR en procesarLogin ===", e);
+            model.addAttribute("mensaje", "⚠️ Error al procesar el login");
             model.addAttribute("nickname", nickOemail);
             return "login";
         }
-
-        GetUsuarioResponse usuarioResp = soapClient.getUsuario(nickOemail);
-        UsuarioType usuario = usuarioResp.getUsuario();
-
-        String userAgent = request.getHeader("User-Agent");
-        boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
-
-        if (esMovil && !"colaborador".equalsIgnoreCase(usuario.getTipo())) {
-            model.addAttribute("mensaje", "⚠️ Solo los colaboradores pueden iniciar sesión desde un dispositivo móvil.");
-            model.addAttribute("nickname", nickOemail);
-            return "login";
-        }
-
-        session.setAttribute("usuarioLogueado", usuario);
-        return "redirect:/";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/";
+        logger.info("=== INICIO logout ===");
+        try {
+            Object usuarioObj = session.getAttribute("usuarioLogueado");
+            String nickname = "desconocido";
+            if (usuarioObj instanceof UsuarioType) {
+                nickname = ((UsuarioType) usuarioObj).getNickname();
+            }
+            session.invalidate();
+            logger.info("Logout exitoso para: {}", nickname);
+            logger.debug("=== FIN logout ===");
+            return "redirect:/";
+        } catch (Exception e) {
+            logger.error("=== ERROR en logout ===", e);
+            return "redirect:/";
+        }
     }
 
     @GetMapping("/exitoAltaPropuesta")
     public String exitoAltaPropuesta(Model model) {
+        logger.info("Mostrando página de éxito de alta de propuesta");
         return "exitoAltaPropuesta";
     }
 }

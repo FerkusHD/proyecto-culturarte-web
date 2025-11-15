@@ -271,15 +271,25 @@ public class EmailService {
      * Envía un email HTML.
      */
     private void enviarEmail(String to, String subject, String htmlBody) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        logger.info("=== INICIO enviarEmail ===");
+        logger.info("Enviando email a: {}, asunto: {}", to, subject);
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-        helper.setFrom(fromEmail);
-        helper.setTo(to);
-        helper.setSubject(subject);
-        helper.setText(htmlBody, true); // true indica que es HTML
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlBody, true); // true indica que es HTML
 
-        mailSender.send(message);
+            mailSender.send(message);
+            logger.info("Email enviado exitosamente a: {}", to);
+            logger.debug("=== FIN enviarEmail (exitoso) ===");
+        } catch (MessagingException e) {
+            logger.error("=== ERROR al enviar email ===", e);
+            logger.error("Error al enviar email a: {}, asunto: {}", to, subject);
+            throw e;
+        }
     }
 
     /**

@@ -39,15 +39,32 @@ public class ColaboracionSoapClient {
     }
 
     public GetColaboracionResponse getColaboracion(String nickColaborador, String tituloPropuesta) {
+        String endpoint = getSoapServiceUrl();
+        logger.info("=== INICIO getColaboracion ===");
+        logger.info("Obteniendo colaboración: colaborador={}, propuesta={}", nickColaborador, tituloPropuesta);
+        logger.debug("Endpoint SOAP: {}", endpoint);
         try {
             GetColaboracionRequest request = new GetColaboracionRequest();
             request.setNickColaborador(nickColaborador);
             request.setTituloPropuesta(tituloPropuesta);
 
-            logger.info("📡 Enviando solicitud SOAP a {}", getSoapServiceUrl());
-            return (GetColaboracionResponse) webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), request);
+            long startTime = System.currentTimeMillis();
+            GetColaboracionResponse response = (GetColaboracionResponse) webServiceTemplate.marshalSendAndReceive(endpoint, request);
+            long duration = System.currentTimeMillis() - startTime;
+            
+            logger.info("Respuesta SOAP recibida en {} ms", duration);
+            if (response == null) {
+                logger.warn("Respuesta SOAP null para colaboración");
+            } else if (response.getColaboracion() == null) {
+                logger.warn("Colaboración null en respuesta");
+            } else {
+                logger.info("Colaboración obtenida exitosamente");
+            }
+            logger.debug("=== FIN getColaboracion ===");
+            return response;
         } catch (Exception e) {
-            logger.error("❌ Error al comunicarse con el servicio SOAP de colaboraciones: {}", e.getMessage(), e);
+            logger.error("=== ERROR en getColaboracion ===", e);
+            logger.error("Endpoint que falló: {}", endpoint);
             return null;
         }
     }
