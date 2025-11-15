@@ -5,6 +5,7 @@ import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.logica.enums.TipoEstado;
 import com.culturarte.soap.gen.GetUsuarioResponse;
 import com.culturarte.soap.gen.PropuestaType;
+import com.culturarte.soap.gen.UsuarioType;
 import com.culturarte.soap.gen.VerificarEmailResponse;
 import com.culturarte.soap.gen.VerificarNicknameResponse;
 import com.culturarte.web.soap.client.UsuarioSoapClient;
@@ -201,13 +202,26 @@ public class UsuarioController {
         logger.info("=== INICIO rankingUsu ===");
         try {
             logger.debug("Obteniendo lista de usuarios para ranking");
-            List<DTUsuario> usuarios = usuariosSoapClient.listarUsuarios()
-                    .stream().map(this::convertirDT).collect(Collectors.toList());
+            List<UsuarioType> usuariosSoap = usuariosSoapClient.listarUsuarios();
+            if (usuariosSoap == null || usuariosSoap.isEmpty()) {
+                logger.warn("Lista de usuarios vacía o null desde SOAP");
+                model.addAttribute("usuarios", new ArrayList<>());
+                model.addAttribute("mensaje", "No hay usuarios registrados");
+                return "rankingUsuarios";
+            }
+            
+            logger.debug("Usuarios obtenidos desde SOAP: {}", usuariosSoap.size());
+            List<DTUsuario> usuarios = usuariosSoap.stream()
+                    .map(this::convertirDT)
+                    .filter(u -> u != null)
+                    .collect(Collectors.toList());
+            
             model.addAttribute("usuarios", usuarios);
             logger.info("Ranking cargado exitosamente: {} usuarios", usuarios.size());
             logger.debug("=== FIN rankingUsu (exitoso) ===");
         } catch (Exception e) {
             logger.error("=== ERROR en rankingUsu ===", e);
+            logger.error("Error completo al cargar ranking", e);
             model.addAttribute("usuarios", new ArrayList<>());
             model.addAttribute("mensaje", "⚠️ Error al cargar el ranking: " + e.getMessage());
         }

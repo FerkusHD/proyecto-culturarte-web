@@ -2,8 +2,12 @@
 <configuration>
     <!-- Propiedades para los archivos de log -->
     <!-- Usar directorio del proyecto o logs en el directorio actual -->
-    <property name="LOG_PATH" value="${LOG_PATH:-./logs}"/>
+    <!-- En Windows, usar ruta absoluta o relativa al directorio de trabajo -->
+    <property name="LOG_PATH" value="${LOG_PATH:-logs}"/>
     <property name="LOG_FILE" value="${LOG_FILE:-culturarte-web}"/>
+    
+    <!-- Crear el directorio de logs si no existe -->
+    <timestamp key="bySecond" datePattern="yyyyMMdd'T'HHmmss"/>
     
     <!-- Console Appender -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -15,6 +19,8 @@
     <!-- File Appender para todos los logs -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/${LOG_FILE}.log</file>
+        <!-- Crear directorio si no existe -->
+        <prudent>false</prudent>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/${LOG_FILE}-%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>

@@ -12,11 +12,14 @@ import com.culturarte.soap.gen.CancelarPropuestaRequest;
 import com.culturarte.soap.gen.CancelarPropuestaResponse;
 import com.culturarte.soap.gen.ExtenderFinanciacionRequest;
 import com.culturarte.soap.gen.ExtenderFinanciacionResponse;
+import com.culturarte.soap.gen.GetCategoriasResponse;
+import com.culturarte.soap.gen.GetUsuarioResponse;
 import com.culturarte.soap.gen.PropuestaType;
 import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.soap.gen.QuitarFavoritaRequest;
 import com.culturarte.soap.gen.QuitarFavoritaResponse;
 import com.culturarte.soap.gen.UsuarioType;
+import com.culturarte.web.dto.PropuestaDTO;
 import com.culturarte.web.soap.client.CategoriasSoapClient;
 import com.culturarte.web.soap.client.PropuestasSoapClient;
 import com.culturarte.web.soap.client.UsuarioSoapClient;
@@ -59,7 +62,7 @@ public class PropuestasController {
     // --- Listar todas las propuestas ---
     @GetMapping("/listar")
     @ResponseBody
-    public List<PropuestaType> listarPropuestas() {
+    public List<PropuestaDTO> listarPropuestas() {
         logger.info("=== INICIO listarPropuestas  ===");
         try {
             List<PropuestaType> propuestas = soapClient.listarPropuestas();
@@ -67,9 +70,21 @@ public class PropuestasController {
                 logger.warn("Lista de propuestas es null, retornando lista vacía");
                 return new ArrayList<>();
             }
-            logger.info("Retornando {} propuestas al cliente", propuestas.size());
+            
+            // Convertir a DTOs para serialización JSON correcta
+            List<PropuestaDTO> propuestasDTO = new ArrayList<>();
+            for (PropuestaType p : propuestas) {
+                if (p != null) {
+                    PropuestaDTO dto = new PropuestaDTO(p);
+                    propuestasDTO.add(dto);
+                    logger.debug("Propuesta convertida: titulo={}, tieneImagen={}", 
+                            dto.getTitulo(), dto.getImagenBase64() != null && !dto.getImagenBase64().isEmpty());
+                }
+            }
+            
+            logger.info("Retornando {} propuestas al cliente", propuestasDTO.size());
             logger.debug("=== FIN listarPropuestas (exitoso) ===");
-            return propuestas;
+            return propuestasDTO;
         } catch (Exception e) {
             logger.error("=== ERROR en listarPropuestas (REST endpoint) ===", e);
             logger.error("Tipo de excepción: {}", e.getClass().getName());
@@ -89,23 +104,36 @@ public class PropuestasController {
             Model model,
             HttpSession session,
             HttpServletRequest request) {
-
+        logger.info("=== INICIO mostrarPropuesta ===");
+        logger.info("Mostrando propuesta: {}", titulo);
         try {
             PropuestaType propuesta = soapClient.getPropuesta(titulo);
 
             if (propuesta == null) {
+                logger.warn("Propuesta no encontrada: {}", titulo);
                 model.addAttribute("mensajeError", "⚠️ La propuesta no existe");
-                return "redirect:/propuestas/listar";
+                return "redirect:/";
             }
+            
+            logger.debug("Propuesta obtenida: titulo={}, estado={}, categoria={}", 
+                    propuesta.getTitulo(), propuesta.getEstado(), propuesta.getCategoria());
 
             model.addAttribute("propuesta", propuesta);
 
             // Obtener proponente completo
             if (propuesta.getProponente() != null && !propuesta.getProponente().isEmpty()) {
                 try {
-                    UsuarioType proponente = usuarioSoapClient.getUsuario(propuesta.getProponente()).getUsuario();
-                    model.addAttribute("proponente", proponente);
+                    logger.debug("Obteniendo proponente: {}", propuesta.getProponente());
+                    GetUsuarioResponse usuarioResp = usuarioSoapClient.getUsuario(propuesta.getProponente());
+                    if (usuarioResp != null && usuarioResp.getUsuario() != null) {
+                        UsuarioType proponente = usuarioResp.getUsuario();
+                        model.addAttribute("proponente", proponente);
+                        logger.debug("Proponente obtenido exitosamente");
+                    } else {
+                        logger.warn("Proponente no encontrado: {}", propuesta.getProponente());
+                    }
                 } catch (Exception e) {
+                    logger.error("Error al obtener proponente: {}", propuesta.getProponente(), e);
                     // Si falla, no se agrega proponente (el JSP manejará el caso null)
                 }
             }
@@ -113,16 +141,20 @@ public class PropuestasController {
             // Obtener colaboradores completos
             List<UsuarioType> colaboradores = new ArrayList<>();
             if (propuesta.getColaboradores() != null && !propuesta.getColaboradores().isEmpty()) {
+                logger.debug("Obteniendo {} colaboradores", propuesta.getColaboradores().size());
                 for (String nickColaborador : propuesta.getColaboradores()) {
                     try {
-                        UsuarioType colaborador = usuarioSoapClient.getUsuario(nickColaborador).getUsuario();
-                        if (colaborador != null) {
+                        GetUsuarioResponse usuarioResp = usuarioSoapClient.getUsuario(nickColaborador);
+                        if (usuarioResp != null && usuarioResp.getUsuario() != null) {
+                            UsuarioType colaborador = usuarioResp.getUsuario();
                             colaboradores.add(colaborador);
                         }
                     } catch (Exception e) {
+                        logger.warn("Error al obtener colaborador: {}", nickColaborador, e);
                         // Continuar con el siguiente colaborador si falla
                     }
                 }
+                logger.debug("Se obtuvieron {} colaboradores exitosamente", colaboradores.size());
             }
             model.addAttribute("colaboradores", colaboradores);
 
@@ -183,11 +215,14 @@ public class PropuestasController {
             String userAgent = request.getHeader("User-Agent");
             boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
 
+            logger.info("Propuesta mostrada exitosamente: {}", titulo);
+            logger.debug("=== FIN mostrarPropuesta (exitoso) ===");
             return esMovil ? "consultarPropuestaMovil" : "consultarPropuesta";
 
         } catch (Exception e) {
-            e.printStackTrace();
-            model.addAttribute("mensajeError", "❌ Error al cargar la propuesta.");
+            logger.error("=== ERROR en mostrarPropuesta ===", e);
+            logger.error("Error al mostrar propuesta: {}", titulo, e);
+            model.addAttribute("mensajeError", "❌ Error al cargar la propuesta: " + e.getMessage());
             return "error";
         }
     }
@@ -584,17 +619,30 @@ public class PropuestasController {
             model.addAttribute("orden", orden);
 
             // Cargar categorías para el filtro
-            List<String> categorias = categoriasSoapClient.obtenerCategorias(new com.culturarte.soap.gen.GetCategoriasRequest())
-                    .getCategoria().stream()
-                    .map(com.culturarte.soap.gen.CategoriaType::getNombre)
-                    .collect(java.util.stream.Collectors.toList());
-            model.addAttribute("categorias", categorias);
+            try {
+                GetCategoriasResponse categoriasResponse = categoriasSoapClient.obtenerCategorias(new com.culturarte.soap.gen.GetCategoriasRequest());
+                if (categoriasResponse != null && categoriasResponse.getCategoria() != null) {
+                    List<String> categorias = categoriasResponse.getCategoria().stream()
+                            .map(com.culturarte.soap.gen.CategoriaType::getNombre)
+                            .collect(java.util.stream.Collectors.toList());
+                    model.addAttribute("categorias", categorias);
+                    logger.debug("Categorías cargadas para filtro: {}", categorias.size());
+                } else {
+                    logger.warn("No se pudieron obtener categorías para el filtro");
+                    model.addAttribute("categorias", new ArrayList<>());
+                }
+            } catch (Exception e) {
+                logger.error("Error al cargar categorías para filtro", e);
+                model.addAttribute("categorias", new ArrayList<>());
+            }
 
+            logger.info("Búsqueda completada: {} resultados", resultados.size());
+            logger.debug("=== FIN buscarPropuestas (exitoso) ===");
             return "busquedaPropuestas";
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("=== ERROR en buscarPropuestas ===", e);
             model.addAttribute("resultados", new ArrayList<>());
-            model.addAttribute("mensaje", "❌ Error al buscar propuestas.");
+            model.addAttribute("mensaje", "❌ Error al buscar propuestas: " + e.getMessage());
             return "busquedaPropuestas";
         }
     }
