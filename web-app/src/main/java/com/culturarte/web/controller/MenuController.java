@@ -76,4 +76,9 @@ public class MenuController {
         session.invalidate();
         return "redirect:/";
     }
+
+    @GetMapping("/exitoAltaPropuesta")
+    public String exitoAltaPropuesta(Model model) {
+        return "exitoAltaPropuesta";
+    }
 }

@@ -6,8 +6,12 @@ import com.culturarte.soap.gen.AgregarFavoritaRequest;
 import com.culturarte.soap.gen.AgregarFavoritaResponse;
 import com.culturarte.soap.gen.AltaColaboracionRequest;
 import com.culturarte.soap.gen.AltaColaboracionResponse;
+import com.culturarte.soap.gen.AltaPropuestaRequest;
+import com.culturarte.soap.gen.AltaPropuestaResponse;
 import com.culturarte.soap.gen.CancelarPropuestaRequest;
 import com.culturarte.soap.gen.CancelarPropuestaResponse;
+import com.culturarte.soap.gen.ExtenderFinanciacionRequest;
+import com.culturarte.soap.gen.ExtenderFinanciacionResponse;
 import com.culturarte.soap.gen.GetPropuestaRequest;
 import com.culturarte.soap.gen.GetPropuestaResponse;
 import com.culturarte.soap.gen.ListarPropuestasRequest;
@@ -86,5 +90,13 @@ public class PropuestasSoapClient {
 
     public CancelarPropuestaResponse cancelarPropuesta(CancelarPropuestaRequest request) {
         return (CancelarPropuestaResponse) webServiceTemplate.marshalSendAndReceive(getEndpoint(), request);
+    }
+
+    public AltaPropuestaResponse altaPropuesta(AltaPropuestaRequest request) {
+        return (AltaPropuestaResponse) webServiceTemplate.marshalSendAndReceive(getEndpoint(), request);
+    }
+
+    public ExtenderFinanciacionResponse extenderFinanciacion(ExtenderFinanciacionRequest request) {
+        return (ExtenderFinanciacionResponse) webServiceTemplate.marshalSendAndReceive(getEndpoint(), request);
     }
 }
