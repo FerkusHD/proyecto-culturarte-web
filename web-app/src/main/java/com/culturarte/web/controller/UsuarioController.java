@@ -3,6 +3,7 @@ package com.culturarte.web.controller;
 import com.culturarte.logica.datatypes.DTPropuesta;
 import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.logica.enums.TipoEstado;
+import com.culturarte.soap.gen.GetUsuarioResponse;
 import com.culturarte.soap.gen.PropuestaType;
 import com.culturarte.soap.gen.VerificarEmailResponse;
 import com.culturarte.soap.gen.VerificarNicknameResponse;
@@ -133,26 +134,63 @@ public class UsuarioController {
             }
             model.addAttribute("usuarioLogueado", usuarioLogueado);
 
-            DTUsuario perfilVisitado = convertirDT(usuariosSoapClient.getUsuario(nick).getUsuario());
+            logger.debug("Obteniendo usuario desde SOAP: {}", nick);
+            GetUsuarioResponse usuarioResponse = usuariosSoapClient.getUsuario(nick);
+            if (usuarioResponse == null) {
+                logger.warn("Respuesta SOAP null al obtener usuario: {}", nick);
+                model.addAttribute("mensajeError", "Usuario no encontrado");
+                return "error/404";
+            }
+            
+            if (usuarioResponse.getUsuario() == null) {
+                logger.warn("Usuario null en respuesta SOAP: {}", nick);
+                model.addAttribute("mensajeError", "Usuario no encontrado");
+                return "error/404";
+            }
+
+            DTUsuario perfilVisitado = convertirDT(usuarioResponse.getUsuario());
             if (perfilVisitado == null) {
-                logger.warn("Usuario no encontrado: {}", nick);
+                logger.warn("Error al convertir usuario a DTUsuario: {}", nick);
+                model.addAttribute("mensajeError", "Error al cargar el perfil");
                 return "error/404";
             }
 
             model.addAttribute("perfilVisitado", perfilVisitado);
             model.addAttribute("esMiPropioPerfil", perfilVisitado.getNickname().equals(usuarioLogueado.getNickname()));
-            model.addAttribute("loSigo", usuarioLogueado.buscarUsuarioSeguido(perfilVisitado.getNickname()));
+            
+            // Verificar si lo sigue (solo si no es visitante)
+            boolean loSigo = false;
+            if (usuarioLogueado != null && !"visitante".equals(usuarioLogueado.getTipo())) {
+                try {
+                    loSigo = usuarioLogueado.buscarUsuarioSeguido(perfilVisitado.getNickname());
+                } catch (Exception e) {
+                    logger.debug("Error al verificar si sigue al usuario (puede ser normal): {}", e.getMessage());
+                }
+            }
+            model.addAttribute("loSigo", loSigo);
 
             // Propuestas favoritas del usuario
             logger.debug("Obteniendo propuestas favoritas de: {}", nick);
-            List<DTPropuesta> favoritas = usuariosSoapClient.getPropuestasFavoritas(perfilVisitado.getNickname())
-                    .stream().map(this::convertirPropuesta).collect(Collectors.toList());
+            List<DTPropuesta> favoritas = new ArrayList<>();
+            try {
+                List<PropuestaType> favoritasSoap = usuariosSoapClient.getPropuestasFavoritas(perfilVisitado.getNickname());
+                if (favoritasSoap != null) {
+                    favoritas = favoritasSoap.stream()
+                            .map(this::convertirPropuesta)
+                            .filter(p -> p != null)
+                            .collect(Collectors.toList());
+                }
+            } catch (Exception e) {
+                logger.warn("Error al obtener propuestas favoritas (continuando sin ellas): {}", e.getMessage());
+            }
             model.addAttribute("propuestasFavoritas", favoritas);
             logger.info("Perfil mostrado exitosamente: {} ({} favoritas)", nick, favoritas.size());
             logger.debug("=== FIN mostrarPerfil ===");
             return "perfil";
         } catch (Exception e) {
             logger.error("=== ERROR en mostrarPerfil ===", e);
+            logger.error("Error al mostrar perfil de usuario: {}", nick, e);
+            model.addAttribute("mensajeError", "Error al cargar el perfil: " + e.getMessage());
             return "error/404";
         }
     }

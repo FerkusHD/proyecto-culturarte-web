@@ -12,19 +12,52 @@ function calcularDiasRestantes(fechaPrevistaString) {
     // Si la fecha no es válida, devuelve 0 o un valor seguro
     if (!fechaPrevistaString) return 0;
 
-    // Convertir la cadena de fecha a objeto Date
-    const fechaPrevista = new Date(fechaPrevistaString);
-    const fechaHoy = new Date();
+    try {
+        // Manejar diferentes formatos de fecha
+        let fechaPrevista;
+        if (typeof fechaPrevistaString === 'string') {
+            // Si viene como string, puede ser ISO (2025-11-15) o con tiempo
+            // Remover tiempo si existe
+            const fechaStr = fechaPrevistaString.split('T')[0];
+            fechaPrevista = new Date(fechaStr);
+        } else if (fechaPrevistaString instanceof Date) {
+            fechaPrevista = fechaPrevistaString;
+        } else {
+            // Si es un objeto con propiedades (XMLGregorianCalendar serializado)
+            if (fechaPrevistaString.year && fechaPrevistaString.month && fechaPrevistaString.day) {
+                fechaPrevista = new Date(
+                    fechaPrevistaString.year,
+                    fechaPrevistaString.month - 1, // Los meses en JS son 0-indexed
+                    fechaPrevistaString.day
+                );
+            } else {
+                return 0;
+            }
+        }
 
-    // Calcular la diferencia en milisegundos
-    const diffTime = fechaPrevista.getTime() - fechaHoy.getTime();
+        // Verificar que la fecha es válida
+        if (isNaN(fechaPrevista.getTime())) {
+            console.warn('Fecha inválida:', fechaPrevistaString);
+            return 0;
+        }
 
-    // Si la fecha ya pasó
-    if (diffTime <= 0) return 0;
+        const fechaHoy = new Date();
+        fechaHoy.setHours(0, 0, 0, 0); // Resetear a medianoche para comparar solo fechas
+        fechaPrevista.setHours(0, 0, 0, 0);
 
-    // Convertir milisegundos a días (redondeando hacia arriba)
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+        // Calcular la diferencia en milisegundos
+        const diffTime = fechaPrevista.getTime() - fechaHoy.getTime();
+
+        // Si la fecha ya pasó
+        if (diffTime <= 0) return 0;
+
+        // Convertir milisegundos a días (redondeando hacia arriba)
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    } catch (e) {
+        console.warn('Error al calcular días restantes:', e, 'Fecha:', fechaPrevistaString);
+        return 0;
+    }
 }
 
 function splitCategoryPath(name) {
@@ -239,16 +272,22 @@ const BASE = (typeof window !== 'undefined' && window.CTX) ? window.CTX : '';
 // === CATEGORÍAS ===
 function cargarCategorias() {
     const contenedor = document.getElementById('categorias');
-    if (!contenedor) return;
+    if (!contenedor) {
+        console.warn('Contenedor de categorías no encontrado');
+        return;
+    }
 
+    console.log('Iniciando carga de categorías desde:', BASE + '/categorias/tree');
     fetch(BASE + '/categorias/tree')
         .then(response => {
+            console.log('Respuesta categorías recibida, status:', response.status, response.statusText);
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
             }
             return response.json();
         })
         .then(data => {
+            console.log('Datos de categorías recibidos:', data);
             console.debug('categorias/tree data:', data);
             contenedor.innerHTML = '';
 
@@ -285,8 +324,11 @@ function cargarCategorias() {
             }
         })
         .catch(err => {
-            console.error('Error cargando categorías (tree):', err);
+            console.error('=== ERROR cargando categorías (tree) ===', err);
+            console.error('Error completo:', err);
+            console.error('Stack:', err.stack);
             // fallback to lista endpoint if tree fails
+            console.log('Intentando fallback a /categorias/lista');
             fetch(BASE + '/categorias/lista')
                 .then(r => {
                     if (!r.ok) {
@@ -320,10 +362,12 @@ function cargarCategorias() {
                     collapseAllTreeNodes(treeDiv);
                 })
                 .catch(e => {
-                    console.error('Fallback error cargando lista de categorias:', e);
+                    console.error('=== ERROR en fallback de categorías ===', e);
+                    console.error('Error completo:', e);
+                    console.error('Stack:', e.stack);
                     const contenedor = document.getElementById('categorias');
                     if (contenedor) {
-                        contenedor.innerHTML = '<p class="text-muted small">Error al cargar categorías</p>';
+                        contenedor.innerHTML = '<div class="alert alert-warning" role="alert"><p class="text-muted small mb-0">Error al cargar categorías. Por favor, recarga la página.</p></div>';
                     }
                 });
         });
@@ -339,21 +383,33 @@ if (document.readyState === 'loading') {
 // === PROPUESTAS ===
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Cargar todas las propuestas
+    console.log('Iniciando carga de propuestas desde:', BASE + '/propuestas/listar');
     fetch(BASE + '/propuestas/listar')
         .then(response => {
+            console.log('Respuesta recibida, status:', response.status, response.statusText);
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
             }
             return response.json();
         })
         .then(data => {
+            console.log('Datos recibidos:', data);
             todasLasPropuestas = Array.isArray(data) ? data : [];
             console.log('Propuestas cargadas:', todasLasPropuestas.length);
+            if (todasLasPropuestas.length > 0) {
+                console.log('Primera propuesta ejemplo:', todasLasPropuestas[0]);
+            }
             inicializarFiltros();
         })
         .catch(err => {
-            console.error("Error cargando propuestas:", err);
+            console.error("=== ERROR cargando propuestas ===", err);
+            console.error("Error completo:", err);
+            console.error("Stack:", err.stack);
             todasLasPropuestas = [];
+            const contenedor = document.getElementById('tarjetas');
+            if (contenedor) {
+                contenedor.innerHTML = '<div class="alert alert-danger" role="alert">Error al cargar las propuestas. Por favor, recarga la página o contacta al administrador.</div>';
+            }
             inicializarFiltros();
         });
 
@@ -382,34 +438,46 @@ function mostrarPropuestas(lista) {
     }
 
     lista.forEach(p => {
-        const porcentaje = (p.montoRecaudado / p.montoNecesario) * 100;
+        // Normalizar propiedades (pueden venir con getters de SOAP o como propiedades directas)
+        const titulo = p.titulo || (typeof p.getTitulo === 'function' ? p.getTitulo() : '') || '';
+        const descripcion = p.descripcion || (typeof p.getDescripcion === 'function' ? p.getDescripcion() : '') || '';
+        const montoRecaudado = parseFloat(p.montoRecaudado || (typeof p.getMontoRecaudado === 'function' ? p.getMontoRecaudado() : 0) || 0);
+        const montoNecesario = parseFloat(p.montoNecesario || (typeof p.getMontoNecesario === 'function' ? p.getMontoNecesario() : 1) || 1);
+        const fechaPrevista = p.fechaPrevista || (typeof p.getFechaPrevista === 'function' ? p.getFechaPrevista() : null);
+        const cantColaboradores = parseInt(p.cantColaboradores || (typeof p.getCantColaboradores === 'function' ? p.getCantColaboradores() : 0) || 0);
+        const estadoActual = p.estadoActual || (typeof p.getEstado === 'function' ? p.getEstado() : '') || p.estado || '';
+        const imagenBase64 = p.imagenBase64 || (typeof p.getImagenBase64 === 'function' ? p.getImagenBase64() : '') || '';
+        const imagen = p.imagen || (typeof p.getImagen === 'function' ? p.getImagen() : '') || '';
+        const categoria = p.categoria || (typeof p.getCategoria === 'function' ? p.getCategoria() : '') || '';
+        
+        const porcentaje = (montoRecaudado / montoNecesario) * 100;
         const porcentajeRedondeado = Math.min(Math.round(porcentaje), 100);
-        const diasRestantes = calcularDiasRestantes(p.fechaPrevista);
+        const diasRestantes = calcularDiasRestantes(fechaPrevista);
 
         // Si no tiene imagen, usar la default
         let imgSrc = imagenPorDefecto;
-        if (p.imagenBase64 && p.imagenBase64.trim() !== '') {
+        if (imagenBase64 && imagenBase64.trim() !== '') {
             // Si es base64, usar data URI
-            imgSrc = 'data:image/jpeg;base64,' + p.imagenBase64;
-        } else if (p.imagen && p.imagen.trim() !== '') {
+            imgSrc = 'data:image/jpeg;base64,' + imagenBase64;
+        } else if (imagen && imagen.trim() !== '') {
             // Si es una ruta, usar BASE para construir la URL completa
-            imgSrc = p.imagen.startsWith('http') ? p.imagen : (BASE + '/' + p.imagen);
+            imgSrc = imagen.startsWith('http') ? imagen : (BASE + '/' + imagen);
         }
 
         const col = document.createElement('div');
         col.classList.add('col');
 
         col.innerHTML = `
-        <a href="${BASE}/propuestas/${encodeURIComponent(p.titulo)}" class="text-decoration-none text-dark">
+        <a href="${BASE}/propuestas/${encodeURIComponent(titulo)}" class="text-decoration-none text-dark">
             <div class="card h-100 border p-2 shadow-sm hover-shadow">
-                <img src="${imgSrc}" class="card-img-top" alt="${p.titulo}" style="height: 150px; object-fit: cover;">
+                <img src="${imgSrc}" class="card-img-top" alt="${titulo}" style="height: 150px; object-fit: cover;">
                 <div class="card-body p-2">
-                    <h6 class="card-title fw-bold mb-1" style="font-size: 14px;">${p.titulo}</h6>
-                    <p class="card-text text-muted mb-2" style="font-size: 12px;">${(p.descripcion || '').substring(0, 120)}...</p>
+                    <h6 class="card-title fw-bold mb-1" style="font-size: 14px;">${titulo}</h6>
+                    <p class="card-text text-muted mb-2" style="font-size: 12px;">${(descripcion || '').substring(0, 120)}...</p>
 
                     <div class="d-flex align-items-center mb-1">
                         <i class="bi bi-wallet-fill me-1" style="font-size: 14px;"></i>
-                        <span class="fw-bold" style="font-size: 14px;">Recaudado: ${formatMonto(p.montoRecaudado)}</span>
+                        <span class="fw-bold" style="font-size: 14px;">Recaudado: ${formatMonto(montoRecaudado)}</span>
                     </div>
 
                     <div class="progress mb-2" style="height: 18px; border: 1px solid #000;">
@@ -428,7 +496,7 @@ function mostrarPropuestas(lista) {
                             <small class="text-muted">días restantes</small>
                         </div>
                         <div>
-                            <div class="fw-bold fs-5">${p.cantColaboradores}</div>
+                            <div class="fw-bold fs-5">${cantColaboradores}</div>
                             <small class="text-muted">colaborador</small>
                         </div>
                     </div>
@@ -465,12 +533,15 @@ function aplicarFiltrosCombinados() {
     let listaFiltrada = todasLasPropuestas || [];
 
     if (estadoActivo) {
-        listaFiltrada = listaFiltrada.filter(p => p.estadoActual === estadoActivo);
+        listaFiltrada = listaFiltrada.filter(p => {
+            const estado = p.estadoActual || p.getEstado?.() || p.estado || '';
+            return estado === estadoActivo;
+        });
     }
 
     if (categoriasSeleccionadas.length > 0) {
         listaFiltrada = listaFiltrada.filter(p => {
-            const propCat = p.categoria || '';
+            const propCat = p.categoria || p.getCategoria?.() || '';
 
             return categoriasSeleccionadas.some(sel => propCat.includes(sel) || sel.includes(propCat));
         });
