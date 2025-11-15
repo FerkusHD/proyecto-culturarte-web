@@ -568,8 +568,23 @@ public class PropuestasController {
             @RequestParam(required = false) String estado,
             @RequestParam(required = false) String orden,
             Model model) {
+        logger.info("=== INICIO buscarPropuestas ===");
+        logger.info("Búsqueda: query={}, categoria={}, estado={}, orden={}", query, categoria, estado, orden);
         try {
-            List<PropuestaType> todasLasPropuestas = soapClient.listarPropuestas();
+            List<PropuestaType> todasLasPropuestas = null;
+            try {
+                todasLasPropuestas = soapClient.listarPropuestas();
+            } catch (Exception e) {
+                logger.error("Error al obtener propuestas desde SOAP", e);
+                todasLasPropuestas = new ArrayList<>();
+            }
+            
+            if (todasLasPropuestas == null) {
+                logger.warn("Lista de propuestas es null, usando lista vacía");
+                todasLasPropuestas = new ArrayList<>();
+            }
+            
+            logger.debug("Total de propuestas obtenidas: {}", todasLasPropuestas.size());
             List<PropuestaType> resultados = new ArrayList<>();
 
             // Filtrar por query
@@ -620,19 +635,22 @@ public class PropuestasController {
 
             // Cargar categorías para el filtro
             try {
-                GetCategoriasResponse categoriasResponse = categoriasSoapClient.obtenerCategorias(new com.culturarte.soap.gen.GetCategoriasRequest());
-                if (categoriasResponse != null && categoriasResponse.getCategoria() != null) {
+                com.culturarte.soap.gen.GetCategoriasRequest categoriasRequest = new com.culturarte.soap.gen.GetCategoriasRequest();
+                GetCategoriasResponse categoriasResponse = categoriasSoapClient.obtenerCategorias(categoriasRequest);
+                if (categoriasResponse != null && categoriasResponse.getCategoria() != null && !categoriasResponse.getCategoria().isEmpty()) {
                     List<String> categorias = categoriasResponse.getCategoria().stream()
+                            .filter(cat -> cat != null && cat.getNombre() != null)
                             .map(com.culturarte.soap.gen.CategoriaType::getNombre)
                             .collect(java.util.stream.Collectors.toList());
                     model.addAttribute("categorias", categorias);
                     logger.debug("Categorías cargadas para filtro: {}", categorias.size());
                 } else {
-                    logger.warn("No se pudieron obtener categorías para el filtro");
+                    logger.warn("No se pudieron obtener categorías para el filtro (respuesta null o vacía)");
                     model.addAttribute("categorias", new ArrayList<>());
                 }
             } catch (Exception e) {
                 logger.error("Error al cargar categorías para filtro", e);
+                logger.error("Stack trace completo:", e);
                 model.addAttribute("categorias", new ArrayList<>());
             }
 
@@ -641,7 +659,18 @@ public class PropuestasController {
             return "busquedaPropuestas";
         } catch (Exception e) {
             logger.error("=== ERROR en buscarPropuestas ===", e);
+            logger.error("Tipo de excepción: {}", e.getClass().getName());
+            logger.error("Mensaje: {}", e.getMessage());
+            if (e.getCause() != null) {
+                logger.error("Causa: {}", e.getCause().getMessage());
+            }
+            logger.error("Stack trace completo:", e);
             model.addAttribute("resultados", new ArrayList<>());
+            model.addAttribute("categorias", new ArrayList<>());
+            model.addAttribute("query", query);
+            model.addAttribute("categoria", categoria);
+            model.addAttribute("estado", estado);
+            model.addAttribute("orden", orden);
             model.addAttribute("mensaje", "❌ Error al buscar propuestas: " + e.getMessage());
             return "busquedaPropuestas";
         }

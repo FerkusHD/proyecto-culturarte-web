@@ -62,7 +62,15 @@ public class PropuestaDTO {
             this.categoria = propuesta.getCategoria();
             this.estado = propuesta.getEstado();
             this.estadoActual = propuesta.getEstado();
-            this.imagenBase64 = propuesta.getImagenBase64();
+            
+            // Obtener imagenBase64 - puede venir como null o vacío
+            String imgBase64 = propuesta.getImagenBase64();
+            if (imgBase64 != null && !imgBase64.trim().isEmpty()) {
+                this.imagenBase64 = imgBase64;
+            } else {
+                this.imagenBase64 = null; // Explícitamente null si no hay imagen
+            }
+            
             this.montoEntrada = propuesta.getMontoEntrada();
             this.montoNecesario = propuesta.getMontoNecesario();
             this.montoRecaudado = propuesta.getMontoRecaudado();

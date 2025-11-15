@@ -125,9 +125,27 @@ public class UsuarioController {
         logger.info("=== INICIO mostrarPerfil ===");
         logger.info("Mostrando perfil de usuario: {}", nick);
         try {
-            DTUsuario usuarioLogueado = (DTUsuario) session.getAttribute("usuarioLogueado");
-            if (usuarioLogueado == null) {
-                logger.debug("No hay usuario en sesión, creando visitante");
+            // Validar nick
+            if (nick == null || nick.trim().isEmpty()) {
+                logger.warn("Nick vacío o null");
+                model.addAttribute("mensajeError", "Nickname inválido");
+                return "error/404";
+            }
+            
+            DTUsuario usuarioLogueado = null;
+            try {
+                Object usuarioObj = session.getAttribute("usuarioLogueado");
+                if (usuarioObj instanceof DTUsuario) {
+                    usuarioLogueado = (DTUsuario) usuarioObj;
+                } else {
+                    logger.debug("No hay usuario en sesión o tipo incorrecto, creando visitante");
+                    usuarioLogueado = new DTUsuario();
+                    usuarioLogueado.setTipo("visitante");
+                    usuarioLogueado.setNickname("visitante");
+                    session.setAttribute("usuarioLogueado", usuarioLogueado);
+                }
+            } catch (Exception e) {
+                logger.warn("Error al obtener usuario de sesión, creando visitante", e);
                 usuarioLogueado = new DTUsuario();
                 usuarioLogueado.setTipo("visitante");
                 usuarioLogueado.setNickname("visitante");
@@ -136,7 +154,15 @@ public class UsuarioController {
             model.addAttribute("usuarioLogueado", usuarioLogueado);
 
             logger.debug("Obteniendo usuario desde SOAP: {}", nick);
-            GetUsuarioResponse usuarioResponse = usuariosSoapClient.getUsuario(nick);
+            GetUsuarioResponse usuarioResponse = null;
+            try {
+                usuarioResponse = usuariosSoapClient.getUsuario(nick);
+            } catch (Exception e) {
+                logger.error("Error al invocar SOAP para obtener usuario: {}", nick, e);
+                model.addAttribute("mensajeError", "Error al cargar el perfil: " + e.getMessage());
+                return "error/404";
+            }
+            
             if (usuarioResponse == null) {
                 logger.warn("Respuesta SOAP null al obtener usuario: {}", nick);
                 model.addAttribute("mensajeError", "Usuario no encontrado");
@@ -149,19 +175,37 @@ public class UsuarioController {
                 return "error/404";
             }
 
-            DTUsuario perfilVisitado = convertirDT(usuarioResponse.getUsuario());
+            DTUsuario perfilVisitado = null;
+            try {
+                perfilVisitado = convertirDT(usuarioResponse.getUsuario());
+            } catch (Exception e) {
+                logger.error("Error al convertir usuario a DTUsuario: {}", nick, e);
+                model.addAttribute("mensajeError", "Error al procesar el perfil");
+                return "error/404";
+            }
+            
             if (perfilVisitado == null) {
-                logger.warn("Error al convertir usuario a DTUsuario: {}", nick);
+                logger.warn("Resultado de conversión es null para usuario: {}", nick);
                 model.addAttribute("mensajeError", "Error al cargar el perfil");
                 return "error/404";
             }
 
             model.addAttribute("perfilVisitado", perfilVisitado);
-            model.addAttribute("esMiPropioPerfil", perfilVisitado.getNickname().equals(usuarioLogueado.getNickname()));
+            
+            // Verificar si es mi propio perfil de forma segura
+            boolean esMiPropioPerfil = false;
+            try {
+                String nickPerfil = perfilVisitado.getNickname();
+                String nickLogueado = usuarioLogueado != null ? usuarioLogueado.getNickname() : null;
+                esMiPropioPerfil = nickPerfil != null && nickLogueado != null && nickPerfil.equals(nickLogueado);
+            } catch (Exception e) {
+                logger.debug("Error al verificar si es propio perfil: {}", e.getMessage());
+            }
+            model.addAttribute("esMiPropioPerfil", esMiPropioPerfil);
             
             // Verificar si lo sigue (solo si no es visitante)
             boolean loSigo = false;
-            if (usuarioLogueado != null && !"visitante".equals(usuarioLogueado.getTipo())) {
+            if (usuarioLogueado != null && !"visitante".equals(usuarioLogueado.getTipo()) && perfilVisitado.getNickname() != null) {
                 try {
                     loSigo = usuarioLogueado.buscarUsuarioSeguido(perfilVisitado.getNickname());
                 } catch (Exception e) {
@@ -174,12 +218,14 @@ public class UsuarioController {
             logger.debug("Obteniendo propuestas favoritas de: {}", nick);
             List<DTPropuesta> favoritas = new ArrayList<>();
             try {
-                List<PropuestaType> favoritasSoap = usuariosSoapClient.getPropuestasFavoritas(perfilVisitado.getNickname());
-                if (favoritasSoap != null) {
-                    favoritas = favoritasSoap.stream()
-                            .map(this::convertirPropuesta)
-                            .filter(p -> p != null)
-                            .collect(Collectors.toList());
+                if (perfilVisitado.getNickname() != null) {
+                    List<PropuestaType> favoritasSoap = usuariosSoapClient.getPropuestasFavoritas(perfilVisitado.getNickname());
+                    if (favoritasSoap != null) {
+                        favoritas = favoritasSoap.stream()
+                                .map(this::convertirPropuesta)
+                                .filter(p -> p != null)
+                                .collect(Collectors.toList());
+                    }
                 }
             } catch (Exception e) {
                 logger.warn("Error al obtener propuestas favoritas (continuando sin ellas): {}", e.getMessage());
@@ -191,7 +237,8 @@ public class UsuarioController {
         } catch (Exception e) {
             logger.error("=== ERROR en mostrarPerfil ===", e);
             logger.error("Error al mostrar perfil de usuario: {}", nick, e);
-            model.addAttribute("mensajeError", "Error al cargar el perfil: " + e.getMessage());
+            logger.error("Stack trace completo:", e);
+            model.addAttribute("mensajeError", "Error al cargar el perfil: " + (e.getMessage() != null ? e.getMessage() : "Error desconocido"));
             return "error/404";
         }
     }
