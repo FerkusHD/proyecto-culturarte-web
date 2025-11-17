@@ -245,7 +245,7 @@ public class PropuestasEndpoint {
     }
 
     // ------------------ MAPEO DTPropuesta -> SOAP -------------------
-    private PropuestaType mapToSoapPropuesta(DTPropuesta dt) {
+    protected PropuestaType mapToSoapPropuesta(DTPropuesta dt) {
         PropuestaType p = new PropuestaType();
         p.setTitulo(dt.getTitulo());
         p.setDescripcion(dt.getDescripcion());

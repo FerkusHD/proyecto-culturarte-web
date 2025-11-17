@@ -24,13 +24,13 @@
             <xs:element name="tipo" type="xs:string" minOccurs="0"/>
 
             <!-- Lista de usuarios seguidos -->
-            <xs:element name="usuariosSeguidos" minOccurs="0" type="tns:usuarioLightType"/>
+            <xs:element name="usuariosSeguidos" minOccurs="0" maxOccurs="unbounded" type="tns:usuarioLightType"/>
 
             <!-- Lista de seguidores -->
-            <xs:element name="usuariosSeguidores" minOccurs="0" type="tns:usuarioLightType"/>
+            <xs:element name="usuariosSeguidores" minOccurs="0" maxOccurs="unbounded" type="tns:usuarioLightType"/>
 
             <!-- Lista de propuestas seguidas -->
-            <xs:element name="propuestasSeguidas" minOccurs="0" type="prop:propuestaType"/>
+            <xs:element name="propuestasSeguidas" minOccurs="0" maxOccurs="unbounded" type="prop:propuestaType"/>
         </xs:sequence>
     </xs:complexType>
 

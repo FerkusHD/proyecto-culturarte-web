@@ -90,15 +90,15 @@ public class MenuController {
             }
 
             logger.debug("Password verificado correctamente, obteniendo datos del usuario");
-            GetUsuarioResponse usuarioResp = soapClient.getUsuario(nickOemail);
-            if (usuarioResp == null || usuarioResp.getUsuario() == null) {
+            UsuarioType usuarioResp = soapClient.getUsuario(nickOemail);
+            if (usuarioResp == null || usuarioResp == null) {
                 logger.error("No se pudo obtener usuario después de verificar password: {}", nickOemail);
                 model.addAttribute("mensaje", "⚠️ Error al obtener datos del usuario");
                 model.addAttribute("nickname", nickOemail);
                 return "login";
             }
 
-            UsuarioType usuario = usuarioResp.getUsuario();
+            UsuarioType usuario = usuarioResp;
             String userAgent = request.getHeader("User-Agent");
             boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
 

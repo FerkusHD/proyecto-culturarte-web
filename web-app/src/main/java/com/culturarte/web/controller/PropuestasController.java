@@ -124,9 +124,9 @@ public class PropuestasController {
             if (propuesta.getProponente() != null && !propuesta.getProponente().isEmpty()) {
                 try {
                     logger.debug("Obteniendo proponente: {}", propuesta.getProponente());
-                    GetUsuarioResponse usuarioResp = usuarioSoapClient.getUsuario(propuesta.getProponente());
-                    if (usuarioResp != null && usuarioResp.getUsuario() != null) {
-                        UsuarioType proponente = usuarioResp.getUsuario();
+                    UsuarioType usuarioResp = usuarioSoapClient.getUsuario(propuesta.getProponente());
+                    if (usuarioResp != null && usuarioResp != null) {
+                        UsuarioType proponente = usuarioResp;
                         model.addAttribute("proponente", proponente);
                         logger.debug("Proponente obtenido exitosamente");
                     } else {
@@ -144,9 +144,9 @@ public class PropuestasController {
                 logger.debug("Obteniendo {} colaboradores", propuesta.getColaboradores().size());
                 for (String nickColaborador : propuesta.getColaboradores()) {
                     try {
-                        GetUsuarioResponse usuarioResp = usuarioSoapClient.getUsuario(nickColaborador);
-                        if (usuarioResp != null && usuarioResp.getUsuario() != null) {
-                            UsuarioType colaborador = usuarioResp.getUsuario();
+                        UsuarioType usuarioResp = usuarioSoapClient.getUsuario(nickColaborador);
+                        if (usuarioResp != null && usuarioResp != null) {
+                            UsuarioType colaborador = usuarioResp;
                             colaboradores.add(colaborador);
                         }
                     } catch (Exception e) {

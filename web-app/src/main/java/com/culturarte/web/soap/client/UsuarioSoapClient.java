@@ -1,25 +1,6 @@
 package com.culturarte.web.soap.client;
 
-import com.culturarte.soap.gen.AgregarColaboradorRequest;
-import com.culturarte.soap.gen.AgregarProponenteRequest;
-import com.culturarte.soap.gen.AgregarPropuestaFavoritaRequest;
-import com.culturarte.soap.gen.BuscarUsuariosRequest;
-import com.culturarte.soap.gen.BuscarUsuariosResponse;
-import com.culturarte.soap.gen.DejarDeSeguirUsuarioRequest;
-import com.culturarte.soap.gen.GetUsuarioRequest;
-import com.culturarte.soap.gen.GetUsuarioResponse;
-import com.culturarte.soap.gen.ListarUsuariosRequest;
-import com.culturarte.soap.gen.ListarUsuariosResponse;
-import com.culturarte.soap.gen.PropuestaType;
-import com.culturarte.soap.gen.SacarPropuestaFavoritaRequest;
-import com.culturarte.soap.gen.SeguirUsuarioRequest;
-import com.culturarte.soap.gen.UsuarioType;
-import com.culturarte.soap.gen.VerificarEmailRequest;
-import com.culturarte.soap.gen.VerificarEmailResponse;
-import com.culturarte.soap.gen.VerificarNicknameRequest;
-import com.culturarte.soap.gen.VerificarNicknameResponse;
-import com.culturarte.soap.gen.VerificarPasswordRequest;
-import com.culturarte.soap.gen.VerificarPasswordResponse;
+import com.culturarte.soap.gen.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,7 +41,7 @@ public class UsuarioSoapClient {
         return String.format("http://%s:%s%s/usuarios", soapServiceHost, soapServicePort, soapServiceContextPath);
     }
 
-    public GetUsuarioResponse getUsuario(String nickname) {
+    public UsuarioType getUsuario(String nickname) {
         logger.debug("Obteniendo usuario vía SOAP: {}", nickname);
         try {
             GetUsuarioRequest request = new GetUsuarioRequest();
@@ -71,10 +52,10 @@ public class UsuarioSoapClient {
             } else {
                 logger.warn("Usuario no encontrado: {}", nickname);
             }
-            return response;
+            return response.getUsuario();
         } catch (Exception e) {
             logger.error("Error al obtener usuario vía SOAP: {}", nickname, e);
-            return new GetUsuarioResponse();
+            return null;
         }
     }
 

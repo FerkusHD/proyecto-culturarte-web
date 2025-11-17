@@ -2,6 +2,8 @@ package com.culturarte.soap.endpoint;
 
 import com.culturarte.exepciones.*;
 import com.culturarte.logica.IControlador;
+import com.culturarte.logica.datatypes.DTPropuesta;
+import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.soap.gen.*;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
@@ -16,9 +18,11 @@ public class UsuarioEndpoint {
     private static final String NAMESPACE = "http://www.culturarte.com/ws/usuarios";
 
     private final IControlador ctrl;
+    private final PropuestasEndpoint propuestasEndpoint;
 
-    public UsuarioEndpoint(IControlador ctrl) {
+    public UsuarioEndpoint(IControlador ctrl, PropuestasEndpoint propuestasEndpoint) {
         this.ctrl = ctrl;
+        this.propuestasEndpoint = propuestasEndpoint;
     }
 
     @PayloadRoot(namespace = NAMESPACE, localPart = "getUsuarioRequest")
@@ -28,7 +32,7 @@ public class UsuarioEndpoint {
         ObjectFactory of = new ObjectFactory();
 
         String nick = request.getNickname();
-        com.culturarte.logica.datatypes.DTUsuario du = ctrl.getDTUsuario(nick);
+        DTUsuario du = ctrl.getDTUsuario(nick);
         if (du != null) {
             UsuarioType ut = of.createUsuarioType();
             ut.setNickname(du.getNickname());
@@ -36,13 +40,34 @@ public class UsuarioEndpoint {
             ut.setApellido(du.getApellido());
             ut.setEmail(du.getEmail());
             ut.setImagen(du.getImagen());
+            ut.setTipo(du.getTipo());
             if (du.getFechaNacimiento() != null) {
                 javax.xml.datatype.XMLGregorianCalendar xgc = javax.xml.datatype.DatatypeFactory.newInstance()
                         .newXMLGregorianCalendarDate(du.getFechaNacimiento().getYear(), du.getFechaNacimiento().getMonthValue(), du.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
                 ut.setFechaNacimiento(xgc);
             }
 
-            ut.setTipo(du.getTipo());
+            for (DTUsuario u : du.getUsuariosSeguidos()) {
+                UsuarioLightType sub = of.createUsuarioLightType();
+                sub.setNickname(u.getNickname());
+                sub.setImagen(u.getImagen());
+                sub.setTipo(u.getTipo());
+                ut.getUsuariosSeguidos().add(sub);
+            }
+
+            for (DTUsuario seg : du.getUsuariosSeguidores()) {
+                UsuarioLightType sub = of.createUsuarioLightType();
+                sub.setNickname(seg.getNickname());
+                sub.setTipo(seg.getTipo());
+                sub.setImagen(seg.getImagen());
+                ut.getUsuariosSeguidores().add(sub);
+            }
+
+            for (DTPropuesta prop : du.getPropuestasSeguidas()) {
+                ut.getPropuestasSeguidas().add(propuestasEndpoint.mapToSoapPropuesta(prop));
+            }
+
+
             resp.setUsuario(ut);
         }
         return resp;

@@ -3,11 +3,7 @@ package com.culturarte.web.controller;
 import com.culturarte.logica.datatypes.DTPropuesta;
 import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.logica.enums.TipoEstado;
-import com.culturarte.soap.gen.GetUsuarioResponse;
-import com.culturarte.soap.gen.PropuestaType;
-import com.culturarte.soap.gen.UsuarioType;
-import com.culturarte.soap.gen.VerificarEmailResponse;
-import com.culturarte.soap.gen.VerificarNicknameResponse;
+import com.culturarte.soap.gen.*;
 import com.culturarte.web.soap.client.UsuarioSoapClient;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -18,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.culturarte.soap.gen.UsuarioType;
 
 import javax.xml.datatype.DatatypeFactory;
 import java.nio.file.*;
@@ -95,7 +92,7 @@ public class UsuarioController {
 
             // Obtener usuario recién creado y guardarlo en sesión
             logger.debug("Obteniendo usuario recién creado: {}", nickname);
-            DTUsuario usuario = convertirDT(usuariosSoapClient.getUsuario(nickname).getUsuario());
+            DTUsuario usuario = convertirDT(usuariosSoapClient.getUsuario(nickname));
             session.setAttribute("usuarioLogueado", usuario);
             logger.info("Usuario creado exitosamente: {} (rol: {})", nickname, rol);
             logger.debug("=== FIN altaUsuario (exitoso) ===");
@@ -154,22 +151,16 @@ public class UsuarioController {
             model.addAttribute("usuarioLogueado", usuarioLogueado);
 
             logger.debug("Obteniendo usuario desde SOAP: {}", nick);
-            GetUsuarioResponse usuarioResponse = null;
+            UsuarioType usuarioType = null;
             try {
-                usuarioResponse = usuariosSoapClient.getUsuario(nick);
+                usuarioType = usuariosSoapClient.getUsuario(nick);
             } catch (Exception e) {
                 logger.error("Error al invocar SOAP para obtener usuario: {}", nick, e);
                 model.addAttribute("mensajeError", "Error al cargar el perfil: " + e.getMessage());
                 return "error/404";
             }
             
-            if (usuarioResponse == null) {
-                logger.warn("Respuesta SOAP null al obtener usuario: {}", nick);
-                model.addAttribute("mensajeError", "Usuario no encontrado");
-                return "error/404";
-            }
-            
-            if (usuarioResponse.getUsuario() == null) {
+            if (usuarioType == null) {
                 logger.warn("Usuario null en respuesta SOAP: {}", nick);
                 model.addAttribute("mensajeError", "Usuario no encontrado");
                 return "error/404";
@@ -177,7 +168,7 @@ public class UsuarioController {
 
             DTUsuario perfilVisitado = null;
             try {
-                perfilVisitado = convertirDT(usuarioResponse.getUsuario());
+                perfilVisitado = convertirDT(usuarioType);
             } catch (Exception e) {
                 logger.error("Error al convertir usuario a DTUsuario: {}", nick, e);
                 model.addAttribute("mensajeError", "Error al procesar el perfil");
@@ -219,12 +210,9 @@ public class UsuarioController {
             List<DTPropuesta> favoritas = new ArrayList<>();
             try {
                 if (perfilVisitado.getNickname() != null) {
-                    List<PropuestaType> favoritasSoap = usuariosSoapClient.getPropuestasFavoritas(perfilVisitado.getNickname());
+                    List<DTPropuesta> favoritasSoap = perfilVisitado.getPropuestasSeguidas();
                     if (favoritasSoap != null) {
-                        favoritas = favoritasSoap.stream()
-                                .map(this::convertirPropuesta)
-                                .filter(p -> p != null)
-                                .collect(Collectors.toList());
+                        favoritas = perfilVisitado.getPropuestasSeguidas();
                     }
                 }
             } catch (Exception e) {
@@ -303,7 +291,7 @@ public class UsuarioController {
             usuariosSoapClient.seguirUsuario(usuarioLogueado.getNickname(), nickSeguido);
         } catch (Exception ignored) {}
 
-        usuarioLogueado = convertirDT(usuariosSoapClient.getUsuario(usuarioLogueado.getNickname()).getUsuario());
+        usuarioLogueado = convertirDT(usuariosSoapClient.getUsuario(usuarioLogueado.getNickname()));
         session.setAttribute("usuarioLogueado", usuarioLogueado);
         return "redirect:" + request.getHeader("Referer");
     }
@@ -317,7 +305,7 @@ public class UsuarioController {
             usuariosSoapClient.dejarDeSeguirUsuario(usuarioLogueado.getNickname(), nickSeguido);
         } catch (Exception ignored) {}
 
-        usuarioLogueado = convertirDT(usuariosSoapClient.getUsuario(usuarioLogueado.getNickname()).getUsuario());
+        usuarioLogueado = convertirDT(usuariosSoapClient.getUsuario(usuarioLogueado.getNickname()));
         session.setAttribute("usuarioLogueado", usuarioLogueado);
         return "redirect:" + request.getHeader("Referer");
     }
@@ -388,6 +376,17 @@ public class UsuarioController {
         dt.setEmail(u.getEmail());
         dt.setImagen(u.getImagen());
         dt.setTipo(u.getTipo());
+        for (PropuestaType pSoap : u.getPropuestasSeguidas()) {
+            dt.getPropuestasSeguidas().add(convertirPropuesta(pSoap));
+        }
+        for (UsuarioLightType uSeguido : u.getUsuariosSeguidos()) {
+            dt.addUsuariosSeguidos(
+                    new DTUsuario(uSeguido.getNickname(), uSeguido.getTipo(), uSeguido.getImagen()));
+        }
+        for (UsuarioLightType uSeguidor : u.getUsuariosSeguidores()) {
+            dt.addUsuariosSeguidores(
+                    new DTUsuario(uSeguidor.getNickname(), uSeguidor.getTipo(), uSeguidor.getImagen()));
+        }
         if (u.getFechaNacimiento() != null)
             dt.setFechaNacimiento(u.getFechaNacimiento().toGregorianCalendar().toZonedDateTime().toLocalDate());
         return dt;
