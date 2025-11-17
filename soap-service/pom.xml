@@ -106,7 +106,7 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <sources>
-                                <source>src/main/xsd</source>
+                                <source>src/main/resources/ws</source>
                             </sources>
                             <outputDirectory>${project.build.directory}/generated-sources/xjc</outputDirectory>
                             <packageName>com.culturarte.soap.gen</packageName>

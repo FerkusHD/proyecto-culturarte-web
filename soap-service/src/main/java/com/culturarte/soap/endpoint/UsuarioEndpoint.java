@@ -41,6 +41,7 @@ public class UsuarioEndpoint {
                         .newXMLGregorianCalendarDate(du.getFechaNacimiento().getYear(), du.getFechaNacimiento().getMonthValue(), du.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
                 ut.setFechaNacimiento(xgc);
             }
+
             ut.setTipo(du.getTipo());
             resp.setUsuario(ut);
         }

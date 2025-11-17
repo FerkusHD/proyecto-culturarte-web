@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://culturarte.com/soap"
-           xmlns="http://culturarte.com/soap"
+           targetNamespace="http://www.culturarte.com/ws"
+           xmlns="http://www.culturarte.com/ws"
            elementFormDefault="qualified">
 
+    <!-- Importar los módulos -->
+    <xs:import namespace="http://www.culturarte.com/ws/usuarios"
+               schemaLocation="usuarios.xsd"/>
+
+    <xs:import namespace="http://www.culturarte.com/ws/propuestas"
+               schemaLocation="propuestas.xsd"/>
+
+    <xs:import namespace="http://www.culturarte.com/ws/categorias"
+               schemaLocation="categorias.xsd"/>
+
+    <xs:import namespace="http://www.culturarte.com/ws/colaboraciones"
+               schemaLocation="colaboraciones.xsd"/>
+
+    <!-- Puedes dejar definiciones globales si quieres -->
     <xs:element name="pingRequest">
         <xs:complexType>
             <xs:sequence>
@@ -22,3 +36,4 @@
     </xs:element>
 
 </xs:schema>
+
