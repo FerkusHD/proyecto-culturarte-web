@@ -80,6 +80,7 @@
                 <version>3.4.0</version>
                 <executions>
                     <execution>
+                        <id>add-source</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>add-source</goal>
@@ -95,28 +96,17 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxb2-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.glassfish.jaxb</groupId>
-                        <artifactId>jaxb-xjc</artifactId>
-                        <version>4.0.2</version>
-                    </dependency>
-                </dependencies>
+                <version>4.0.0</version>
                 <executions>
                     <execution>
-                        <phase>generate-sources</phase>
                         <id>xjc</id>
                         <goals>
                             <goal>xjc</goal>
                         </goals>
+                        <phase>generate-sources</phase>
                         <configuration>
                             <sources>
-                                <source>${project.basedir}/src/main/xsd/culturarte.xsd</source>
-                                <source>${project.basedir}/src/main/xsd/colaboraciones.xsd</source>
-                                <source>${project.basedir}/src/main/xsd/categorias.xsd</source>
-                                <source>${project.basedir}/src/main/xsd/propuestas.xsd</source>
-                                <source>${project.basedir}/src/main/xsd/usuarios.xsd</source>
+                                <source>src/main/xsd</source>
                             </sources>
                             <outputDirectory>${project.build.directory}/generated-sources/xjc</outputDirectory>
                             <packageName>com.culturarte.soap.gen</packageName>
