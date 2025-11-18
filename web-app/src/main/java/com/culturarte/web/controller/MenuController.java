@@ -1,5 +1,6 @@
 package com.culturarte.web.controller;
 
+import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.soap.gen.*;
 import com.culturarte.web.soap.client.UsuarioSoapClient;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,35 +20,24 @@ public class MenuController {
 
     @Autowired
     private UsuarioSoapClient soapClient;
+    @Autowired
+    private HttpSession httpSession;
 
     @GetMapping("/")
     public String index(HttpSession session, Model model) {
         logger.info("=== INICIO index (página principal) ===");
         try {
-            Object usuarioLogueadoObj = session.getAttribute("usuarioLogueado");
-            UsuarioType usuario = null;
+            DTUsuario usuarioLogueado =(DTUsuario) session.getAttribute("usuarioLogueado");
 
-            if (usuarioLogueadoObj instanceof GetUsuarioResponse) {
-                GetUsuarioResponse usuarioResp = (GetUsuarioResponse) usuarioLogueadoObj;
-                if (usuarioResp != null && usuarioResp.getUsuario() != null) {
-                    usuario = usuarioResp.getUsuario();
-                    logger.debug("Usuario obtenido de GetUsuarioResponse: {}", usuario.getNickname());
-                }
-            } else if (usuarioLogueadoObj instanceof UsuarioType) {
-                usuario = (UsuarioType) usuarioLogueadoObj;
-                logger.debug("Usuario obtenido de UsuarioType: {}", usuario.getNickname());
-            }
-
-            if (usuario == null) {
+            if (usuarioLogueado == null) {
                 logger.debug("No hay usuario en sesión, creando usuario visitante");
-                usuario = new UsuarioType();
-                usuario.setNickname("visitante");
-                usuario.setTipo("visitante");
-                session.setAttribute("usuarioLogueado", usuario);
+                usuarioLogueado = new DTUsuario();
+                usuarioLogueado.setNickname("visitante");
+                usuarioLogueado.setTipo("visitante");
+                session.setAttribute("usuarioLogueado", usuarioLogueado);
             }
 
-            model.addAttribute("usuario", usuario);
-            logger.info("Página principal cargada para usuario: {}", usuario.getNickname());
+            logger.info("Página principal cargada para usuario: {}", usuarioLogueado.getNickname());
             logger.debug("=== FIN index (exitoso) ===");
             return "index";
         } catch (Exception e) {
@@ -91,28 +81,18 @@ public class MenuController {
 
             logger.debug("Password verificado correctamente, obteniendo datos del usuario");
             UsuarioType usuarioResp = soapClient.getUsuario(nickOemail);
-            if (usuarioResp == null || usuarioResp == null) {
+            if (usuarioResp == null) {
                 logger.error("No se pudo obtener usuario después de verificar password: {}", nickOemail);
                 model.addAttribute("mensaje", "⚠️ Error al obtener datos del usuario");
                 model.addAttribute("nickname", nickOemail);
                 return "login";
             }
 
-            UsuarioType usuario = usuarioResp;
-            String userAgent = request.getHeader("User-Agent");
-            boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
-
-            if (esMovil && !"colaborador".equalsIgnoreCase(usuario.getTipo())) {
-                logger.warn("Intento de login desde móvil para usuario no colaborador: {} (tipo: {})", 
-                        nickOemail, usuario.getTipo());
-                model.addAttribute("mensaje", "⚠️ Solo los colaboradores pueden iniciar sesión desde un dispositivo móvil.");
-                model.addAttribute("nickname", nickOemail);
-                return "login";
-            }
+            DTUsuario usuario = UsuarioController.convertirDT(usuarioResp);
 
             session.setAttribute("usuarioLogueado", usuario);
-            logger.info("Login exitoso para: {} (tipo: {}, móvil: {})", 
-                    usuario.getNickname(), usuario.getTipo(), esMovil);
+            logger.info("Login exitoso para: {} (tipo: {})",
+                    usuario.getNickname(), usuario.getTipo());
             logger.debug("=== FIN procesarLogin (exitoso) ===");
             return "redirect:/";
         } catch (Exception e) {
@@ -127,13 +107,9 @@ public class MenuController {
     public String logout(HttpSession session) {
         logger.info("=== INICIO logout ===");
         try {
-            Object usuarioObj = session.getAttribute("usuarioLogueado");
-            String nickname = "desconocido";
-            if (usuarioObj instanceof UsuarioType) {
-                nickname = ((UsuarioType) usuarioObj).getNickname();
-            }
+            DTUsuario usuarioObj = (DTUsuario) session.getAttribute("usuarioLogueado");
             session.invalidate();
-            logger.info("Logout exitoso para: {}", nickname);
+            logger.info("Logout exitoso para: {}", usuarioObj.getNickname());
             logger.debug("=== FIN logout ===");
             return "redirect:/";
         } catch (Exception e) {

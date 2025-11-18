@@ -251,8 +251,8 @@ public class PropuestasEndpoint {
         p.setDescripcion(dt.getDescripcion());
         p.setProponente(dt.getProponente());
         p.setCategoria(dt.getCategoria());
-        p.setEstado(dt.getEstadoActual() != null ? dt.getEstadoActual().toString() : null);
-        p.setImagenBase64(dt.getImagen());
+        p.setEstadoActual(dt.getEstadoActual() != null ? dt.getEstadoActual().toString() : null);
+        p.setImagen(dt.getImagen());
         p.setFechaPrevista(toXmlDate(dt.getFechaPrevista()));
         p.setMontoEntrada(dt.getPrecioEntrada());
         p.setMontoNecesario(dt.getMontoNecesario());

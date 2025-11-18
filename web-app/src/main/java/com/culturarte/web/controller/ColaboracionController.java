@@ -3,6 +3,7 @@ package com.culturarte.web.controller;
 import com.culturarte.logica.datatypes.DTColaboracion;
 import com.culturarte.logica.datatypes.DTPropuesta;
 import com.culturarte.logica.enums.TipoRetorno;
+import com.culturarte.soap.endpoint.PropuestasEndpoint;
 import com.culturarte.soap.gen.GetColaboracionResponse;
 import com.culturarte.web.service.PDFService;
 import com.culturarte.web.soap.client.ColaboracionSoapClient;
@@ -71,7 +72,7 @@ public class ColaboracionController {
             }
 
             DTColaboracion colaboracion = convertirColaboracion(soapResponse.getColaboracion());
-            DTPropuesta propuesta = convertirPropuesta(soapResponse.getPropuesta());
+            DTPropuesta propuesta = UsuarioController.convertirPropuesta(soapResponse.getPropuesta());
 
             if (colaboracion == null) {
                 logger.error("Error al convertir colaboración a DTColaboracion");
@@ -113,7 +114,7 @@ public class ColaboracionController {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_DATE;
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ISO_TIME;
 
-    private DTColaboracion convertirColaboracion(com.culturarte.soap.gen.DTColaboracion soapColaboracion) {
+    private DTColaboracion convertirColaboracion(com.culturarte.soap.gen.ColaboracionType soapColaboracion) {
         if (soapColaboracion == null) {
             return null;
         }
@@ -123,31 +124,13 @@ public class ColaboracionController {
 
         DTColaboracion dt = new DTColaboracion(
                 soapColaboracion.getNickColaborador(),
-                soapColaboracion.getTituloPropuesta(),
+                soapColaboracion.getPropuesta().getTitulo(),
                 fecha,
                 hora,
                 soapColaboracion.getMonto(),
                 tipoRetorno
         );
         return dt;
-    }
-
-    private DTPropuesta convertirPropuesta(com.culturarte.soap.gen.DTPropuesta soapPropuesta) {
-        if (soapPropuesta == null) {
-            return null;
-        }
-        return new DTPropuesta(
-                soapPropuesta.getTitulo(),
-                soapPropuesta.getDescripcion() != null ? soapPropuesta.getDescripcion() : "",
-                null,
-                0,
-                0f,
-                0f,
-                null,
-                "",
-                "",
-                ""
-        );
     }
 
     private LocalDate parseFecha(String fecha) {

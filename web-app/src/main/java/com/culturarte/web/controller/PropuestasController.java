@@ -116,7 +116,7 @@ public class PropuestasController {
             }
             
             logger.debug("Propuesta obtenida: titulo={}, estado={}, categoria={}", 
-                    propuesta.getTitulo(), propuesta.getEstado(), propuesta.getCategoria());
+                    propuesta.getTitulo(), propuesta.getEstadoActual(), propuesta.getCategoria());
 
             model.addAttribute("propuesta", propuesta);
 
@@ -607,7 +607,7 @@ public class PropuestasController {
 
             // Filtrar por estado
             if (estado != null && !estado.trim().isEmpty()) {
-                resultados.removeIf(p -> !estado.equals(p.getEstado()));
+                resultados.removeIf(p -> !estado.equals(p.getEstadoActual()));
             }
 
             // Ordenar

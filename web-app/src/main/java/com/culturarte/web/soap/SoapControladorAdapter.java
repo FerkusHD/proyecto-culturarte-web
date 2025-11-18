@@ -417,9 +417,9 @@ public class SoapControladorAdapter implements IControlador {
 
     private DTPropuesta convertPropuestaTypeToDT(PropuestaType pt) {
         TipoEstado estado = null;
-        if (pt.getEstado() != null) {
+        if (pt.getEstadoActual() != null) {
             try {
-                estado = TipoEstado.valueOf(pt.getEstado());
+                estado = TipoEstado.valueOf(pt.getEstadoActual());
             } catch (IllegalArgumentException e) {
                 // Si no se puede convertir, se deja null
             }
@@ -446,7 +446,7 @@ public class SoapControladorAdapter implements IControlador {
             montoRecaudado,
             montoNecesario,
             fechaPrevista,
-            pt.getImagenBase64() != null ? pt.getImagenBase64() : "",
+            pt.getImagen() != null ? pt.getImagen() : "",
             pt.getCategoria() != null ? pt.getCategoria() : "",
             pt.getProponente() != null ? pt.getProponente() : ""
         );

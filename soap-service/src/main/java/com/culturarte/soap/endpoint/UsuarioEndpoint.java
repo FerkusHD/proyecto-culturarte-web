@@ -2,6 +2,8 @@ package com.culturarte.soap.endpoint;
 
 import com.culturarte.exepciones.*;
 import com.culturarte.logica.IControlador;
+import com.culturarte.logica.datatypes.DTColaboracion;
+import com.culturarte.logica.datatypes.DTColaborador;
 import com.culturarte.logica.datatypes.DTPropuesta;
 import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.soap.gen.*;
@@ -19,10 +21,62 @@ public class UsuarioEndpoint {
 
     private final IControlador ctrl;
     private final PropuestasEndpoint propuestasEndpoint;
+    private final ColaboracionEndpoint colaboracionEndpoint;
 
-    public UsuarioEndpoint(IControlador ctrl, PropuestasEndpoint propuestasEndpoint) {
+    public UsuarioEndpoint(IControlador ctrl, PropuestasEndpoint propuestasEndpoint, ColaboracionEndpoint colaboracionEndpoint) {
         this.ctrl = ctrl;
         this.propuestasEndpoint = propuestasEndpoint;
+        this.colaboracionEndpoint = colaboracionEndpoint;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE, localPart = "getColaboradorRequest")
+    @ResponsePayload
+    public GetColaboradorResponse getColaborador(@RequestPayload GetColaboradorRequest request) throws Exception {
+
+        GetColaboradorResponse resp = new GetColaboradorResponse();
+        ObjectFactory of = new ObjectFactory();
+
+        String nick = request.getNickname();
+
+        // 1. Llamar a la capa de negocio
+        // Asegúrate de tener un método en tu controlador para obtener DTColaborador
+        DTColaborador dc = ctrl.getDTColaborador(nick);
+
+        if (dc != null) {
+
+            ColaboradorType cdt = of.createColaboradorType();
+
+            cdt.setNickname(dc.getNickname());
+            cdt.setNombre(dc.getNombre());
+            cdt.setApellido(dc.getApellido());
+            cdt.setEmail(dc.getEmail());
+            cdt.setImagen(dc.getImagen());
+
+            // 3. Conversión de LocalDate a XMLGregorianCalendar
+            if (dc.getFechaNacimiento() != null) {
+                javax.xml.datatype.XMLGregorianCalendar xgc = javax.xml.datatype.DatatypeFactory.newInstance()
+                        .newXMLGregorianCalendarDate(dc.getFechaNacimiento().getYear(), dc.getFechaNacimiento().getMonthValue(), dc.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
+                cdt.setFechaNacimiento(xgc);
+            }
+
+            // 4. Mapeo de Colecciones Anidadas (Propuestas)
+            if (dc.getPropuestas() != null) {
+                for (DTPropuesta prop : dc.getPropuestas()) {
+                    cdt.getPropuestas().add(propuestasEndpoint.mapToSoapPropuesta(prop));
+                }
+            }
+
+            // 5. Mapeo de Colecciones Anidadas (Colaboraciones)
+            if (dc.getColaboraciones() != null) {
+                for (DTColaboracion colab : dc.getColaboraciones()) {
+                    cdt.getColaboraciones().add(colaboracionEndpoint.mapColaboracion(colab));
+                }
+            }
+
+            resp.setColaborador(cdt); // Establecer el DTO en la respuesta
+        }
+
+        return resp;
     }
 
     @PayloadRoot(namespace = NAMESPACE, localPart = "getUsuarioRequest")

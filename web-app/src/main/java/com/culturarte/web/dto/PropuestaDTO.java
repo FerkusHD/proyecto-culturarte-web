@@ -60,11 +60,11 @@ public class PropuestaDTO {
             this.descripcion = propuesta.getDescripcion();
             this.proponente = propuesta.getProponente();
             this.categoria = propuesta.getCategoria();
-            this.estado = propuesta.getEstado();
-            this.estadoActual = propuesta.getEstado();
+            this.estado = propuesta.getEstadoActual();
+            this.estadoActual = propuesta.getEstadoActual();
             
             // Obtener imagenBase64 - puede venir como null o vacío
-            String imgBase64 = propuesta.getImagenBase64();
+            String imgBase64 = propuesta.getImagen();
             if (imgBase64 != null && !imgBase64.trim().isEmpty()) {
                 this.imagenBase64 = imgBase64;
             } else {

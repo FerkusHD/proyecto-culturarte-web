@@ -11,8 +11,8 @@
             <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
             <xs:element name="proponente" type="xs:string" minOccurs="0"/>
             <xs:element name="categoria" type="xs:string" minOccurs="0"/>
-            <xs:element name="estado" type="xs:string" minOccurs="0"/>
-            <xs:element name="imagenBase64" type="xs:string" minOccurs="0"/>
+            <xs:element name="estadoActual" type="xs:string" minOccurs="0"/>
+            <xs:element name="imagen" type="xs:string" minOccurs="0"/>
             <xs:element name="fechaPrevista" type="xs:date" minOccurs="0"/>
             <xs:element name="montoEntrada" type="xs:float" minOccurs="0"/>
             <xs:element name="montoNecesario" type="xs:float" minOccurs="0"/>

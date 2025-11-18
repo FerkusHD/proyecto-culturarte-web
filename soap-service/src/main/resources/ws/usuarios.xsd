@@ -4,11 +4,13 @@
            xmlns="http://www.culturarte.com/ws/usuarios"
            xmlns:tns="http://www.culturarte.com/ws/usuarios"
            xmlns:prop="http://www.culturarte.com/ws/propuestas"
+           xmlns:colab="http://www.culturarte.com/ws/colaboraciones"
            elementFormDefault="qualified">
 
-    <!-- IMPORTA LA DEFINICIÓN DE PROPUESTA -->
     <xs:import namespace="http://www.culturarte.com/ws/propuestas"
                schemaLocation="propuestas.xsd"/>
+    <xs:import namespace="http://www.culturarte.com/ws/colaboraciones"
+               schemaLocation="colaboraciones.xsd"/>
 
     <!-- ======== USUARIO TYPE ======== -->
     <xs:complexType name="usuarioType">
@@ -43,6 +45,26 @@
         </xs:sequence>
     </xs:complexType>
 
+    <!-- ======== COLABORADOR TYPE ======== -->
+    <xs:complexType name="colaboradorType">
+        <xs:sequence>
+            <xs:element name="nickname" type="xs:string"/>
+            <xs:element name="password" type="xs:string"/>
+            <xs:element name="nombre" type="xs:string"/>
+            <xs:element name="apellido" type="xs:string"/>
+            <xs:element name="email" type="xs:string"/>
+
+            <xs:element name="fechaNacimiento" type="xs:date"/>
+
+            <xs:element name="imagen" type="xs:string" minOccurs="0"/>
+
+            <xs:element name="propuestas" minOccurs="0" maxOccurs="unbounded" type="prop:propuestaType"/>
+
+            <xs:element name="colaboraciones" type="colab:colaboracionType" minOccurs="0" maxOccurs="unbounded"/>
+
+        </xs:sequence>
+    </xs:complexType>
+
     <xs:element name="getUsuarioRequest">
         <xs:complexType>
             <xs:sequence>
@@ -58,6 +80,23 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+
+    <xs:element name="getColaboradorRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="nickname" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getColaboradorResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="colaborador" type="tns:colaboradorType" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
 
     <xs:element name="verificarNicknameRequest">
         <xs:complexType>

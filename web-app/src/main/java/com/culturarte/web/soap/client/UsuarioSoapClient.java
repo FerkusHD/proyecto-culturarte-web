@@ -1,5 +1,6 @@
 package com.culturarte.web.soap.client;
 
+import com.culturarte.logica.datatypes.DTColaborador;
 import com.culturarte.soap.gen.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,5 +200,23 @@ public class UsuarioSoapClient {
     public List<PropuestaType> getPropuestasFavoritas(String nickname) {
         logger.info("El contrato SOAP todavía no soporta getPropuestasFavoritas; se devuelve una lista vacía para {}", nickname);
         return Collections.emptyList();
+    }
+
+    public ColaboradorType getDTColaborador(String nick) {
+        logger.debug("Obteniendo colaborador vía SOAP: {}", nick);
+        try {
+            GetColaboradorRequest request = new GetColaboradorRequest();
+            request.setNickname(nick);
+            GetColaboradorResponse response = (GetColaboradorResponse) webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), request);
+            if (response != null && response.getColaborador() != null) {
+                logger.debug("colaborador obtenido exitosamente: {}", nick);
+            } else {
+                logger.warn("colaborador no encontrado: {}", nick);
+            }
+            return response.getColaborador();
+        } catch (Exception e) {
+            logger.error("Error al obtener usuario vía SOAP: {}", nick, e);
+            return null;
+        }
     }
 }

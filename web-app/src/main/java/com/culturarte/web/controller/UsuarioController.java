@@ -128,13 +128,12 @@ public class UsuarioController {
                 model.addAttribute("mensajeError", "Nickname inválido");
                 return "error/404";
             }
-            
-            DTUsuario usuarioLogueado = null;
+
+            DTUsuario usuarioLogueado = new DTUsuario();
+
             try {
-                Object usuarioObj = session.getAttribute("usuarioLogueado");
-                if (usuarioObj instanceof DTUsuario) {
-                    usuarioLogueado = (DTUsuario) usuarioObj;
-                } else {
+                usuarioLogueado = (DTUsuario) session.getAttribute("usuarioLogueado");
+                if (usuarioLogueado == null){
                     logger.debug("No hay usuario en sesión o tipo incorrecto, creando visitante");
                     usuarioLogueado = new DTUsuario();
                     usuarioLogueado.setTipo("visitante");
@@ -143,7 +142,6 @@ public class UsuarioController {
                 }
             } catch (Exception e) {
                 logger.warn("Error al obtener usuario de sesión, creando visitante", e);
-                usuarioLogueado = new DTUsuario();
                 usuarioLogueado.setTipo("visitante");
                 usuarioLogueado.setNickname("visitante");
                 session.setAttribute("usuarioLogueado", usuarioLogueado);
@@ -151,75 +149,51 @@ public class UsuarioController {
             model.addAttribute("usuarioLogueado", usuarioLogueado);
 
             logger.debug("Obteniendo usuario desde SOAP: {}", nick);
-            UsuarioType usuarioType = null;
+            DTUsuario perfilVisitado = new  DTUsuario();
             try {
-                usuarioType = usuariosSoapClient.getUsuario(nick);
+                perfilVisitado = convertirDT(usuariosSoapClient.getUsuario(nick));
             } catch (Exception e) {
                 logger.error("Error al invocar SOAP para obtener usuario: {}", nick, e);
                 model.addAttribute("mensajeError", "Error al cargar el perfil: " + e.getMessage());
                 return "error/404";
             }
             
-            if (usuarioType == null) {
+            if (perfilVisitado == null) {
                 logger.warn("Usuario null en respuesta SOAP: {}", nick);
                 model.addAttribute("mensajeError", "Usuario no encontrado");
                 return "error/404";
             }
 
-            DTUsuario perfilVisitado = null;
-            try {
-                perfilVisitado = convertirDT(usuarioType);
-            } catch (Exception e) {
-                logger.error("Error al convertir usuario a DTUsuario: {}", nick, e);
-                model.addAttribute("mensajeError", "Error al procesar el perfil");
-                return "error/404";
-            }
-            
-            if (perfilVisitado == null) {
-                logger.warn("Resultado de conversión es null para usuario: {}", nick);
-                model.addAttribute("mensajeError", "Error al cargar el perfil");
-                return "error/404";
-            }
-
             model.addAttribute("perfilVisitado", perfilVisitado);
-            
-            // Verificar si es mi propio perfil de forma segura
-            boolean esMiPropioPerfil = false;
-            try {
-                String nickPerfil = perfilVisitado.getNickname();
-                String nickLogueado = usuarioLogueado != null ? usuarioLogueado.getNickname() : null;
-                esMiPropioPerfil = nickPerfil != null && nickLogueado != null && nickPerfil.equals(nickLogueado);
-            } catch (Exception e) {
-                logger.debug("Error al verificar si es propio perfil: {}", e.getMessage());
-            }
+
+            //es mi perfil
+            boolean esMiPropioPerfil = perfilVisitado.getNickname().equals(usuarioLogueado.getNickname());
             model.addAttribute("esMiPropioPerfil", esMiPropioPerfil);
             
             // Verificar si lo sigue (solo si no es visitante)
             boolean loSigo = false;
-            if (usuarioLogueado != null && !"visitante".equals(usuarioLogueado.getTipo()) && perfilVisitado.getNickname() != null) {
-                try {
-                    loSigo = usuarioLogueado.buscarUsuarioSeguido(perfilVisitado.getNickname());
-                } catch (Exception e) {
-                    logger.debug("Error al verificar si sigue al usuario (puede ser normal): {}", e.getMessage());
+            if (!usuarioLogueado.getTipo().equals("visitante")) {
+                for (DTUsuario u : usuarioLogueado.getUsuariosSeguidos()) {
+                    if( u.getNickname().equals(nick)) {
+                        loSigo = true;
+                    }
                 }
+            } else {
+                loSigo = true;
             }
             model.addAttribute("loSigo", loSigo);
 
-            // Propuestas favoritas del usuario
-            logger.debug("Obteniendo propuestas favoritas de: {}", nick);
-            List<DTPropuesta> favoritas = new ArrayList<>();
-            try {
-                if (perfilVisitado.getNickname() != null) {
-                    List<DTPropuesta> favoritasSoap = perfilVisitado.getPropuestasSeguidas();
-                    if (favoritasSoap != null) {
-                        favoritas = perfilVisitado.getPropuestasSeguidas();
-                    }
-                }
-            } catch (Exception e) {
-                logger.warn("Error al obtener propuestas favoritas (continuando sin ellas): {}", e.getMessage());
+            // Si es prop
+//            if (perfilVisitado.getTipo().equals("proponente")) {
+//                model.addAttribute("proponente", usuariosSoapClient.getDTProponente(nick));
+//            }
+
+            // Si es colab
+            if (perfilVisitado.getTipo().equals("colaborador")) {
+                model.addAttribute("colaborador", usuariosSoapClient.getDTColaborador(nick));
             }
-            model.addAttribute("propuestasFavoritas", favoritas);
-            logger.info("Perfil mostrado exitosamente: {} ({} favoritas)", nick, favoritas.size());
+
+            logger.info("Perfil mostrado exitosamente: {}", nick);
             logger.debug("=== FIN mostrarPerfil ===");
             return "perfil";
         } catch (Exception e) {
@@ -247,7 +221,7 @@ public class UsuarioController {
             
             logger.debug("Usuarios obtenidos desde SOAP: {}", usuariosSoap.size());
             List<DTUsuario> usuarios = usuariosSoap.stream()
-                    .map(this::convertirDT)
+                    .map(UsuarioController::convertirDT)
                     .filter(u -> u != null)
                     .collect(Collectors.toList());
             
@@ -270,7 +244,7 @@ public class UsuarioController {
         logger.info("Búsqueda de usuarios: nombre={}", nombre);
         try {
             List<DTUsuario> resultados = usuariosSoapClient.buscarUsuarios(nombre)
-                    .stream().map(this::convertirDT).collect(Collectors.toList());
+                    .stream().map(UsuarioController::convertirDT).collect(Collectors.toList());
             model.addAttribute("resultados", resultados);
             model.addAttribute("nombre", nombre);
             logger.info("Búsqueda completada: {} resultados", resultados.size());
@@ -291,7 +265,9 @@ public class UsuarioController {
             usuariosSoapClient.seguirUsuario(usuarioLogueado.getNickname(), nickSeguido);
         } catch (Exception ignored) {}
 
-        usuarioLogueado = convertirDT(usuariosSoapClient.getUsuario(usuarioLogueado.getNickname()));
+        UsuarioType usuarioResp = usuariosSoapClient.getUsuario(usuarioLogueado.getNickname());
+        usuarioLogueado = UsuarioController.convertirDT(usuarioResp);
+
         session.setAttribute("usuarioLogueado", usuarioLogueado);
         return "redirect:" + request.getHeader("Referer");
     }
@@ -367,7 +343,7 @@ public class UsuarioController {
     }
 
     // ------------------- UTILIDADES -------------------
-    private DTUsuario convertirDT(com.culturarte.soap.gen.UsuarioType u) {
+    public static DTUsuario convertirDT(com.culturarte.soap.gen.UsuarioType u) {
         if (u == null) return null;
         DTUsuario dt = new DTUsuario();
         dt.setNickname(u.getNickname());
@@ -392,14 +368,14 @@ public class UsuarioController {
         return dt;
     }
 
-    private DTPropuesta convertirPropuesta(PropuestaType p) {
+    public static DTPropuesta convertirPropuesta(PropuestaType p) {
         if (p == null) {
             return null;
         }
         TipoEstado estado = null;
-        if (p.getEstado() != null) {
+        if (p.getEstadoActual() != null) {
             try {
-                estado = TipoEstado.valueOf(p.getEstado());
+                estado = TipoEstado.valueOf(p.getEstadoActual());
             } catch (IllegalArgumentException ignored) {
             }
         }
@@ -418,7 +394,7 @@ public class UsuarioController {
                 montoRecaudado,
                 montoNecesario,
                 fechaPrevista,
-                p.getImagenBase64(),
+                p.getImagen(),
                 p.getCategoria(),
                 p.getProponente()
         );
