@@ -2,10 +2,7 @@ package com.culturarte.soap.endpoint;
 
 import com.culturarte.exepciones.*;
 import com.culturarte.logica.IControlador;
-import com.culturarte.logica.datatypes.DTColaboracion;
-import com.culturarte.logica.datatypes.DTColaborador;
-import com.culturarte.logica.datatypes.DTPropuesta;
-import com.culturarte.logica.datatypes.DTUsuario;
+import com.culturarte.logica.datatypes.*;
 import com.culturarte.soap.gen.*;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
@@ -38,8 +35,6 @@ public class UsuarioEndpoint {
 
         String nick = request.getNickname();
 
-        // 1. Llamar a la capa de negocio
-        // Asegúrate de tener un método en tu controlador para obtener DTColaborador
         DTColaborador dc = ctrl.getDTColaborador(nick);
 
         if (dc != null) {
@@ -52,28 +47,68 @@ public class UsuarioEndpoint {
             cdt.setEmail(dc.getEmail());
             cdt.setImagen(dc.getImagen());
 
-            // 3. Conversión de LocalDate a XMLGregorianCalendar
             if (dc.getFechaNacimiento() != null) {
                 javax.xml.datatype.XMLGregorianCalendar xgc = javax.xml.datatype.DatatypeFactory.newInstance()
                         .newXMLGregorianCalendarDate(dc.getFechaNacimiento().getYear(), dc.getFechaNacimiento().getMonthValue(), dc.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
                 cdt.setFechaNacimiento(xgc);
             }
 
-            // 4. Mapeo de Colecciones Anidadas (Propuestas)
             if (dc.getPropuestas() != null) {
                 for (DTPropuesta prop : dc.getPropuestas()) {
                     cdt.getPropuestas().add(propuestasEndpoint.mapToSoapPropuesta(prop));
                 }
             }
 
-            // 5. Mapeo de Colecciones Anidadas (Colaboraciones)
             if (dc.getColaboraciones() != null) {
                 for (DTColaboracion colab : dc.getColaboraciones()) {
                     cdt.getColaboraciones().add(colaboracionEndpoint.mapColaboracion(colab));
                 }
             }
 
-            resp.setColaborador(cdt); // Establecer el DTO en la respuesta
+            resp.setColaborador(cdt);
+        }
+
+        return resp;
+    }
+
+
+    @PayloadRoot(namespace = NAMESPACE, localPart = "getProponenteRequest")
+    @ResponsePayload
+    public GetProponenteResponse getProponente(@RequestPayload GetProponenteRequest request) throws Exception {
+
+        GetProponenteResponse resp = new GetProponenteResponse();
+        ObjectFactory of = new ObjectFactory();
+
+        String nick = request.getNickname();
+
+        DTProponente dt = ctrl.getDTProponente(nick);
+
+        if (dt != null) {
+
+            ProponenteType cdt = of.createProponenteType();
+
+            cdt.setNickname(dt.getNickname());
+            cdt.setNombre(dt.getNombre());
+            cdt.setApellido(dt.getApellido());
+            cdt.setEmail(dt.getEmail());
+            cdt.setImagen(dt.getImagen());
+            cdt.setDireccion(dt.getDireccion());
+            cdt.setBiografia(dt.getBiografia());
+            cdt.setLinkWeb(dt.getLinkWeb());
+
+            if (dt.getFechaNacimiento() != null) {
+                javax.xml.datatype.XMLGregorianCalendar xgc = javax.xml.datatype.DatatypeFactory.newInstance()
+                        .newXMLGregorianCalendarDate(dt.getFechaNacimiento().getYear(), dt.getFechaNacimiento().getMonthValue(), dt.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
+                cdt.setFechaNacimiento(xgc);
+            }
+
+            if (dt.getPropuestas() != null) {
+                for (DTPropuesta prop : dt.getPropuestas()) {
+                    cdt.getPropuestas().add(propuestasEndpoint.mapToSoapPropuesta(prop));
+                }
+            }
+
+            resp.setProponente(cdt); // Establecer el DTO en la respuesta
         }
 
         return resp;

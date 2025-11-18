@@ -65,6 +65,27 @@
         </xs:sequence>
     </xs:complexType>
 
+    <!-- ======== PROPONENTE TYPE ======== -->
+    <xs:complexType name="proponenteType">
+        <xs:sequence>
+            <xs:element name="nickname" type="xs:string"/>
+            <xs:element name="password" type="xs:string" minOccurs="0"/>
+            <xs:element name="nombre" type="xs:string"/>
+            <xs:element name="apellido" type="xs:string"/>
+            <xs:element name="email" type="xs:string"/>
+
+            <xs:element name="fechaNacimiento" type="xs:date"/>
+
+            <xs:element name="imagen" type="xs:string" minOccurs="0"/>
+            <xs:element name="direccion" type="xs:string" minOccurs="0"/>
+            <xs:element name="biografia" type="xs:string" minOccurs="0"/>
+            <xs:element name="linkWeb" type="xs:string" minOccurs="0"/>
+
+            <xs:element name="propuestas" minOccurs="0" maxOccurs="unbounded" type="prop:propuestaType"/>
+
+        </xs:sequence>
+    </xs:complexType>
+
     <xs:element name="getUsuarioRequest">
         <xs:complexType>
             <xs:sequence>
@@ -93,6 +114,22 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="colaborador" type="tns:colaboradorType" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getProponenteRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="nickname" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getProponenteResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="proponente" type="tns:proponenteType" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

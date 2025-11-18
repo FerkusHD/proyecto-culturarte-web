@@ -219,4 +219,22 @@ public class UsuarioSoapClient {
             return null;
         }
     }
+
+    public ProponenteType getProponente(String nick) {
+        logger.debug("Obteniendo proponente vía SOAP: {}", nick);
+        try {
+            GetProponenteRequest request = new GetProponenteRequest();
+            request.setNickname(nick);
+            GetProponenteResponse response = (GetProponenteResponse) webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), request);
+            if (response != null && response.getProponente() != null) {
+                logger.debug("proponente obtenido exitosamente: {}", nick);
+            } else {
+                logger.warn("proponente no encontrado: {}", nick);
+            }
+            return response.getProponente();
+        } catch (Exception e) {
+            logger.error("Error al obtener usuario vía SOAP: {}", nick, e);
+            return null;
+        }
+    }
 }

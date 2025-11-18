@@ -184,9 +184,9 @@ public class UsuarioController {
             model.addAttribute("loSigo", loSigo);
 
             // Si es prop
-//            if (perfilVisitado.getTipo().equals("proponente")) {
-//                model.addAttribute("proponente", usuariosSoapClient.getDTProponente(nick));
-//            }
+            if (perfilVisitado.getTipo().equals("proponente")) {
+                model.addAttribute("proponente", usuariosSoapClient.getProponente(nick));
+            }
 
             // Si es colab
             if (perfilVisitado.getTipo().equals("colaborador")) {
