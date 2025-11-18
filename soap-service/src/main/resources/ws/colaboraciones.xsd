@@ -40,7 +40,6 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="colaboracion" type="tns:colaboracionType" minOccurs="0"/>
-                <xs:element name="propuesta" type="prop:propuestaType" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

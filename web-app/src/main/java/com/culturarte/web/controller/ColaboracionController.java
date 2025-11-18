@@ -2,11 +2,16 @@ package com.culturarte.web.controller;
 
 import com.culturarte.logica.datatypes.DTColaboracion;
 import com.culturarte.logica.datatypes.DTPropuesta;
+import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.logica.enums.TipoRetorno;
 import com.culturarte.soap.endpoint.PropuestasEndpoint;
+import com.culturarte.soap.gen.ColaboracionType;
+import com.culturarte.soap.gen.ColaboradorType;
 import com.culturarte.soap.gen.GetColaboracionResponse;
+import com.culturarte.soap.gen.PropuestaType;
 import com.culturarte.web.service.PDFService;
 import com.culturarte.web.soap.client.ColaboracionSoapClient;
+import com.culturarte.web.soap.client.UsuarioSoapClient;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -35,6 +40,9 @@ public class ColaboracionController {
     private ColaboracionSoapClient colaboracionSoapClient;
 
     @Autowired
+    private UsuarioSoapClient usuarioSoapClient;
+
+    @Autowired
     private PDFService pdfService;
 
     /**
@@ -54,7 +62,7 @@ public class ColaboracionController {
         logger.info("=== INICIO descargarConstanciaPago ===");
         logger.info("Solicitud de constancia: colaborador={}, propuesta={}", nickColaborador, tituloPropuesta);
         try {
-            Object usuarioLogueadoObj = session.getAttribute("usuarioLogueado");
+            DTUsuario usuarioLogueadoObj =(DTUsuario) session.getAttribute("usuarioLogueado");
             if (usuarioLogueadoObj == null) {
                 logger.warn("Intento de descargar constancia sin sesión");
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Debe iniciar sesión");
@@ -62,28 +70,23 @@ public class ColaboracionController {
             }
 
             logger.debug("Obteniendo colaboración desde SOAP");
-            GetColaboracionResponse soapResponse =
-                    colaboracionSoapClient.getColaboracion(nickColaborador, tituloPropuesta);
 
-            if (soapResponse == null || soapResponse.getColaboracion() == null) {
-                logger.warn("Colaboración no encontrada: colaborador={}, propuesta={}", nickColaborador, tituloPropuesta);
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Colaboración no encontrada");
-                return;
-            }
+            ColaboradorType colaborador = usuarioSoapClient.getDTColaborador(nickColaborador);
 
-            DTColaboracion colaboracion = convertirColaboracion(soapResponse.getColaboracion());
-            DTPropuesta propuesta = UsuarioController.convertirPropuesta(soapResponse.getPropuesta());
-
-            if (colaboracion == null) {
-                logger.error("Error al convertir colaboración a DTColaboracion");
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "No se pudo convertir la colaboración");
-                return;
+            ColaboracionType colaboraciónElegida = null;
+            PropuestaType propuesta = null;
+            for (ColaboracionType colab : colaborador.getColaboraciones()) {
+                if(colab.getPropuesta().getTitulo().equals(tituloPropuesta)){
+                    colaboraciónElegida = colab;
+                    propuesta = colab.getPropuesta();
+                    break;
+                }
             }
 
             logger.debug("Generando PDF de constancia de pago");
             byte[] pdfBytes = pdfService.generarConstanciaPago(
-                    colaboracion,
-                    null,
+                    colaboraciónElegida,
+                    colaborador,
                     propuesta
             );
 

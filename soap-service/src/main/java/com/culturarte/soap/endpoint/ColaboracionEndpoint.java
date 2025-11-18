@@ -1,6 +1,7 @@
 package com.culturarte.soap.endpoint;
 
 import com.culturarte.logica.IControlador;
+import com.culturarte.logica.datatypes.DTColaboracion;
 import com.culturarte.logica.datatypes.DTColaborador;
 import com.culturarte.soap.gen.ColaboracionType;
 import com.culturarte.soap.gen.PropuestaType;
@@ -14,7 +15,7 @@ import org.springframework.ws.server.endpoint.annotation.*;
 @Endpoint
 public class ColaboracionEndpoint {
 
-    private static final String NAMESPACE_URI = "http://culturarte.com/ws/colaboraciones";
+    private static final String NAMESPACE_URI = "http://www.culturarte.com/ws/colaboraciones";
 
     @Autowired
     private IControlador ctrl;
@@ -41,19 +42,10 @@ public class ColaboracionEndpoint {
     public GetColaboracionResponse getColaboracion(@RequestPayload GetColaboracionRequest request) {
         GetColaboracionResponse response = new GetColaboracionResponse();
 
-//        DTColaborador colab = ctrl.getDTColaborador(request.getNickColaborador());
-//        if (colab != null && colab.getColaboraciones() != null) {
-//            for (com.culturarte.logica.datatypes.DTColaboracion c : colab.getColaboraciones()) {
-//                if (c.getTituloPropuesta().equals(request.getTituloPropuesta())) {
-//                    response.setColaboracion(mapColaboracion(c));
-//                    com.culturarte.logica.datatypes.DTPropuesta propuesta = c.getPropuesta() != null ? c.getPropuesta() : ctrl.getDTPropuesta(c.getTituloPropuesta());
-//                    if (propuesta != null) {
-//                        response.setPropuesta(mapPropuesta(propuesta));
-//                    }
-//                    break;
-//                }
-//            }
-//        }
+        DTColaboracion colab = ctrl.getDTColaboracionPropuesta(request.getNickColaborador(), request.getTituloPropuesta());
+        if (colab != null) {
+            response.setColaboracion(mapColaboracion(colab));
+        }
 
         return response;
     }

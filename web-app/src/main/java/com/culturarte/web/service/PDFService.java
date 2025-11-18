@@ -3,6 +3,9 @@ package com.culturarte.web.service;
 import com.culturarte.logica.datatypes.DTColaboracion;
 import com.culturarte.logica.datatypes.DTColaborador;
 import com.culturarte.logica.datatypes.DTPropuesta;
+import com.culturarte.soap.gen.ColaboracionType;
+import com.culturarte.soap.gen.ColaboradorType;
+import com.culturarte.soap.gen.PropuestaType;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -26,13 +29,13 @@ public class PDFService {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    public byte[] generarConstanciaPago(DTColaboracion colaboracion, 
-                                       DTColaborador colaborador, 
-                                       DTPropuesta propuesta) throws Exception {
+    public byte[] generarConstanciaPago(ColaboracionType colaboracion,
+                                        ColaboradorType colaborador,
+                                        PropuestaType propuesta) throws Exception {
         logger.info("=== INICIO generarConstanciaPago ===");
         logger.info("Generando PDF para colaboración: colaborador={}, propuesta={}", 
                 colaboracion != null ? colaboracion.getNickColaborador() : "null",
-                colaboracion != null ? colaboracion.getTituloPropuesta() : "null");
+                propuesta != null ? propuesta.getTitulo() : "null");
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PdfWriter writer = new PdfWriter(baos);
@@ -83,12 +86,12 @@ public class PDFService {
                     String.format("$%.2f", colaboracion.getMonto()));
             
             String fechaStr = colaboracion.getFecha() != null 
-                    ? colaboracion.getFecha().format(DATE_FORMATTER) 
+                    ? colaboracion.getFecha()
                     : "N/A";
             agregarFilaTabla(tablaColaboracion, "Fecha:", fechaStr);
             
-            String horaStr = colaboracion.getHora() != null 
-                    ? colaboracion.getHora().format(TIME_FORMATTER) 
+            String horaStr = colaboracion.getHora() != null
+                    ? colaboracion.getHora()
                     : "N/A";
             agregarFilaTabla(tablaColaboracion, "Hora:", horaStr);
             
