@@ -37,6 +37,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private RegistrarColaboraciones iframeRegistrarColaboraciones;
     private SeguirUsuario iframeSeguirUsuario;
     private EvaluarPropuesta iframeEvaluarPropuesta;
+    private VerAccesos iframeVerAccesos;
     
     // InternalFrames
     
@@ -78,6 +79,8 @@ public class MenuPrincipal extends javax.swing.JFrame {
         iframeSeguirUsuario.setVisible(false);
         iframeEvaluarPropuesta = new EvaluarPropuesta(IC);
         iframeEvaluarPropuesta.setVisible(false);
+        iframeVerAccesos = new VerAccesos(IC);
+        iframeVerAccesos.setVisible(false);
         
         // Añadiendo al ContentPane
         this.getContentPane().add(iframeAltaCategoria);
@@ -94,7 +97,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
         this.getContentPane().add(iframeRegistrarColaboraciones);
         this.getContentPane().add(iframeSeguirUsuario);
         this.getContentPane().add(iframeEvaluarPropuesta);
-        
+        this.getContentPane().add(iframeVerAccesos);
         
     }
 
@@ -126,6 +129,8 @@ public class MenuPrincipal extends javax.swing.JFrame {
         miCancelarColaboracion = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         miAltaCategoria = new javax.swing.JMenuItem();
+        jMenu5 = new javax.swing.JMenu();
+        jmVerAccesos = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Culturarte - Estación de Trabajo");
@@ -271,6 +276,18 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu3);
 
+        jMenu5.setText("Accesos");
+
+        jmVerAccesos.setText("Ver accesos");
+        jmVerAccesos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jmVerAccesosActionPerformed(evt);
+            }
+        });
+        jMenu5.add(jmVerAccesos);
+
+        jMenuBar1.add(jMenu5);
+
         setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -342,13 +359,19 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private void miEvaluarPropuestaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miEvaluarPropuestaActionPerformed
         iframeEvaluarPropuesta.setVisible(true);
     }//GEN-LAST:event_miEvaluarPropuestaActionPerformed
+
+    private void jmVerAccesosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmVerAccesosActionPerformed
+        iframeVerAccesos.setVisible(true);
+    }//GEN-LAST:event_jmVerAccesosActionPerformed
  
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
+    private javax.swing.JMenu jMenu5;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jmVerAccesos;
     private javax.swing.JMenuItem miAltaCategoria;
     private javax.swing.JMenuItem miAltaPropuesta;
     private javax.swing.JMenuItem miAltaUsuario;
