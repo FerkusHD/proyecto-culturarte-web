@@ -1,13 +1,20 @@
 package com.culturarte.soap.endpoint;
 
-import java.util.List;
+import java.util.Enumeration;
+
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+
 import com.culturarte.logica.IControlador;
-import com.culturarte.soap.gen.*;
+import com.culturarte.soap.gen.CategoriaType;
+import com.culturarte.soap.gen.GetCategoriasRequest;
+import com.culturarte.soap.gen.GetCategoriasResponse;
+import com.culturarte.soap.gen.ObjectFactory;
 
 @Endpoint
 public class CategoriasEndpoint {
@@ -24,14 +31,37 @@ public class CategoriasEndpoint {
 	public GetCategoriasResponse getCategorias(@RequestPayload GetCategoriasRequest request) {
 
 		GetCategoriasResponse response = new GetCategoriasResponse();
+		ObjectFactory factory = new ObjectFactory();
 
-		List<String> categoriasRaiz = ctrl.listarCategoriasWebCompletas();
-		for (String catNombre : categoriasRaiz) {
-			CategoriaType catType = new CategoriaType();
-			catType.setNombre(catNombre);
-			response.getCategoria().add(catType);
+		DefaultTreeModel treeModel = ctrl.listarCategorias();
+		if (treeModel != null && treeModel.getRoot() instanceof DefaultMutableTreeNode root) {
+			Enumeration<?> children = root.children();
+			while (children.hasMoreElements()) {
+				Object childObj = children.nextElement();
+				if (childObj instanceof DefaultMutableTreeNode childNode) {
+					response.getCategoria().add(convertirNodo(childNode, factory));
+				}
+			}
 		}
 
 		return response;
+	}
+
+	private CategoriaType convertirNodo(DefaultMutableTreeNode node, ObjectFactory factory) {
+		CategoriaType categoriaType = factory.createCategoriaType();
+		Object userObject = node.getUserObject();
+		if (userObject != null) {
+			categoriaType.setNombre(userObject.toString());
+		}
+
+		Enumeration<?> children = node.children();
+		while (children.hasMoreElements()) {
+			Object childObj = children.nextElement();
+			if (childObj instanceof DefaultMutableTreeNode childNode) {
+				categoriaType.getHijos().add(convertirNodo(childNode, factory));
+			}
+		}
+
+		return categoriaType;
 	}
 }

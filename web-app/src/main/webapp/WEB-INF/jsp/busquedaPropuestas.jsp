@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -106,7 +107,7 @@
 </header>
 
 <main class="container mt-4">
-    <h2 class="mb-3">Resultados de búsqueda (${resultados.size()})</h2>
+    <h2 class="mb-3">Resultados de búsqueda (${fn:length(resultados)})</h2>
 
     <form class="row g-3 align-items-center mb-4"
           action="${pageContext.request.contextPath}/propuestas/buscar"
@@ -160,7 +161,8 @@
         <c:otherwise>
             <div class="list-group">
                 <c:forEach var="p" items="${resultados}">
-                    <a href="${pageContext.request.contextPath}/propuestas/${p.titulo}"
+                    <c:set var="tituloEncoded" value="${fn:replace(p.titulo, ' ', '%20')}" />
+                    <a href="${pageContext.request.contextPath}/propuestas/${tituloEncoded}"
                         class="list-group-item list-group-item-action d-flex align-items-center">
                         <c:choose>
                             <c:when test="${not empty p.imagen}">
@@ -178,7 +180,7 @@
                         </c:choose>
                         <div>
                             <h5 class="mb-1">${p.titulo}</h5>
-                            <small class="text-muted">${p.lugar} — ${p.estadoActual}</small>
+                            <small class="text-muted">${p.estadoActual}</small>
                             <p class="mb-1">${p.descripcion}</p>
                         </div>
                     </a>

@@ -101,28 +101,57 @@ public class PropuestasController {
     @ResponseBody
     public PropuestaDTO obtenerPropuestaPorTitulo(@PathVariable String titulo) {
         logger.info("Obteniendo propuesta via REST: {}", titulo);
-        PropuestaType propuesta = soapClient.getPropuesta(titulo);
-        if (propuesta == null) {
-            logger.warn("Propuesta {} no encontrada, retornando null", titulo);
+        try {
+            // Decodificar el título de la URL
+            String tituloDecodificado = java.net.URLDecoder.decode(titulo, "UTF-8");
+            PropuestaType propuesta = soapClient.getPropuesta(tituloDecodificado);
+            if (propuesta == null) {
+                logger.warn("Propuesta {} no encontrada, retornando null", tituloDecodificado);
+                return null;
+            }
+            return new PropuestaDTO(propuesta);
+        } catch (Exception e) {
+            logger.error("Error al obtener propuesta por título: {}", titulo, e);
             return null;
         }
-        return new PropuestaDTO(propuesta);
     }
 
     // --- Ver detalle de una propuesta ---
-    @GetMapping("/{titulo}")
+    @GetMapping("/{titulo:.+}")
     public String mostrarPropuesta(
             @PathVariable String titulo,
             Model model,
             HttpSession session,
             HttpServletRequest request) {
         logger.info("=== INICIO mostrarPropuesta ===");
-        logger.info("Mostrando propuesta: {}", titulo);
+        logger.info("Mostrando propuesta (raw): {}", titulo);
         try {
-            PropuestaType propuesta = soapClient.getPropuesta(titulo);
+            // Spring ya decodifica automáticamente, pero por si acaso intentamos decodificar de nuevo
+            String tituloDecodificado = titulo;
+            try {
+                // Solo decodificar si contiene caracteres codificados
+                if (titulo.contains("%")) {
+                    tituloDecodificado = java.net.URLDecoder.decode(titulo, "UTF-8");
+                    logger.info("Título decodificado: {}", tituloDecodificado);
+                } else {
+                    logger.info("Título sin codificar: {}", tituloDecodificado);
+                }
+            } catch (Exception e) {
+                logger.warn("Error al decodificar título, usando original: {}", titulo, e);
+                tituloDecodificado = titulo;
+            }
+            
+            // Intentar buscar la propuesta
+            PropuestaType propuesta = soapClient.getPropuesta(tituloDecodificado);
+            
+            // Si no se encuentra, intentar con el título original
+            if (propuesta == null && !tituloDecodificado.equals(titulo)) {
+                logger.info("No se encontró con título decodificado, intentando con original: {}", titulo);
+                propuesta = soapClient.getPropuesta(titulo);
+            }
 
             if (propuesta == null) {
-                logger.warn("Propuesta no encontrada: {}", titulo);
+                logger.warn("Propuesta no encontrada con título: {} (decodificado: {})", titulo, tituloDecodificado);
                 model.addAttribute("mensajeError", "⚠️ La propuesta no existe");
                 return "redirect:/";
             }
@@ -227,7 +256,7 @@ public class PropuestasController {
             String userAgent = request.getHeader("User-Agent");
             boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
 
-            logger.info("Propuesta mostrada exitosamente: {}", titulo);
+            logger.info("Propuesta mostrada exitosamente: {}", tituloDecodificado);
             logger.debug("=== FIN mostrarPropuesta (exitoso) ===");
             return esMovil ? "consultarPropuestaMovil" : "consultarPropuesta";
 
@@ -671,7 +700,7 @@ public class PropuestasController {
 
             // Filtrar por query
             if (query != null && !query.trim().isEmpty()) {
-                String queryLower = query.toLowerCase();
+                String queryLower = query.toLowerCase().trim();
                 for (PropuestaType p : todasLasPropuestas) {
                     if ((p.getTitulo() != null && p.getTitulo().toLowerCase().contains(queryLower)) ||
                         (p.getDescripcion() != null && p.getDescripcion().toLowerCase().contains(queryLower))) {
@@ -679,6 +708,7 @@ public class PropuestasController {
                     }
                 }
             } else {
+                // Si no hay query, mostrar todas las propuestas
                 resultados.addAll(todasLasPropuestas);
             }
 

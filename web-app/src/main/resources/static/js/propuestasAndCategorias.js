@@ -277,8 +277,9 @@ function cargarCategorias() {
         return;
     }
 
-    console.log('Iniciando carga de categorías desde:', BASE + '/categorias/tree');
-    fetch(BASE + '/categorias/tree')
+    const url = BASE + '/categorias/tree';
+    console.log('Iniciando carga de categorías desde:', url);
+    fetch(url)
         .then(response => {
             console.log('Respuesta categorías recibida, status:', response.status, response.statusText);
             if (!response.ok) {
@@ -288,7 +289,11 @@ function cargarCategorias() {
         })
         .then(data => {
             console.log('Datos de categorías recibidos:', data);
-            console.debug('categorias/tree data:', data);
+            console.log('Tipo de datos:', Array.isArray(data) ? 'Array' : typeof data);
+            console.log('Cantidad de elementos:', Array.isArray(data) ? data.length : 'N/A');
+            if (Array.isArray(data) && data.length > 0) {
+                console.log('Primer elemento:', data[0]);
+            }
             contenedor.innerHTML = '';
 
             // Header
@@ -303,17 +308,20 @@ function cargarCategorias() {
                 mensaje.className = 'text-muted small';
                 mensaje.textContent = 'No hay categorías disponibles';
                 contenedor.appendChild(mensaje);
+                console.warn('No hay categorías para mostrar');
                 return;
             }
 
             // If the server returned an array of objects with 'nombre' use the DTO renderer
             if (typeof data[0] === 'object' && data[0].nombre !== undefined) {
+                console.log('Usando renderTreeFromDTO');
                 const treeDiv = document.createElement('div');
                 treeDiv.className = 'categoria-tree';
                 renderTreeFromDTO(data, treeDiv);
                 contenedor.appendChild(treeDiv);
                 collapseAllTreeNodes(treeDiv);
             } else {
+                console.log('Usando buildTreeFromList (fallback)');
                 // fallback to previous behavior (flat list)
                 const treeRoot = buildTreeFromList(data || []);
                 const treeDiv = document.createElement('div');

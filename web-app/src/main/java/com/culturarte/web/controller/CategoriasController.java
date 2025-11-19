@@ -87,63 +87,12 @@ public class CategoriasController {
                 return new ArrayList<>();
             }
 
-            // Obtener nombres de categorías
-            List<String> nombresCategorias = response.getCategoria()
-                    .stream()
-                    .filter(cat -> cat != null && cat.getNombre() != null)
-                    .map(CategoriaType::getNombre)
+            List<DTCategoria> raices = response.getCategoria().stream()
+                    .filter(cat -> cat != null && cat.getNombre() != null && !cat.getNombre().trim().isEmpty())
+                    .map(this::convertirCategoriaSoap)
                     .collect(Collectors.toList());
             
-            logger.debug("Nombres de categorías recibidos: {}", nombresCategorias);
-            
-            // Construir árbol jerárquico desde nombres planos
-            // Los nombres pueden venir como "Categoria > Subcategoria" o solo "Categoria"
-            java.util.Map<String, DTCategoria> categoriasMap = new java.util.HashMap<>();
-            List<DTCategoria> raices = new ArrayList<>();
-            
-            for (String nombreCompleto : nombresCategorias) {
-                if (nombreCompleto == null || nombreCompleto.trim().isEmpty()) {
-                    continue;
-                }
-                
-                // Separar por ">" o "," o "/"
-                String[] partes = nombreCompleto.split(">|,|/");
-                String nombreActual = partes[0].trim();
-                
-                if (nombreActual.isEmpty()) {
-                    continue;
-                }
-                
-                // Crear o obtener categoría raíz
-                DTCategoria categoriaRaiz = categoriasMap.get(nombreActual);
-                if (categoriaRaiz == null) {
-                    categoriaRaiz = new DTCategoria(nombreActual);
-                    categoriasMap.put(nombreActual, categoriaRaiz);
-                    raices.add(categoriaRaiz);
-                }
-                
-                // Agregar subcategorías si existen
-                DTCategoria categoriaPadre = categoriaRaiz;
-                for (int i = 1; i < partes.length; i++) {
-                    String nombreHijo = partes[i].trim();
-                    if (nombreHijo.isEmpty()) {
-                        continue;
-                    }
-                    
-                    // Buscar si ya existe este hijo
-                    DTCategoria categoriaHijo = categoriaPadre.getHijos().stream()
-                            .filter(h -> nombreHijo.equals(h.getNombre()))
-                            .findFirst()
-                            .orElse(null);
-                    
-                    if (categoriaHijo == null) {
-                        categoriaHijo = new DTCategoria(nombreHijo);
-                        categoriaPadre.addHijo(categoriaHijo);
-                    }
-                    
-                    categoriaPadre = categoriaHijo;
-                }
-            }
+            logger.debug("Categorías raíz construidas: {}", raices.size());
             
             logger.info("Retornando {} categorías raíz (tree) al cliente", raices.size());
             logger.debug("=== FIN categorias/tree (exitoso) ===");
@@ -159,5 +108,18 @@ public class CategoriasController {
             // Retornar lista vacía en lugar de error para evitar problemas en el frontend
             return new ArrayList<>();
         }
+    }
+    
+    private DTCategoria convertirCategoriaSoap(CategoriaType soapCategoria) {
+        DTCategoria dto = new DTCategoria();
+        dto.setNombre(soapCategoria.getNombre().trim());
+        if (soapCategoria.getHijos() != null && !soapCategoria.getHijos().isEmpty()) {
+            for (CategoriaType hijo : soapCategoria.getHijos()) {
+                if (hijo != null && hijo.getNombre() != null && !hijo.getNombre().trim().isEmpty()) {
+                    dto.addHijo(convertirCategoriaSoap(hijo));
+                }
+            }
+        }
+        return dto;
     }
 }

@@ -223,6 +223,12 @@ public class UsuarioController {
             List<DTUsuario> usuarios = usuariosSoap.stream()
                     .map(UsuarioController::convertirDT)
                     .filter(u -> u != null)
+                    .sorted((u1, u2) -> {
+                        // Ordenar por cantidad de seguidores descendente
+                        int seguidores1 = (u1.getUsuariosSeguidores() != null) ? u1.getUsuariosSeguidores().size() : 0;
+                        int seguidores2 = (u2.getUsuariosSeguidores() != null) ? u2.getUsuariosSeguidores().size() : 0;
+                        return Integer.compare(seguidores2, seguidores1); // Descendente
+                    })
                     .collect(Collectors.toList());
             
             model.addAttribute("usuarios", usuarios);

@@ -376,6 +376,29 @@ public class UsuarioEndpoint {
                 ut.setFechaNacimiento(xgc);
             }
             ut.setTipo(du.getTipo());
+            if (du.getUsuariosSeguidos() != null) {
+                for (com.culturarte.logica.datatypes.DTUsuario seguido : du.getUsuariosSeguidos()) {
+                    UsuarioLightType light = of.createUsuarioLightType();
+                    light.setNickname(seguido.getNickname());
+                    light.setTipo(seguido.getTipo());
+                    light.setImagen(seguido.getImagen());
+                    ut.getUsuariosSeguidos().add(light);
+                }
+            }
+            if (du.getUsuariosSeguidores() != null) {
+                for (com.culturarte.logica.datatypes.DTUsuario seguidor : du.getUsuariosSeguidores()) {
+                    UsuarioLightType light = of.createUsuarioLightType();
+                    light.setNickname(seguidor.getNickname());
+                    light.setTipo(seguidor.getTipo());
+                    light.setImagen(seguidor.getImagen());
+                    ut.getUsuariosSeguidores().add(light);
+                }
+            }
+            if (du.getPropuestasSeguidas() != null) {
+                for (DTPropuesta propuesta : du.getPropuestasSeguidas()) {
+                    ut.getPropuestasSeguidas().add(propuestasEndpoint.mapToSoapPropuesta(propuesta));
+                }
+            }
             resp.getUsuario().add(ut);
         }
 
