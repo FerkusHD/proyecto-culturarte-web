@@ -135,6 +135,20 @@ public class UsuarioEndpoint {
                         .newXMLGregorianCalendarDate(du.getFechaNacimiento().getYear(), du.getFechaNacimiento().getMonthValue(), du.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
                 ut.setFechaNacimiento(xgc);
             }
+            
+            // Si es proponente, obtener campos adicionales
+            if ("proponente".equals(du.getTipo())) {
+                try {
+                    com.culturarte.logica.datatypes.DTProponente dtp = ctrl.getDTProponente(nick);
+                    if (dtp != null) {
+                        ut.setDireccion(dtp.getDireccion());
+                        ut.setBiografia(dtp.getBiografia());
+                        ut.setLinkWeb(dtp.getLinkWeb());
+                    }
+                } catch (Exception e) {
+                    // Si falla, continuar sin estos campos
+                }
+            }
 
             for (DTUsuario u : du.getUsuariosSeguidos()) {
                 UsuarioLightType sub = of.createUsuarioLightType();

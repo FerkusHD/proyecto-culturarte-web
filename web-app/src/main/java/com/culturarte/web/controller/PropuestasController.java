@@ -252,13 +252,9 @@ public class PropuestasController {
             }
             model.addAttribute("puedeComentar", puedeComentar);
 
-            // Detección de dispositivo
-            String userAgent = request.getHeader("User-Agent");
-            boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
-
             logger.info("Propuesta mostrada exitosamente: {}", tituloDecodificado);
             logger.debug("=== FIN mostrarPropuesta (exitoso) ===");
-            return esMovil ? "consultarPropuestaMovil" : "consultarPropuesta";
+            return "consultarPropuesta";
 
         } catch (Exception e) {
             logger.error("=== ERROR en mostrarPropuesta ===", e);
