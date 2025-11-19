@@ -13,7 +13,6 @@ import com.culturarte.soap.gen.CancelarPropuestaResponse;
 import com.culturarte.soap.gen.ExtenderFinanciacionRequest;
 import com.culturarte.soap.gen.ExtenderFinanciacionResponse;
 import com.culturarte.soap.gen.GetCategoriasResponse;
-import com.culturarte.soap.gen.GetUsuarioResponse;
 import com.culturarte.soap.gen.PropuestaType;
 import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.soap.gen.QuitarFavoritaRequest;
@@ -95,6 +94,19 @@ public class PropuestasController {
             // Retornar lista vacía en caso de error para evitar errores 500
             return new ArrayList<>();
         }
+    }
+
+    // --- Ver detalle de una propuesta como DTO (para consumo AJAX) ---
+    @GetMapping("/listar/{titulo}")
+    @ResponseBody
+    public PropuestaDTO obtenerPropuestaPorTitulo(@PathVariable String titulo) {
+        logger.info("Obteniendo propuesta via REST: {}", titulo);
+        PropuestaType propuesta = soapClient.getPropuesta(titulo);
+        if (propuesta == null) {
+            logger.warn("Propuesta {} no encontrada, retornando null", titulo);
+            return null;
+        }
+        return new PropuestaDTO(propuesta);
     }
 
     // --- Ver detalle de una propuesta ---
@@ -256,13 +268,32 @@ public class PropuestasController {
             RedirectAttributes redirectAttributes) {
 
         try {
-            // Si no se proporciona nickColaborador, obtenerlo de la sesión
+            DTUsuario usuario = obtenerUsuarioDesdeSesion(session);
+            if (usuario == null || "visitante".equals(usuario.getTipo())) {
+                redirectAttributes.addFlashAttribute("mensajeError", "❌ Debe iniciar sesión para colaborar.");
+                return "redirect:/login";
+            }
+            if (!"colaborador".equalsIgnoreCase(usuario.getTipo())) {
+                redirectAttributes.addFlashAttribute("mensajeError", "❌ Solo los colaboradores pueden realizar aportes.");
+                return "redirect:/propuestas/" + tituloPropuesta;
+            }
+
+            // Si no se proporciona nickColaborador, usar el del usuario logueado
             if (nickColaborador == null || nickColaborador.trim().isEmpty()) {
-                nickColaborador = obtenerNickUsuario(session);
-                if (nickColaborador == null || "visitante".equals(nickColaborador)) {
-                    redirectAttributes.addFlashAttribute("mensajeError", "❌ Debe iniciar sesión para colaborar.");
-                    return "redirect:/propuestas/" + tituloPropuesta;
-                }
+                nickColaborador = usuario.getNickname();
+            }
+
+            // Validar que no exista colaboración previa
+            PropuestaType propuesta = soapClient.getPropuesta(tituloPropuesta);
+            if (propuesta == null) {
+                redirectAttributes.addFlashAttribute("mensajeError", "❌ La propuesta no existe.");
+                return "redirect:/propuestas/buscar";
+            }
+            if (propuesta.getColaboradores() != null &&
+                    propuesta.getColaboradores().stream().anyMatch(nickColaborador::equalsIgnoreCase)) {
+                redirectAttributes.addFlashAttribute("mensajeError",
+                        "Ya existe una colaboración para este usuario en la propuesta.");
+                return "redirect:/propuestas/" + tituloPropuesta;
             }
 
             AltaColaboracionRequest request = new AltaColaboracionRequest();
@@ -295,17 +326,34 @@ public class PropuestasController {
             RedirectAttributes redirectAttributes) {
 
         try {
-            // Obtener nickColaborador de la sesión
-            String nickColaborador = obtenerNickUsuario(session);
-            if (nickColaborador == null || "visitante".equals(nickColaborador)) {
+            DTUsuario usuario = obtenerUsuarioDesdeSesion(session);
+            if (usuario == null || "visitante".equals(usuario.getTipo())) {
                 redirectAttributes.addFlashAttribute("mensajeError", "❌ Debe iniciar sesión para comentar.");
+                return "redirect:/propuestas/" + tituloPropuesta;
+            }
+
+            if (!"colaborador".equalsIgnoreCase(usuario.getTipo())) {
+                redirectAttributes.addFlashAttribute("mensajeError", "❌ Solo los colaboradores pueden comentar.");
+                return "redirect:/propuestas/" + tituloPropuesta;
+            }
+
+            if (texto == null || texto.trim().isEmpty()) {
+                redirectAttributes.addFlashAttribute("mensajeError", "❌ El comentario no puede estar vacío.");
+                return "redirect:/propuestas/" + tituloPropuesta;
+            }
+
+            PropuestaType propuesta = soapClient.getPropuesta(tituloPropuesta);
+            if (propuesta == null || propuesta.getColaboradores() == null ||
+                    propuesta.getColaboradores().stream().noneMatch(nick -> nick.equalsIgnoreCase(usuario.getNickname()))) {
+                redirectAttributes.addFlashAttribute("mensajeError",
+                        "❌ Solo los colaboradores que apoyaron la propuesta pueden comentar.");
                 return "redirect:/propuestas/" + tituloPropuesta;
             }
 
             AgregarComentarioRequest request = new AgregarComentarioRequest();
             request.setTituloPropuesta(tituloPropuesta);
             request.setTexto(texto);
-            request.setNickColaborador(nickColaborador);
+            request.setNickColaborador(usuario.getNickname());
 
             AgregarComentarioResponse response = soapClient.agregarComentario(request);
 
@@ -319,6 +367,31 @@ public class PropuestasController {
         }
 
         return "redirect:/propuestas/" + tituloPropuesta;
+    }
+
+    // --- Sugerencias para autocompletado ---
+    @GetMapping("/buscar/sugerencias")
+    @ResponseBody
+    public List<String> sugerencias(@RequestParam("q") String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return List.of();
+        }
+        String queryLower = query.toLowerCase();
+        try {
+            List<PropuestaType> propuestas = soapClient.listarPropuestas();
+            if (propuestas == null) {
+                return List.of();
+            }
+            return propuestas.stream()
+                    .map(PropuestaType::getTitulo)
+                    .filter(titulo -> titulo != null && titulo.toLowerCase().contains(queryLower))
+                    .distinct()
+                    .limit(10)
+                    .toList();
+        } catch (Exception e) {
+            logger.error("Error al obtener sugerencias para '{}'", query, e);
+            return List.of();
+        }
     }
 
     // --- Agregar a favoritas ---
@@ -344,6 +417,7 @@ public class PropuestasController {
 
             if (response.isExito()) {
                 redirectAttributes.addFlashAttribute("mensajeExito", response.getMensaje());
+                actualizarUsuarioEnSesion(session, nickUsuario);
             } else {
                 redirectAttributes.addFlashAttribute("mensajeError", response.getMensaje());
             }
@@ -377,6 +451,7 @@ public class PropuestasController {
 
             if (response.isExito()) {
                 redirectAttributes.addFlashAttribute("mensajeExito", response.getMensaje());
+                actualizarUsuarioEnSesion(session, nickUsuario);
             } else {
                 redirectAttributes.addFlashAttribute("mensajeError", response.getMensaje());
             }
@@ -391,9 +466,16 @@ public class PropuestasController {
     @PostMapping("/cancelar/{titulo}")
     public String cancelarPropuesta(
             @PathVariable String titulo,
+            HttpSession session,
             RedirectAttributes redirectAttributes) {
 
         try {
+            DTUsuario usuario = obtenerUsuarioDesdeSesion(session);
+            if (usuario == null || "visitante".equals(usuario.getTipo())) {
+                redirectAttributes.addFlashAttribute("mensajeError", "❌ Debe iniciar sesión para cancelar propuestas.");
+                return "redirect:/login";
+            }
+
             CancelarPropuestaRequest request = new CancelarPropuestaRequest();
             request.setTituloPropuesta(titulo);
 
@@ -806,5 +888,30 @@ public class PropuestasController {
             }
         }
         return null;
+    }
+
+    private DTUsuario obtenerUsuarioDesdeSesion(HttpSession session) {
+        Object usuarioLogueadoObj = session.getAttribute("usuarioLogueado");
+        if (usuarioLogueadoObj instanceof DTUsuario) {
+            return (DTUsuario) usuarioLogueadoObj;
+        } else if (usuarioLogueadoObj instanceof UsuarioType) {
+            return convertirDT((UsuarioType) usuarioLogueadoObj);
+        } else if (usuarioLogueadoObj instanceof com.culturarte.soap.gen.GetUsuarioResponse response) {
+            if (response.getUsuario() != null) {
+                return convertirDT(response.getUsuario());
+            }
+        }
+        return null;
+    }
+
+    private void actualizarUsuarioEnSesion(HttpSession session, String nickname) {
+        try {
+            UsuarioType usuarioActualizado = usuarioSoapClient.getUsuario(nickname);
+            if (usuarioActualizado != null) {
+                session.setAttribute("usuarioLogueado", convertirDT(usuarioActualizado));
+            }
+        } catch (Exception e) {
+            logger.warn("No se pudo refrescar el usuario en sesión: {}", nickname, e);
+        }
     }
 }
