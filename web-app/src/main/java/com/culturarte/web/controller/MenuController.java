@@ -1,48 +1,66 @@
 package com.culturarte.web.controller;
-import com.culturarte.logica.datatypes.DTUsuario;
 
+import com.culturarte.logica.datatypes.DTUsuario;
+import com.culturarte.soap.gen.*;
+import com.culturarte.web.soap.client.UsuarioSoapClient;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.culturarte.logica.IControlador;
 
 @Controller
 @RequestMapping("/")
 public class MenuController {
 
-    private final IControlador ctrl;
+    private static final Logger logger = LoggerFactory.getLogger(MenuController.class);
 
-    public MenuController(IControlador ctrl) {
-        this.ctrl = ctrl;
-    }
+    @Autowired
+    private UsuarioSoapClient soapClient;
+    @Autowired
+    private HttpSession httpSession;
 
     @GetMapping("/")
     public String index(HttpSession session, Model model) {
+        logger.info("=== INICIO index (página principal) ===");
+        try {
+            DTUsuario usuarioLogueado =(DTUsuario) session.getAttribute("usuarioLogueado");
 
-        DTUsuario u = (DTUsuario) session.getAttribute("usuarioLogueado");
-        if (u == null) {
-            u = new DTUsuario();
-            u.setNickname("visitante");
-            u.setTipo("visitante");
-            session.setAttribute("usuarioLogueado", u);
+            if (usuarioLogueado == null) {
+                logger.debug("No hay usuario en sesión, creando usuario visitante");
+                usuarioLogueado = new DTUsuario();
+                usuarioLogueado.setNickname("visitante");
+                usuarioLogueado.setTipo("visitante");
+                session.setAttribute("usuarioLogueado", usuarioLogueado);
+            }
+
+            logger.info("Página principal cargada para usuario: {}", usuarioLogueado.getNickname());
+            logger.debug("=== FIN index (exitoso) ===");
+            return "index";
+        } catch (Exception e) {
+            logger.error("=== ERROR en index ===", e);
+            return "index";
         }
-
-        model.addAttribute("usuario", u);
-
-        return "index";
     }
 
     @GetMapping("/login")
     public String login(HttpServletRequest request, Model model) {
-        
-    String userAgent = request.getHeader("User-Agent");
-    boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
-   
-    model.addAttribute("esMovil", esMovil);
-    return "login";
-}
+        logger.info("=== INICIO login (GET) ===");
+        try {
+            String userAgent = request.getHeader("User-Agent");
+            boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
+            model.addAttribute("esMovil", esMovil);
+            logger.debug("Mostrando formulario de login. Es móvil: {}", esMovil);
+            logger.debug("=== FIN login (GET) ===");
+            return "login";
+        } catch (Exception e) {
+            logger.error("=== ERROR en login (GET) ===", e);
+            return "login";
+        }
+    }
 
     @PostMapping("/login")
     public String procesarLogin(@RequestParam String nickOemail,
@@ -50,54 +68,59 @@ public class MenuController {
                                 HttpSession session,
                                 HttpServletRequest request,
                                 Model model) {
-
+        logger.info("=== INICIO procesarLogin ===");
+        logger.info("Intento de login para: {}", nickOemail);
         try {
-            boolean existeUsuario = ctrl.verificarPassword(password, nickOemail);
+            VerificarPasswordResponse verificacion = soapClient.verificarPassword(nickOemail, password);
+            if (!verificacion.isExito()) {
+                logger.warn("Login fallido para: {} - {}", nickOemail, verificacion.getMensaje());
+                model.addAttribute("mensaje", "⚠️ Contraseña o usuario incorrecto");
+                model.addAttribute("nickname", nickOemail);
+                return "login";
+            }
 
-            if (!existeUsuario) {
-                model.addAttribute("mensaje", "⚠️ Contraseña o nickname/email incorrecto");
+            logger.debug("Password verificado correctamente, obteniendo datos del usuario");
+            UsuarioType usuarioResp = soapClient.getUsuario(nickOemail);
+            if (usuarioResp == null) {
+                logger.error("No se pudo obtener usuario después de verificar password: {}", nickOemail);
+                model.addAttribute("mensaje", "⚠️ Error al obtener datos del usuario");
                 model.addAttribute("nickname", nickOemail);
                 return "login";
             }
-        } catch (UnsupportedOperationException e) {
-            // Cuando se usa SOAP, verificarPassword no está disponible
-            // Intentamos obtener el usuario directamente
-            DTUsuario usuario = ctrl.getDTUsuario(nickOemail);
-            if (usuario == null) {
-                model.addAttribute("mensaje", "⚠️ Usuario no encontrado");
-                model.addAttribute("nickname", nickOemail);
-                return "login";
-            }
-            // En modo SOAP, no podemos verificar la contraseña, así que permitimos el acceso
-            // (esto es una limitación cuando se usa SOAP)
-            String userAgent = request.getHeader("User-Agent");
-            boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
-            if (esMovil && !usuario.getTipo().equalsIgnoreCase("colaborador")) {
-                model.addAttribute("mensaje", "⚠️ Solo los colaboradores pueden iniciar sesión desde un dispositivo móvil.");
-                model.addAttribute("nickname", nickOemail);
-                return "login";
-            }
+
+            DTUsuario usuario = UsuarioController.convertirDT(usuarioResp);
+
             session.setAttribute("usuarioLogueado", usuario);
-            return "index";
+            logger.info("Login exitoso para: {} (tipo: {})",
+                    usuario.getNickname(), usuario.getTipo());
+            logger.debug("=== FIN procesarLogin (exitoso) ===");
+            return "redirect:/";
+        } catch (Exception e) {
+            logger.error("=== ERROR en procesarLogin ===", e);
+            model.addAttribute("mensaje", "⚠️ Error al procesar el login");
+            model.addAttribute("nickname", nickOemail);
+            return "login";
         }
-        
-    DTUsuario usuario = ctrl.getDTUsuario(nickOemail);
-
-    String userAgent = request.getHeader("User-Agent");
-    boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
-
-    if (esMovil && !usuario.getTipo().equalsIgnoreCase("colaborador")) {
-        model.addAttribute("mensaje", "⚠️ Solo los colaboradores pueden iniciar sesión desde un dispositivo móvil.");
-        model.addAttribute("nickname", nickOemail);
-        return "login";
-    }
-        session.setAttribute("usuarioLogueado", usuario);
-        return "index";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/";
+        logger.info("=== INICIO logout ===");
+        try {
+            DTUsuario usuarioObj = (DTUsuario) session.getAttribute("usuarioLogueado");
+            session.invalidate();
+            logger.info("Logout exitoso para: {}", usuarioObj.getNickname());
+            logger.debug("=== FIN logout ===");
+            return "redirect:/";
+        } catch (Exception e) {
+            logger.error("=== ERROR en logout ===", e);
+            return "redirect:/";
+        }
+    }
+
+    @GetMapping("/exitoAltaPropuesta")
+    public String exitoAltaPropuesta(Model model) {
+        logger.info("Mostrando página de éxito de alta de propuesta");
+        return "exitoAltaPropuesta";
     }
 }

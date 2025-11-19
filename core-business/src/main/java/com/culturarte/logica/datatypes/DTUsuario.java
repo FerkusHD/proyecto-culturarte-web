@@ -17,13 +17,17 @@ public class DTUsuario {
     private String apellido;
     private String email;
     private LocalDate fechaNacimiento;
-    private ArrayList<DTUsuario> usuariosSeguidos;
-    private ArrayList<DTUsuario> usuariosSeguidores;
-    private ArrayList<DTPropuesta> propuestasSeguidas;
+    private ArrayList<DTUsuario> usuariosSeguidos = new ArrayList<>();
+    private ArrayList<DTUsuario> usuariosSeguidores = new ArrayList<>();
+    private ArrayList<DTPropuesta> propuestasSeguidas = new ArrayList<>();
     private String imagen;
     private String tipo;
     
-    public DTUsuario(){}
+    public DTUsuario(){
+        this.usuariosSeguidores = new ArrayList<>();
+        this.usuariosSeguidos = new ArrayList<>();
+        this.propuestasSeguidas = new ArrayList<>();
+    }
     
     public DTUsuario(String nickname, String nombre, String apellido, String email, LocalDate fechaNacimiento, ArrayList<DTUsuario> usuariosSeguidos, ArrayList<DTUsuario> usuariosSeguidores, String tipo, String imagen, ArrayList<DTPropuesta> propuestasSeguidas) {
         this.nickname = nickname;

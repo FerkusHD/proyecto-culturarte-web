@@ -5,14 +5,10 @@
 package com.culturarte.logica;
 
 import com.culturarte.exepciones.*;
-import com.culturarte.logica.datatypes.DTProponente;
+import com.culturarte.logica.datatypes.*;
+
 import java.util.ArrayList;
 
-import com.culturarte.logica.datatypes.DTColaborador;
-import com.culturarte.logica.datatypes.DTPropuesta;
-import com.culturarte.logica.clases.Usuario;
-import com.culturarte.logica.datatypes.DTColaboracion;
-import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.logica.enums.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -21,10 +17,6 @@ import java.util.List;
 
 import javax.swing.tree.DefaultTreeModel;
 
-/**
- *
- * @author maicol
- */
 public interface IControlador {
 
     public abstract void cargarDatosPrueba() throws CargaFallida;
@@ -67,5 +59,6 @@ public interface IControlador {
     public abstract boolean colaboradorPuedeComentar(String colaborador, String tituloPropuesta);
     public abstract boolean verificarPassword(String password, String nick);
     public abstract ArrayList<DTUsuario> listarUsuarios();
+    public abstract List<DTAcceso> getAccesos();
 }
 

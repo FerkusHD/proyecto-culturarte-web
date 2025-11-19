@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -116,8 +117,6 @@
     </form>
 
     <!-- Resultados -->
-    <main class="container mt-4">
-
 <h2 class="mb-3">Ranking de Usuarios</h2>
 
 <c:choose>
@@ -146,15 +145,13 @@
 
                     <div>
                         <h6 class="mb-0">${u.nombre} ${u.apellido}</h6>
-                        <small class="text-muted">@${u.nickname} — ${u.tipo} — ${u.cantidadSeguidores} seguidores</small>
+                        <small class="text-muted">@${u.nickname} — ${u.tipo} — ${fn:length(u.usuariosSeguidores)} seguidores</small>
                     </div>
                 </a>
             </c:forEach>
         </div>
     </c:otherwise>
 </c:choose>
-</main>
-
 </main>
 
 <script src="${pageContext.request.contextPath}/js/busquedaAjax.js"></script>

@@ -1,10 +1,35 @@
 package com.culturarte.web.soap;
 
-import com.culturarte.exepciones.*;
+import com.culturarte.exepciones.CargaFallida;
+import com.culturarte.exepciones.CategoriaYaExiste;
+import com.culturarte.exepciones.ColaboracionYaExiste;
+import com.culturarte.exepciones.DatosIncorrectos;
+import com.culturarte.exepciones.EmailYaExiste;
+import com.culturarte.exepciones.PropuestaYaExiste;
+import com.culturarte.exepciones.UsuarioNoSeguido;
+import com.culturarte.exepciones.UsuarioYaExiste;
+import com.culturarte.exepciones.UsuarioYaSeguido;
 import com.culturarte.logica.IControlador;
 import com.culturarte.logica.datatypes.*;
-import com.culturarte.logica.enums.*;
-import com.culturarte.soap.gen.*;
+import com.culturarte.logica.enums.TipoEstado;
+import com.culturarte.logica.enums.TipoRetorno;
+import com.culturarte.soap.gen.BuscarUsuariosRequest;
+import com.culturarte.soap.gen.BuscarUsuariosResponse;
+import com.culturarte.soap.gen.CategoriaType;
+import com.culturarte.soap.gen.GetCategoriasRequest;
+import com.culturarte.soap.gen.GetCategoriasResponse;
+import com.culturarte.soap.gen.GetPropuestaRequest;
+import com.culturarte.soap.gen.GetPropuestaResponse;
+import com.culturarte.soap.gen.GetUsuarioRequest;
+import com.culturarte.soap.gen.GetUsuarioResponse;
+import com.culturarte.soap.gen.ListarPropuestasRequest;
+import com.culturarte.soap.gen.ListarPropuestasResponse;
+import com.culturarte.soap.gen.ListarUsuariosRequest;
+import com.culturarte.soap.gen.ListarUsuariosResponse;
+import com.culturarte.soap.gen.PropuestaType;
+import com.culturarte.soap.gen.UsuarioType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ws.client.core.WebServiceTemplate;
@@ -17,33 +42,68 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Adaptador SOAP que implementa IControlador usando el servicio SOAP.
- * Los métodos disponibles en SOAP se delegan al servicio, los demás lanzan UnsupportedOperationException.
- */
 @Service
 public class SoapControladorAdapter implements IControlador {
 
+    private static final Logger logger = LoggerFactory.getLogger(SoapControladorAdapter.class);
+
     private final WebServiceTemplate webServiceTemplate;
     
-    @Value("${soap.service.url:http://localhost:8081/soap/ws}")
+    @Value("${soap.service.url:}")
     private String soapServiceUrl;
+    
+    @Value("${soap.service.host:localhost}")
+    private String soapServiceHost;
+    
+    @Value("${soap.service.port:8081}")
+    private String soapServicePort;
+    
+    @Value("${soap.service.context-path:/soap/ws}")
+    private String soapServiceContextPath;
+    
+    /**
+     * Obtiene la URL base del servicio SOAP.
+     * Si no está definida directamente, se construye desde los componentes.
+     */
+    private String getSoapServiceUrl() {
+        if (soapServiceUrl != null && !soapServiceUrl.isEmpty() && !soapServiceUrl.startsWith("${")) {
+            return soapServiceUrl;
+        }
+        // Construir URL desde componentes
+        return String.format("http://%s:%s%s", soapServiceHost, soapServicePort, soapServiceContextPath);
+    }
 
     public SoapControladorAdapter(WebServiceTemplate webServiceTemplate) {
         this.webServiceTemplate = webServiceTemplate;
     }
 
-    // ========== Métodos implementados vía SOAP ==========
-
     @Override
     public List<String> listarCategoriasWeb() {
+        String endpoint = getSoapServiceUrl() + "/categorias";
+        logger.info("=== INICIO listarCategoriasWeb ===");
+        logger.info("Endpoint: {}", endpoint);
         try {
-            ObjectFactory of = new ObjectFactory();
-            jakarta.xml.bind.JAXBElement<Object> request = of.createGetCategoriasRequest(new Object());
-            GetCategoriasResponse response = (GetCategoriasResponse) webServiceTemplate.marshalSendAndReceive(
-                soapServiceUrl + "/categorias", request);
-            return response != null ? response.getCategoria() : new ArrayList<>();
+            GetCategoriasRequest request = new GetCategoriasRequest();
+            logger.debug("Enviando request SOAP para listar categorías web");
+            GetCategoriasResponse response = (GetCategoriasResponse) webServiceTemplate.marshalSendAndReceive(endpoint, request);
+            
+            if (response == null) {
+                logger.warn("Respuesta SOAP null en listarCategoriasWeb");
+                return new ArrayList<>();
+            }
+            
+            if (response.getCategoria() == null) {
+                logger.warn("Lista de categorías null en respuesta");
+                return new ArrayList<>();
+            }
+            
+            List<String> resultado = mapCategoriaResponse(response.getCategoria());
+            logger.info("Se obtuvieron {} categorías web exitosamente", resultado.size());
+            logger.debug("=== FIN listarCategoriasWeb (exitoso) ===");
+            return resultado;
         } catch (Exception e) {
+            logger.error("=== ERROR en listarCategoriasWeb ===", e);
+            logger.error("Endpoint que falló: {}", endpoint);
             throw new RuntimeException("Error al obtener categorías desde SOAP", e);
         }
     }
@@ -55,21 +115,41 @@ public class SoapControladorAdapter implements IControlador {
 
     @Override
     public ArrayList<DTPropuesta> getDTPropuestasWeb() {
+        String endpoint = getSoapServiceUrl() + "/propuestas";
+        logger.info("=== INICIO getDTPropuestasWeb ===");
+        logger.info("Endpoint: {}", endpoint);
         try {
-            ObjectFactory of = new ObjectFactory();
-            jakarta.xml.bind.JAXBElement<Object> request = of.createListarPropuestasRequest(new Object());
-            ListarPropuestasResponse response = (ListarPropuestasResponse) webServiceTemplate.marshalSendAndReceive(
-                soapServiceUrl + "/propuestas", request);
+            ListarPropuestasRequest request = new ListarPropuestasRequest();
+            logger.debug("Enviando request SOAP para obtener propuestas web");
+            ListarPropuestasResponse response = (ListarPropuestasResponse) webServiceTemplate.marshalSendAndReceive(endpoint, request);
             
             ArrayList<DTPropuesta> result = new ArrayList<>();
-            if (response != null && response.getPropuesta() != null) {
-                for (PropuestaType pt : response.getPropuesta()) {
+            if (response == null) {
+                logger.warn("Respuesta SOAP null en getDTPropuestasWeb");
+                return result;
+            }
+            
+            if (response.getPropuesta() == null) {
+                logger.warn("Lista de propuestas null en respuesta");
+                return result;
+            }
+            
+            logger.debug("Convirtiendo {} propuestas de PropuestaType a DTPropuesta", response.getPropuesta().size());
+            for (PropuestaType pt : response.getPropuesta()) {
+                try {
                     DTPropuesta dtp = convertPropuestaTypeToDT(pt);
                     result.add(dtp);
+                } catch (Exception e) {
+                    logger.error("Error al convertir propuesta '{}' a DTPropuesta", pt.getTitulo(), e);
                 }
             }
+            
+            logger.info("Se obtuvieron {} propuestas web exitosamente", result.size());
+            logger.debug("=== FIN getDTPropuestasWeb (exitoso) ===");
             return result;
         } catch (Exception e) {
+            logger.error("=== ERROR en getDTPropuestasWeb ===", e);
+            logger.error("Endpoint que falló: {}", endpoint);
             throw new RuntimeException("Error al obtener propuestas desde SOAP", e);
         }
     }
@@ -80,7 +160,7 @@ public class SoapControladorAdapter implements IControlador {
             GetPropuestaRequest request = new GetPropuestaRequest();
             request.setTitulo(titulo);
             GetPropuestaResponse response = (GetPropuestaResponse) webServiceTemplate.marshalSendAndReceive(
-                soapServiceUrl + "/propuestas", request);
+                getSoapServiceUrl() + "/propuestas", request);
             
             if (response.getPropuesta() != null) {
                 return convertPropuestaTypeToDT(response.getPropuesta());
@@ -97,7 +177,7 @@ public class SoapControladorAdapter implements IControlador {
             GetUsuarioRequest request = new GetUsuarioRequest();
             request.setNickname(nickname);
             GetUsuarioResponse response = (GetUsuarioResponse) webServiceTemplate.marshalSendAndReceive(
-                soapServiceUrl + "/usuarios", request);
+                getSoapServiceUrl() + "/usuarios", request);
             
             if (response.getUsuario() != null) {
                 return convertUsuarioTypeToDT(response.getUsuario());
@@ -270,7 +350,23 @@ public class SoapControladorAdapter implements IControlador {
 
     @Override
     public List<DTUsuario> buscarUsuarios(String nombre) {
-        throw new UnsupportedOperationException("buscarUsuarios no está disponible vía SOAP");
+        try {
+            BuscarUsuariosRequest request = new BuscarUsuariosRequest();
+            request.setNombre(nombre != null ? nombre : "");
+            BuscarUsuariosResponse response = (BuscarUsuariosResponse) webServiceTemplate.marshalSendAndReceive(
+                getSoapServiceUrl() + "/usuarios", request);
+            
+            ArrayList<DTUsuario> result = new ArrayList<>();
+            if (response != null && response.getUsuario() != null) {
+                for (UsuarioType ut : response.getUsuario()) {
+                    DTUsuario dtu = convertUsuarioTypeToDT(ut);
+                    result.add(dtu);
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al buscar usuarios desde SOAP", e);
+        }
     }
 
     @Override
@@ -295,16 +391,36 @@ public class SoapControladorAdapter implements IControlador {
 
     @Override
     public ArrayList<DTUsuario> listarUsuarios() {
-        throw new UnsupportedOperationException("listarUsuarios no está disponible vía SOAP");
+        try {
+            ListarUsuariosRequest request = new ListarUsuariosRequest();
+            ListarUsuariosResponse response = (ListarUsuariosResponse) webServiceTemplate.marshalSendAndReceive(
+                getSoapServiceUrl() + "/usuarios", request);
+            
+            ArrayList<DTUsuario> result = new ArrayList<>();
+            if (response != null && response.getUsuario() != null) {
+                for (UsuarioType ut : response.getUsuario()) {
+                    DTUsuario dtu = convertUsuarioTypeToDT(ut);
+                    result.add(dtu);
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al listar usuarios desde SOAP", e);
+        }
+    }
+
+    @Override
+    public List<DTAcceso> getAccesos() {
+        return List.of();
     }
 
     // ========== Métodos auxiliares de conversión ==========
 
     private DTPropuesta convertPropuestaTypeToDT(PropuestaType pt) {
         TipoEstado estado = null;
-        if (pt.getEstado() != null) {
+        if (pt.getEstadoActual() != null) {
             try {
-                estado = TipoEstado.valueOf(pt.getEstado());
+                estado = TipoEstado.valueOf(pt.getEstadoActual());
             } catch (IllegalArgumentException e) {
                 // Si no se puede convertir, se deja null
             }
@@ -364,6 +480,12 @@ public class SoapControladorAdapter implements IControlador {
             dtu.setTipo(ut.getTipo());
         }
         return dtu;
+    }
+
+    private ArrayList<String> mapCategoriaResponse(List<CategoriaType> categorias) {
+        return categorias.stream()
+                .map(CategoriaType::getNombre)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }
 

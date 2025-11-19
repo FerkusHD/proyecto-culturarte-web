@@ -33,36 +33,43 @@ public class Controlador implements IControlador{
     private final ManejadorUsuario mu;
     private final ManejadorCategoria mc;
     private final ManejadorColaboracion mcol;
+    private final ManejadorAcceso ma;
 
-    public Controlador(ManejadorPropuesta mp, ManejadorUsuario mu, ManejadorCategoria mc, ManejadorColaboracion mcol) {
+    public Controlador(ManejadorPropuesta mp, ManejadorUsuario mu, ManejadorCategoria mc, ManejadorColaboracion mcol, ManejadorAcceso ma) {
         this.mp = mp;
         this.mu = mu;
         this.mc = mc;
         this.mcol = mcol;
-    }
-    
-
-@Override
-public ArrayList<DTUsuario> listarUsuarios() {
-    ArrayList<DTUsuario> u = new ArrayList<>();
-
-    for (Usuario usuario : mu.listarUsuarios()) {
-        DTUsuario dtUsuario = new DTUsuario(
-                usuario.getNickname(),
-                usuario.getNombre(),
-                usuario.getApellido(),
-                usuario.getEmail(),
-                usuario.getFechaNacimiento(),
-                usuario.getImagen(),
-                usuario.getUsuariosSeguidores().size()
-        );
-        u.add(dtUsuario);
+        this.ma = ma;
+        
     }
 
-    u.sort((a, b) -> Integer.compare(b.getUsuariosSeguidores().size(), a.getUsuariosSeguidores().size()));
+    @Override
+    public List<DTAcceso> getAccesos() {
+        return ma.obtenerAccesosOrdenados();
+    }
 
-    return u;
-}
+    @Override
+    public ArrayList<DTUsuario> listarUsuarios() {
+        ArrayList<DTUsuario> u = new ArrayList<>();
+
+        for (Usuario usuario : mu.listarUsuarios()) {
+            DTUsuario dtUsuario = new DTUsuario(
+                    usuario.getNickname(),
+                    usuario.getNombre(),
+                    usuario.getApellido(),
+                    usuario.getEmail(),
+                    usuario.getFechaNacimiento(),
+                    usuario.getImagen(),
+                    usuario.getUsuariosSeguidores().size()
+            );
+            u.add(dtUsuario);
+        }
+
+        u.sort((a, b) -> Integer.compare(b.getUsuariosSeguidores().size(), a.getUsuariosSeguidores().size()));
+
+        return u;
+    }
 
     @Override
     public void altaColaborador(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen)

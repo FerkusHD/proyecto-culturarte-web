@@ -2,25 +2,28 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SOAP_URL="http://localhost:8081/soap/ws/categorias.wsdl"
 WEB_URL="http://localhost:8080/"
 TIMEOUT=120
 SLEEP=3
 
 have() { command -v "$1" >/dev/null 2>&1; }
 
-wait_for_web() {
-  echo "[open-jar] Waiting for web at ${WEB_URL} (timeout ${TIMEOUT}s)..."
+wait_for_service() {
+  local url=$1
+  local service_name=$2
+  echo "[open-jar] Waiting for ${service_name} at ${url} (timeout ${TIMEOUT}s)..."
   local elapsed=0
   while true; do
-    if have curl && curl -fsS "$WEB_URL" >/dev/null 2>&1; then
-      echo "[open-jar] Web is up."
+    if have curl && curl -fsS "$url" >/dev/null 2>&1; then
+      echo "[open-jar] ${service_name} is up."
       return 0
     fi
     sleep "$SLEEP"
     elapsed=$((elapsed + SLEEP))
-    echo "[open-jar] Still waiting... (${elapsed}s)"
+    echo "[open-jar] Still waiting for ${service_name}... (${elapsed}s)"
     if [ "$elapsed" -ge "$TIMEOUT" ]; then
-      echo "[open-jar] Timeout waiting for web. Check 'docker compose logs -f web' or run the web manually."
+      echo "[open-jar] ⚠️  Timeout waiting for ${service_name}. Check 'docker compose logs -f ${service_name}' or run it manually."
       return 1
     fi
   done
@@ -29,7 +32,10 @@ wait_for_web() {
 if have docker && docker compose version >/dev/null 2>&1; then
   echo "[open-jar] Starting DB + SOAP + Web with Docker Compose..."
   (cd "$ROOT_DIR" && docker compose up -d db soap web)
-  wait_for_web || true
+  
+  echo "[open-jar] Waiting for services to be ready..."
+  wait_for_service "$SOAP_URL" "SOAP" || echo "[open-jar] ⚠️  SOAP service not ready, but continuing..."
+  wait_for_service "$WEB_URL" "Web" || echo "[open-jar] ⚠️  Web service not ready, but continuing..."
 else
   echo "[open-jar] Docker Compose not found. Skipping containerized DB/SOAP/Web startup."
   echo "[open-jar] Make sure your DB, SOAP service, and Web are running locally before launching the app."

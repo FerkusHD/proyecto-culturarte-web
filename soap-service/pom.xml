@@ -64,17 +64,12 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <classifier>boot</classifier>
+                    <attach>false</attach>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>default-jar</id>
-                        <phase>package</phase>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>repackage</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -85,6 +80,7 @@
                 <version>3.4.0</version>
                 <executions>
                     <execution>
+                        <id>add-source</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>add-source</goal>
@@ -100,34 +96,20 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxb2-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.glassfish.jaxb</groupId>
-                        <artifactId>jaxb-xjc</artifactId>
-                        <version>4.0.2</version>
-                    </dependency>
-                </dependencies>
+                <version>4.0.0</version>
                 <executions>
                     <execution>
-                        <phase>generate-sources</phase>
                         <id>xjc</id>
                         <goals>
                             <goal>xjc</goal>
                         </goals>
+                        <phase>generate-sources</phase>
                         <configuration>
-                            <schemaDirectory>${project.basedir}/src/main/xsd</schemaDirectory>
+                            <sources>
+                                <source>src/main/resources/ws</source>
+                            </sources>
                             <outputDirectory>${project.build.directory}/generated-sources/xjc</outputDirectory>
                             <packageName>com.culturarte.soap.gen</packageName>
-                            <args>
-                                <arg>-Xjakarta-xml</arg>
-                            </args>
-                            <schemas>
-                                <schema>culturarte.xsd</schema>
-                                <schema>categorias.xsd</schema>
-                                <schema>propuestas.xsd</schema>
-                                <schema>usuarios.xsd</schema>
-                            </schemas>
                         </configuration>
                     </execution>
                 </executions>

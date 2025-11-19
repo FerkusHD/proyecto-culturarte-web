@@ -36,14 +36,6 @@
                             <a class="nav-link text-primary fw-normal"  href="${pageContext.request.contextPath}/propuestas/alta">Tengo una propuesta</a>
                         </li>
                     </c:if>
-                    <c:if test="${sessionScope.usuarioLogueado.tipo eq 'colaborador'}">
-                        <li class="nav-item d-flex align-items-center">
-                            <span class="px-2 text-dark">|</span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-primary fw-normal" href="${pageContext.request.contextPath}/propuestas/registrarColaboracionProp">Quiero colaborar</a>
-                        </li>
-                    </c:if>
                 </ul>
 
                 <form class="d-flex me-3 flex-grow-1 position-relative" style="max-width: 400px;"
@@ -571,7 +563,16 @@
                                                         </div>
 
                                                         <div class="card-footer bg-white border-0 text-center">
-                                                            <a href="${pageContext.request.contextPath}/propuestas/${colaboracion.propuesta.titulo}" class="btn btn-sm btn-primary w-100">Ver Propuesta</a>
+                                                            <div class="d-grid gap-2">
+                                                                <a href="${pageContext.request.contextPath}/propuestas/${colaboracion.propuesta.titulo}" class="btn btn-sm btn-primary">Ver Propuesta</a>
+                                                                <c:if test="${esMiPropioPerfil}">
+                                                                    <a href="${pageContext.request.contextPath}/colaboraciones/constancia-pago?nickColaborador=${colaborador.nickname}&tituloPropuesta=${colaboracion.propuesta.titulo}" 
+                                                                       class="btn btn-sm btn-outline-success" 
+                                                                       target="_blank">
+                                                                        <i class="bi bi-file-earmark-pdf"></i> Descargar Constancia PDF
+                                                                    </a>
+                                                                </c:if>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>

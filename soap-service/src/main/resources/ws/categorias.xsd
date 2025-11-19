@@ -1,17 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://www.culturarte.com/ws/categorias"
-           xmlns:tns="http://www.culturarte.com/ws/categorias"
-           elementFormDefault="qualified">
+<xs:schema
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:tns="http://www.culturarte.com/ws/categorias"
+        targetNamespace="http://www.culturarte.com/ws/categorias"
+        elementFormDefault="qualified">
 
-    <xs:element name="getCategoriasRequest" type="xs:anyType"/>
+    <!-- ========= REQUEST ========= -->
+    <xs:element name="getCategoriasRequest">
+        <xs:complexType>
+            <xs:sequence/>
+        </xs:complexType>
+    </xs:element>
 
+    <!-- ========= RESPONSE ========= -->
     <xs:element name="getCategoriasResponse">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="categoria" type="xs:string" maxOccurs="unbounded"/>
+                <xs:element name="categoria" type="tns:CategoriaType" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+
+    <!-- ========= CATEGORY TYPE ========= -->
+    <xs:complexType name="CategoriaType">
+        <xs:sequence>
+            <xs:element name="nombre" type="xs:string"/>
+            <xs:element name="hijos" type="tns:CategoriaType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 
 </xs:schema>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.culturarte.com/ws/colaboraciones"
+           xmlns:tns="http://www.culturarte.com/ws/colaboraciones"
+           xmlns:prop="http://www.culturarte.com/ws/propuestas"
+
+           elementFormDefault="qualified">
+
+    <xs:import namespace="http://www.culturarte.com/ws/propuestas"
+               schemaLocation="propuestas.xsd"/>
+
+    <!-- Request y Response para listar colaboraciones -->
+    <xs:element name="getColaboracionesPorUsuarioRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="nickname" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getColaboracionesPorUsuarioResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="colaboraciones" type="tns:colaboracionType" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Request y Response para una colaboración -->
+    <xs:element name="getColaboracionRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="nickColaborador" type="xs:string"/>
+                <xs:element name="tituloPropuesta" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getColaboracionResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="colaboracion" type="tns:colaboracionType" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Tipos -->
+    <xs:complexType name="colaboracionType">
+        <xs:sequence>
+            <xs:element name="nickColaborador" type="xs:string"/>
+            <xs:element name="propuesta" type="prop:propuestaType"/>
+            <xs:element name="fecha" type="xs:string"/>
+            <xs:element name="hora" type="xs:string"/>
+            <xs:element name="monto" type="xs:float"/>
+            <xs:element name="tipoRetorno" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

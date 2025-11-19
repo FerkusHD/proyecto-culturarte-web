@@ -28,7 +28,7 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:mysql://db:3306/culturarte?zeroDateTimeBehavior=CONVERT_TO_NULL"
       SPRING_DATASOURCE_USERNAME: "root"
       SPRING_DATASOURCE_PASSWORD: "root"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: "none"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
     ports:
       - "8081:8081"
     healthcheck:
