@@ -10,11 +10,7 @@ import com.culturarte.exepciones.UsuarioNoSeguido;
 import com.culturarte.exepciones.UsuarioYaExiste;
 import com.culturarte.exepciones.UsuarioYaSeguido;
 import com.culturarte.logica.IControlador;
-import com.culturarte.logica.datatypes.DTColaboracion;
-import com.culturarte.logica.datatypes.DTColaborador;
-import com.culturarte.logica.datatypes.DTProponente;
-import com.culturarte.logica.datatypes.DTPropuesta;
-import com.culturarte.logica.datatypes.DTUsuario;
+import com.culturarte.logica.datatypes.*;
 import com.culturarte.logica.enums.TipoEstado;
 import com.culturarte.logica.enums.TipoRetorno;
 import com.culturarte.soap.gen.BuscarUsuariosRequest;
@@ -411,6 +407,11 @@ public class SoapControladorAdapter implements IControlador {
         } catch (Exception e) {
             throw new RuntimeException("Error al listar usuarios desde SOAP", e);
         }
+    }
+
+    @Override
+    public List<DTAcceso> getAccesos() {
+        return List.of();
     }
 
     // ========== Métodos auxiliares de conversión ==========
