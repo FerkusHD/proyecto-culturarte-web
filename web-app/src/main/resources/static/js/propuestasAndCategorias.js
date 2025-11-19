@@ -1,33 +1,26 @@
 let todasLasPropuestas = [];
 
-// --- Función de Formato de Monto ---
 function formatMonto(monto) {
     if (typeof monto !== 'number' || isNaN(monto)) return '$0 U';
-    // Utiliza toLocaleString para formatear el número con separadores de miles (para Uruguay/español)
     return `$${monto.toLocaleString('es-UY', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} U`;
 }
 
-// --- Función de Cálculo de Días Restantes ---
+
 function calcularDiasRestantes(fechaPrevistaString) {
-    // Si la fecha no es válida, devuelve 0 o un valor seguro
     if (!fechaPrevistaString) return 0;
 
     try {
-        // Manejar diferentes formatos de fecha
         let fechaPrevista;
         if (typeof fechaPrevistaString === 'string') {
-            // Si viene como string, puede ser ISO (2025-11-15) o con tiempo
-            // Remover tiempo si existe
             const fechaStr = fechaPrevistaString.split('T')[0];
             fechaPrevista = new Date(fechaStr);
         } else if (fechaPrevistaString instanceof Date) {
             fechaPrevista = fechaPrevistaString;
         } else {
-            // Si es un objeto con propiedades (XMLGregorianCalendar serializado)
             if (fechaPrevistaString.year && fechaPrevistaString.month && fechaPrevistaString.day) {
                 fechaPrevista = new Date(
                     fechaPrevistaString.year,
-                    fechaPrevistaString.month - 1, // Los meses en JS son 0-indexed
+                    fechaPrevistaString.month - 1,
                     fechaPrevistaString.day
                 );
             } else {
@@ -35,23 +28,19 @@ function calcularDiasRestantes(fechaPrevistaString) {
             }
         }
 
-        // Verificar que la fecha es válida
         if (isNaN(fechaPrevista.getTime())) {
             console.warn('Fecha inválida:', fechaPrevistaString);
             return 0;
         }
 
         const fechaHoy = new Date();
-        fechaHoy.setHours(0, 0, 0, 0); // Resetear a medianoche para comparar solo fechas
+        fechaHoy.setHours(0, 0, 0, 0); 
         fechaPrevista.setHours(0, 0, 0, 0);
 
-        // Calcular la diferencia en milisegundos
         const diffTime = fechaPrevista.getTime() - fechaHoy.getTime();
 
-        // Si la fecha ya pasó
         if (diffTime <= 0) return 0;
 
-        // Convertir milisegundos a días (redondeando hacia arriba)
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
     } catch (e) {
@@ -189,7 +178,6 @@ function renderTree(node, container) {
     container.appendChild(ul);
 }
 
-// New renderer that consumes DTOs from /categorias/tree (objects: { nombre, hijos[] })
 function renderTreeFromDTO(list, container) {
     const ul = document.createElement('ul');
     (list || []).forEach(node => {
@@ -266,7 +254,6 @@ function renderTreeFromDTO(list, container) {
 }
 
 
-// Base path (injected by JSP as window.CTX). Falls back to empty string.
 const BASE = (typeof window !== 'undefined' && window.CTX) ? window.CTX : '';
 
 // === CATEGORÍAS ===
@@ -296,7 +283,6 @@ function cargarCategorias() {
             }
             contenedor.innerHTML = '';
 
-            // Header
             const header = document.createElement('h6');
             header.className = 'fw-bold text-uppercase mb-2';
             header.textContent = 'CATEGORÍAS';
@@ -312,7 +298,6 @@ function cargarCategorias() {
                 return;
             }
 
-            // If the server returned an array of objects with 'nombre' use the DTO renderer
             if (typeof data[0] === 'object' && data[0].nombre !== undefined) {
                 console.log('Usando renderTreeFromDTO');
                 const treeDiv = document.createElement('div');
@@ -322,7 +307,6 @@ function cargarCategorias() {
                 collapseAllTreeNodes(treeDiv);
             } else {
                 console.log('Usando buildTreeFromList (fallback)');
-                // fallback to previous behavior (flat list)
                 const treeRoot = buildTreeFromList(data || []);
                 const treeDiv = document.createElement('div');
                 treeDiv.className = 'categoria-tree';
@@ -335,7 +319,6 @@ function cargarCategorias() {
             console.error('=== ERROR cargando categorías (tree) ===', err);
             console.error('Error completo:', err);
             console.error('Stack:', err.stack);
-            // fallback to lista endpoint if tree fails
             console.log('Intentando fallback a /categorias/lista');
             fetch(BASE + '/categorias/lista')
                 .then(r => {
@@ -381,7 +364,6 @@ function cargarCategorias() {
         });
 }
 
-// Cargar categorías cuando el DOM esté listo
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', cargarCategorias);
 } else {
@@ -425,14 +407,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (tabsContainer) {
         tabsContainer.addEventListener('shown.bs.tab', (event) => {
-            // Cuando una pestaña es seleccionada, actualiza el contenido
             aplicarFiltrosCombinados();
         });
     }
 });
 
 
-const imagenPorDefecto = BASE + '/uploads/imagenes/noimg.jpg'; // Ajusta según tu estructura
+const imagenPorDefecto = BASE + '/uploads/imagenes/noimg.jpg';
 
 function mostrarPropuestas(lista) {
     const contenedor = document.getElementById('tarjetas');
@@ -446,7 +427,6 @@ function mostrarPropuestas(lista) {
     }
 
     lista.forEach(p => {
-        // Normalizar propiedades (pueden venir con getters de SOAP o como propiedades directas)
         const titulo = p.titulo || (typeof p.getTitulo === 'function' ? p.getTitulo() : '') || '';
         const descripcion = p.descripcion || (typeof p.getDescripcion === 'function' ? p.getDescripcion() : '') || '';
         const montoRecaudado = parseFloat(p.montoRecaudado || (typeof p.getMontoRecaudado === 'function' ? p.getMontoRecaudado() : 0) || 0);
@@ -534,7 +514,6 @@ function aplicarFiltrosCombinados() {
     const activeTabElement = document.getElementById('proposalTabs') ? document.getElementById('proposalTabs').querySelector('.nav-link.active') : null;
     const estadoActivo = activeTabElement ? activeTabElement.getAttribute('data-estado') : null;
 
-    // get selected categories (can be multiple with Ctrl/Cmd)
     const categoriasSeleccionadas = Array.from(document.querySelectorAll('.categoria-node.selected'))
         .map(n => n.dataset.fullpath);
 
@@ -562,14 +541,11 @@ function filtrarPropuestas() {
     aplicarFiltrosCombinados();
 }
 
-// Utility to collapse all nested nodes (hide all ULs that are not the root level)
 function collapseAllTreeNodes(container) {
     const root = container || document;
-    // hide all nested ULs (any UL inside another UL)
     root.querySelectorAll('.categoria-tree ul ul').forEach(u => {
         u.style.display = 'none';
     });
-    // mark all toggles as collapsed and remove expanded
     root.querySelectorAll('.categoria-toggle').forEach(t => {
         t.classList.remove('expanded');
         t.classList.add('collapsed');

@@ -42,14 +42,6 @@
                             <a class="nav-link text-primary fw-normal" href="${pageContext.request.contextPath}/propuestas/alta">Tengo una propuesta</a>
                         </li>
                     </c:if>
-                    <c:if test="${sessionScope.usuarioLogueado.tipo eq 'colaborador'}">
-                        <li class="nav-item d-flex align-items-center">
-                            <span class="px-2 text-dark">|</span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-primary fw-normal" href="${pageContext.request.contextPath}/propuestas/registrarColaboracionProp">Quiero colaborar</a>
-                        </li>
-                    </c:if>
                 </ul>
 
                 <form class="d-flex me-3 flex-grow-1 position-relative" style="max-width: 400px;"
