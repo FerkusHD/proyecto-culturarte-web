@@ -249,6 +249,7 @@ public class PropuestasEndpoint {
         PropuestaType p = new PropuestaType();
         p.setTitulo(dt.getTitulo());
         p.setDescripcion(dt.getDescripcion());
+        p.setLugar(dt.getLugar());
         p.setProponente(dt.getProponente());
         p.setCategoria(dt.getCategoria());
         p.setEstadoActual(dt.getEstadoActual() != null ? dt.getEstadoActual().toString() : null);

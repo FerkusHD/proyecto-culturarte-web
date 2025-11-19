@@ -9,6 +9,7 @@
         <xs:sequence>
             <xs:element name="titulo" type="xs:string"/>
             <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
+            <xs:element name="lugar" type="xs:string" minOccurs="0"/>
             <xs:element name="proponente" type="xs:string" minOccurs="0"/>
             <xs:element name="categoria" type="xs:string" minOccurs="0"/>
             <xs:element name="estadoActual" type="xs:string" minOccurs="0"/>

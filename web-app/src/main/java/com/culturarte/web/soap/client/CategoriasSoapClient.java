@@ -16,28 +16,37 @@ public class CategoriasSoapClient {
 
     private final WebServiceTemplate webServiceTemplate;
 
+    @Value("${soap.service.url:}")
+    private String soapServiceUrl;
+
     @Value("${soap.service.host:localhost}")
-    private String soapHost;
+    private String soapServiceHost;
 
     @Value("${soap.service.port:8081}")
-    private String soapPort;
+    private String soapServicePort;
 
     @Value("${soap.service.context-path:/soap/ws}")
-    private String soapContextPath;
+    private String soapServiceContextPath;
 
     public CategoriasSoapClient(WebServiceTemplate webServiceTemplate) {
         this.webServiceTemplate = webServiceTemplate;
     }
 
     private String getSoapUrl() {
-        return String.format("http://%s:%s%s/categorias", soapHost, soapPort, soapContextPath);
+        if (soapServiceUrl != null && !soapServiceUrl.isEmpty() && !soapServiceUrl.startsWith("${")) {
+            logger.debug("Usando URL SOAP configurada directamente: {}", soapServiceUrl);
+            return soapServiceUrl + "/categorias";
+        }
+        String endpoint = String.format("http://%s:%s%s/categorias", soapServiceHost, soapServicePort, soapServiceContextPath);
+        logger.debug("Construyendo endpoint SOAP: {}", endpoint);
+        return endpoint;
     }
 
     public GetCategoriasResponse obtenerCategorias(GetCategoriasRequest request) {
         String soapUrl = getSoapUrl();
         logger.info("=== INICIO obtenerCategorias ===");
         logger.info("URL SOAP: {}", soapUrl);
-        logger.info("Host: {}, Port: {}, ContextPath: {}", soapHost, soapPort, soapContextPath);
+        logger.info("Host: {}, Port: {}, ContextPath: {}", soapServiceHost, soapServicePort, soapServiceContextPath);
         
         try {
             logger.debug("Enviando request SOAP para obtener categorías");
@@ -74,6 +83,13 @@ public class CategoriasSoapClient {
             }
             logger.error("URL que falló: {}", soapUrl);
             logger.error("Stack trace completo:", e);
+            
+            // Si es un error de conexión, lanzar una excepción más específica
+            if (e.getCause() instanceof java.net.ConnectException) {
+                logger.error("⚠️ El servicio SOAP no está disponible en: {}", soapUrl);
+                logger.error("Por favor, verifica que el servicio SOAP esté corriendo y accesible");
+            }
+            
             throw new RuntimeException("Error al invocar SOAP de categorías", e);
         }
     }

@@ -128,13 +128,15 @@
                         <span><i class="bi bi-calendar-event text-primary"></i> Fecha:</span>
                         <strong>${propuesta.fechaPrevista}</strong>
                     </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span><i class="bi bi-geo-alt text-primary"></i> Lugar:</span>
-                        <strong>${propuesta.lugar}</strong>
-                    </div>
+                    <c:if test="${not empty propuesta.lugar}">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="bi bi-geo-alt text-primary"></i> Lugar:</span>
+                            <strong>${propuesta.lugar}</strong>
+                        </div>
+                    </c:if>
                     <div class="d-flex justify-content-between mb-2">
                         <span><i class="bi bi-ticket-perforated text-primary"></i> Entrada:</span>
-                        <strong>$${propuesta.precioEntrada}</strong>
+                        <strong>$${propuesta.montoEntrada}</strong>
                     </div>
                     <div class="d-flex justify-content-between">
                         <span><i class="bi bi-tags text-primary"></i> Categoría:</span>

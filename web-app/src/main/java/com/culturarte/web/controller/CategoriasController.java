@@ -106,6 +106,8 @@ public class CategoriasController {
                 logger.error("Causa: {}", e.getCause().getMessage());
             }
             // Retornar lista vacía en lugar de error para evitar problemas en el frontend
+            // Esto permite que la página cargue aunque el servicio SOAP no esté disponible
+            logger.warn("Retornando lista vacía debido a error en SOAP - el frontend mostrará 'No hay categorías disponibles'");
             return new ArrayList<>();
         }
     }
