@@ -131,7 +131,7 @@ public class ManejadorUsuario {
             dtp.setDireccion(p.getDireccion());
             dtp.setLinkWeb(p.getLinkWeb());
             dtp.setBiografia(p.getBiografia());
-
+            dtp.setPropuestas(new ArrayList());
             for (Propuesta prop : p.getPropuestas()) {
                 DTPropuesta dtProp = new DTPropuesta(
                         prop.getTitulo(),

@@ -82,6 +82,18 @@ public class DTProponente {
         return propuestas;
     }
 
+    public void setPropuestas(ArrayList<DTPropuesta> propuestas) {
+        this.propuestas = propuestas;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     //Setters
     public void setNickname(String nickname) {
         this.nickname = nickname;
