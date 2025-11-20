@@ -191,11 +191,6 @@ public class SoapControladorAdapter implements IControlador {
     // ========== Métodos no implementados en SOAP (lanzan excepción) ==========
 
     @Override
-    public void cargarDatosPrueba() throws CargaFallida {
-        throw new UnsupportedOperationException("cargarDatosPrueba no está disponible vía SOAP");
-    }
-
-    @Override
     public void altaColaborador(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen) throws UsuarioYaExiste, EmailYaExiste {
         throw new UnsupportedOperationException("altaColaborador no está disponible vía SOAP");
     }
