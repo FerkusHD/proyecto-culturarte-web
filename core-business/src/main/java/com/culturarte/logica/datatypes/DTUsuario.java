@@ -23,6 +23,7 @@ public class DTUsuario {
     private String imagen;
     private String tipo;
     private int cantSeguidores;
+    private boolean isEliminado = false;
     
     public DTUsuario(){
         this.usuariosSeguidores = new ArrayList<>();
@@ -226,5 +227,13 @@ public class DTUsuario {
 
     public void setCantSeguidores(int cantSeguidores) {
         this.cantSeguidores = cantSeguidores;
+    }
+
+    public boolean isEliminado() {
+        return isEliminado;
+    }
+
+    public void setEliminado(boolean eliminado) {
+        isEliminado = eliminado;
     }
 }

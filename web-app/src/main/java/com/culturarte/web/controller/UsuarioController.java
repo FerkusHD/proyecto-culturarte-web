@@ -412,6 +412,8 @@ public class UsuarioController {
             dt.setCantSeguidores(u.getCantSeguidores());
         }
 
+        dt.setEliminado(u.isEliminado());
+
         for (UsuarioLightType uSeguidor : u.getUsuariosSeguidores()) {
             dt.addUsuariosSeguidores(
                     new DTUsuario(uSeguidor.getNickname(), uSeguidor.getTipo(), uSeguidor.getImagen()));

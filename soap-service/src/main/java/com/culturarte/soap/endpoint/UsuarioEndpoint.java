@@ -130,6 +130,7 @@ public class UsuarioEndpoint {
             ut.setEmail(du.getEmail());
             ut.setImagen(du.getImagen());
             ut.setTipo(du.getTipo());
+            ut.setEliminado(false);
             if (du.getFechaNacimiento() != null) {
                 javax.xml.datatype.XMLGregorianCalendar xgc = javax.xml.datatype.DatatypeFactory.newInstance()
                         .newXMLGregorianCalendarDate(du.getFechaNacimiento().getYear(), du.getFechaNacimiento().getMonthValue(), du.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
@@ -144,6 +145,7 @@ public class UsuarioEndpoint {
                         ut.setDireccion(dtp.getDireccion());
                         ut.setBiografia(dtp.getBiografia());
                         ut.setLinkWeb(dtp.getLinkWeb());
+                        if (dtp.getFechaEliminacion() != null) ut.setEliminado(true);
                     }
                 } catch (Exception e) {
                     // Si falla, continuar sin estos campos
