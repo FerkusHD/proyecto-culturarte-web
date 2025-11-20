@@ -15,7 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.culturarte.soap.gen.UsuarioType;
-
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.xml.datatype.DatatypeFactory;
 import java.nio.file.*;
 import java.time.LocalDate;
@@ -292,30 +292,48 @@ public class UsuarioController {
         return "redirect:" + request.getHeader("Referer");
     }
 
-    @PostMapping("/eliminar-proponente")
-    public String eliminarProponente(HttpSession session) {
-        DTUsuario usuarioLogueado = (DTUsuario) session.getAttribute("usuarioLogueado");
+    @PostMapping("/eliminarProponente")
+    public String eliminarProponente(
+            @RequestParam("nickname") String nicknameForm,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
-        if (usuarioLogueado == null || !"proponente".equals(usuarioLogueado.getTipo())) {
+        DTUsuario usuarioLogueado = (DTUsuario) session.getAttribute("usuarioLogueado");
+        if (usuarioLogueado == null) {
+            redirectAttributes.addFlashAttribute("mensajeError", "Debes estar logueado para eliminar tu cuenta.");
             return "redirect:/login";
+        }
+
+        if (!usuarioLogueado.getNickname().equals(nicknameForm)) {
+            redirectAttributes.addFlashAttribute("mensajeError", "No puedes eliminar otra cuenta.");
+            return "redirect:/usuarios/" + usuarioLogueado.getNickname();
+        }
+
+        if (!"proponente".equalsIgnoreCase(usuarioLogueado.getTipo())) {
+            redirectAttributes.addFlashAttribute("mensajeError", "Solo un proponente puede eliminar su cuenta.");
+            return "redirect:/usuarios/" + usuarioLogueado.getNickname();
         }
 
         try {
             EliminarProponenteResponse resp = usuariosSoapClient.eliminarProponente(usuarioLogueado.getNickname());
 
             if (resp.isExito()) {
-                session.invalidate(); // cerrar sesión si fue eliminado
-                return "redirect:/?mensaje=proponente_eliminado";
+                session.invalidate();
+                redirectAttributes.addFlashAttribute("mensajeExito", "Tu cuenta fue eliminada correctamente.");
+                return "redirect:/";
             } else {
-                return "redirect:/usuarios/" + usuarioLogueado.getNickname()
-                        + "?error=" + resp.getMensaje();
+                redirectAttributes.addFlashAttribute("mensajeError", "No se pudo eliminar la cuenta: " + resp.getMensaje());
+                return "redirect:/usuarios/" + usuarioLogueado.getNickname();
             }
 
         } catch (Exception e) {
-            return "redirect:/usuarios/" + usuarioLogueado.getNickname()
-                    + "?error=Error inesperado: " + e.getMessage();
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("mensajeError", "Ocurrió un error al eliminar la cuenta.");
+            return "redirect:/usuarios/" + usuarioLogueado.getNickname();
         }
     }
+
+
 
 
 

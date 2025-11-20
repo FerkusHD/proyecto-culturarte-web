@@ -4,6 +4,12 @@ import com.culturarte.logica.clases.Propuesta;
 import jakarta.persistence.*;
 import com.culturarte.logica.clases.Usuario;
 import java.util.List;
+import java.util.ArrayList;
+import com.culturarte.logica.datatypes.DTProponente;
+import com.culturarte.logica.datatypes.DTPropuesta;
+import java.time.LocalDateTime;
+import java.time.LocalDate;
+
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -97,36 +103,53 @@ public class ManejadorUsuario {
             throw new IllegalArgumentException("No existe proponente: " + nick);
         }
 
-        p.getUsuariosSeguidos().forEach(u -> u.getUsuariosSeguidores().remove(p));
-        p.getUsuariosSeguidos().clear();
+        p.setEliminado(true);
+        p.setFechaEliminacion(LocalDate.now());
 
-        p.getUsuariosSeguidores().forEach(u -> u.getUsuariosSeguidos().remove(p));
-        p.getUsuariosSeguidores().clear();
+        em.merge(p);
+    }
 
-        List<Propuesta> props = p.getPropuestas();
+    @Transactional
+    public ArrayList<DTProponente> listarProponentesEliminados() {
+        List<Proponente> eliminados = em.createQuery(
+                "SELECT p FROM Proponente p WHERE p.eliminado = true",
+                Proponente.class
+        ).getResultList();
 
-        for (Propuesta prop : props) {
-            List<Usuario> seguidores = em.createQuery(
-                    "SELECT u FROM Usuario u JOIN u.propuestasSeguidas ps WHERE ps = :prop",
-                    Usuario.class
-            ).setParameter("prop", prop).getResultList();
+        ArrayList<DTProponente> dtProponentes = new ArrayList<>();
 
-            for (Usuario u : seguidores) {
-                u.getPropuestasSeguidas().remove(prop);
+        for (Proponente p : eliminados) {
+            p.getPropuestas().forEach(prop -> prop.getColaboraciones().size());
+
+            DTProponente dtp = new DTProponente();
+            dtp.setNickname(p.getNickname());
+            dtp.setNombre(p.getNombre());
+            dtp.setApellido(p.getApellido());
+            dtp.setEmail(p.getEmail());
+            dtp.setFechaNacimiento(p.getFechaNacimiento());
+            dtp.setImagen(p.getImagen());
+            dtp.setDireccion(p.getDireccion());
+            dtp.setLinkWeb(p.getLinkWeb());
+            dtp.setBiografia(p.getBiografia());
+
+            for (Propuesta prop : p.getPropuestas()) {
+                DTPropuesta dtProp = new DTPropuesta(
+                        prop.getTitulo(),
+                        prop.getDescripcion(),
+                        prop.getLugar(),
+                        prop.getFechaPrevista(),
+                        prop.getPrecioEntrada(),
+                        prop.getMontoNecesario()
+                );
+                dtp.addPropuesta(dtProp);
             }
+
+            dtp.setFechaEliminacion(p.getFechaEliminacion());
+
+            dtProponentes.add(dtp);
         }
 
-        for (Propuesta prop : props) {
-            prop.getColaboraciones().forEach(col -> em.remove(col));
-            prop.getColaboraciones().clear();
-        }
-
-        for (Propuesta prop : props) {
-            em.remove(prop);
-        }
-        props.clear();
-
-        em.remove(p);
+        return dtProponentes;
     }
 
 

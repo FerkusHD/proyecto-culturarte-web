@@ -237,6 +237,12 @@ public class UsuarioSoapClient {
         logger.debug("Eliminando proponente vía SOAP: {}", nickname);
 
         try {
+            if (nickname == null || nickname.trim().isEmpty()) {
+                EliminarProponenteResponse r = new EliminarProponenteResponse();
+                r.setExito(false);
+                r.setMensaje("El nickname no puede estar vacío");
+                return r;
+            }
             EliminarProponenteRequest req = new EliminarProponenteRequest();
             req.setNickname(nickname);
 

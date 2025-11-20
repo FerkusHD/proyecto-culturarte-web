@@ -22,6 +22,7 @@ public class DTProponente {
     private String direccion;
     private String biografia;
     private String linkWeb;
+    private LocalDate fechaEliminacion;
     private ArrayList<DTPropuesta> propuestas;
     
     public DTProponente() {}
@@ -127,4 +128,13 @@ public class DTProponente {
         String fecha = fechaNacimiento.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         return nickname + " - " + nombre + " - " + apellido + " - " + email + " - (" + fecha + ") - " + direccion + " - " + biografia + " - " + linkWeb;
     }
+
+    public LocalDate getFechaEliminacion() {
+        return fechaEliminacion;
+    }
+
+    public void setFechaEliminacion(LocalDate fechaEliminacion) {
+        this.fechaEliminacion = fechaEliminacion;
+    }
 }
+

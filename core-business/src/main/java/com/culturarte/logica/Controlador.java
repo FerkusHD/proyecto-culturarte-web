@@ -749,5 +749,10 @@ public class Controlador implements IControlador{
         mu.eliminarProponente(nick);
     }
 
+    @Override
+    public ArrayList<DTProponente> verProponentesEliminados() {
+        return mu.listarProponentesEliminados();
+    }
+
 
 }

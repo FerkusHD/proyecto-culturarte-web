@@ -15,6 +15,8 @@ public class Proponente extends Usuario {
     private String linkWeb;
     @OneToMany(mappedBy="proponente", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Propuesta> propuestas;
+    private boolean eliminado;
+    private LocalDate fechaEliminacion=null;
     
     public Proponente() {}
 
@@ -68,4 +70,18 @@ public class Proponente extends Usuario {
         this.propuestas.remove(propuesta);
     }
 
+    public void setEliminado(boolean eliminado) {
+        this.eliminado = eliminado;
+    }
+    public boolean getEliminado() {
+        return eliminado;
+    }
+
+    public void setFechaEliminacion(LocalDate fechaEliminacion){
+        this.fechaEliminacion = fechaEliminacion;
+    }
+
+    public LocalDate getFechaEliminacion() {
+        return fechaEliminacion;
+    }
 }

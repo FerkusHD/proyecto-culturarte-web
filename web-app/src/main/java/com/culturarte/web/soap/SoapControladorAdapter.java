@@ -187,6 +187,11 @@ public class SoapControladorAdapter implements IControlador {
     }
 
     @Override
+    public ArrayList<DTProponente> verProponentesEliminados() {
+        throw new UnsupportedOperationException("getNomProponentes no está disponible vía SOAP");
+    }
+
+    @Override
     public ArrayList<String> getNomProponentes() {
         throw new UnsupportedOperationException("getNomProponentes no está disponible vía SOAP");
     }
