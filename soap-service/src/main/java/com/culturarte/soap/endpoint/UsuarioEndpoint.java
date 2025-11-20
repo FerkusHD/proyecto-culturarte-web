@@ -460,5 +460,29 @@ public class UsuarioEndpoint {
         }
         return resp;
     }
+
+
+    @PayloadRoot(namespace = NAMESPACE, localPart = "eliminarProponenteRequest")
+    @ResponsePayload
+    public EliminarProponenteResponse eliminarProponente(
+            @RequestPayload EliminarProponenteRequest request) {
+
+        EliminarProponenteResponse resp = new EliminarProponenteResponse();
+
+        String nick = request.getNickname();
+
+        try {
+            ctrl.eliminarProponente(nick);
+            resp.setExito(true);
+            resp.setMensaje("Proponente '" + nick + "' eliminado correctamente");
+
+        } catch (Exception e) {
+            resp.setExito(false);
+            resp.setMensaje("Error eliminando proponente: " + e.getMessage());
+        }
+
+        return resp;
+    }
+
 }
 

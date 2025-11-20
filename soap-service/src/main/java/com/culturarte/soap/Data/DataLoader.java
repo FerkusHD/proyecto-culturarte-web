@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.EnumSet;
 
-@Profile("dev")
 @Component
 public class DataLoader implements CommandLineRunner {
 

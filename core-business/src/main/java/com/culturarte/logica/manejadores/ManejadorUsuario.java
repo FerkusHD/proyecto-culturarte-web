@@ -1,5 +1,6 @@
 package com.culturarte.logica.manejadores;
 import com.culturarte.logica.clases.Proponente;
+import com.culturarte.logica.clases.Propuesta;
 import jakarta.persistence.*;
 import com.culturarte.logica.clases.Usuario;
 import java.util.List;
@@ -87,6 +88,47 @@ public class ManejadorUsuario {
 
         return usuarios;
     }
+
+    @Transactional
+    public void eliminarProponente(String nick) {
+        Proponente p = em.find(Proponente.class, nick);
+
+        if (p == null) {
+            throw new IllegalArgumentException("No existe proponente: " + nick);
+        }
+
+        p.getUsuariosSeguidos().forEach(u -> u.getUsuariosSeguidores().remove(p));
+        p.getUsuariosSeguidos().clear();
+
+        p.getUsuariosSeguidores().forEach(u -> u.getUsuariosSeguidos().remove(p));
+        p.getUsuariosSeguidores().clear();
+
+        List<Propuesta> props = p.getPropuestas();
+
+        for (Propuesta prop : props) {
+            List<Usuario> seguidores = em.createQuery(
+                    "SELECT u FROM Usuario u JOIN u.propuestasSeguidas ps WHERE ps = :prop",
+                    Usuario.class
+            ).setParameter("prop", prop).getResultList();
+
+            for (Usuario u : seguidores) {
+                u.getPropuestasSeguidas().remove(prop);
+            }
+        }
+
+        for (Propuesta prop : props) {
+            prop.getColaboraciones().forEach(col -> em.remove(col));
+            prop.getColaboraciones().clear();
+        }
+
+        for (Propuesta prop : props) {
+            em.remove(prop);
+        }
+        props.clear();
+
+        em.remove(p);
+    }
+
 
 
 }

@@ -292,6 +292,34 @@ public class UsuarioController {
         return "redirect:" + request.getHeader("Referer");
     }
 
+    @PostMapping("/eliminar-proponente")
+    public String eliminarProponente(HttpSession session) {
+        DTUsuario usuarioLogueado = (DTUsuario) session.getAttribute("usuarioLogueado");
+
+        if (usuarioLogueado == null || !"proponente".equals(usuarioLogueado.getTipo())) {
+            return "redirect:/login";
+        }
+
+        try {
+            EliminarProponenteResponse resp = usuariosSoapClient.eliminarProponente(usuarioLogueado.getNickname());
+
+            if (resp.isExito()) {
+                session.invalidate(); // cerrar sesión si fue eliminado
+                return "redirect:/?mensaje=proponente_eliminado";
+            } else {
+                return "redirect:/usuarios/" + usuarioLogueado.getNickname()
+                        + "?error=" + resp.getMensaje();
+            }
+
+        } catch (Exception e) {
+            return "redirect:/usuarios/" + usuarioLogueado.getNickname()
+                    + "?error=Error inesperado: " + e.getMessage();
+        }
+    }
+
+
+
+
     // ------------------- FAVORITOS -------------------
     @PostMapping("/agregar-favorito")
     public String agregarFavorito(@RequestParam String titulo, HttpSession session, HttpServletRequest request) {

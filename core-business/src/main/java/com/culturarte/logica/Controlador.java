@@ -737,4 +737,17 @@ public class Controlador implements IControlador{
         u.sacarPropuestaFavorita(p);
         mu.actualizarUsuario(u);
     }
+
+    @Override
+    public void eliminarProponente(String nick) throws Exception {
+        Usuario u = mu.buscarUsuario(nick);
+        if (u == null)
+            throw new Exception("El usuario no existe: " + nick);
+        if (!(u instanceof Proponente))
+            throw new IllegalArgumentException("El usuario existe pero no es un Proponente.");
+
+        mu.eliminarProponente(nick);
+    }
+
+
 }

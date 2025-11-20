@@ -176,6 +176,22 @@
                         Seguidos <span class="badge bg-primary">${perfilVisitado.usuariosSeguidos.size()}</span>
                     </button>
                 </div>
+
+                <c:if test="${esMiPropioPerfil}">
+                    <div class="text-center mt-4 border-top pt-3">
+                        <form action="${pageContext.request.contextPath}/usuarios/eliminarProponente"
+                              method="post"
+                              onsubmit="return confirm('⚠️ ¿Seguro que deseas eliminar tu cuenta? Esta acción es irreversible.');">
+
+                            <input type="hidden" name="nickname" value="${perfilVisitado.nickname}">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                                <i class="bi bi-trash"></i> Eliminar Cuenta
+                            </button>
+                        </form>
+                    </div>
+                </c:if>
             </div>
         </div>
 
@@ -296,6 +312,7 @@
                             </c:otherwise>
                         </c:choose>
                     </div>
+
                 </div>
             </div>
         </div>

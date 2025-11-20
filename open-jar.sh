@@ -30,6 +30,7 @@ wait_for_service() {
 }
 
 if have docker && docker compose version >/dev/null 2>&1; then
+  (cd "$ROOT_DIR" && docker compose up -d --build db soap web)
   echo "[open-jar] Starting DB + SOAP + Web with Docker Compose..."
   (cd "$ROOT_DIR" && docker compose up -d db soap web)
   

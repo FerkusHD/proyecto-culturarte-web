@@ -232,4 +232,31 @@ public class UsuarioSoapClient {
             return null;
         }
     }
+
+    public EliminarProponenteResponse eliminarProponente(String nickname) {
+        logger.debug("Eliminando proponente vía SOAP: {}", nickname);
+
+        try {
+            EliminarProponenteRequest req = new EliminarProponenteRequest();
+            req.setNickname(nickname);
+
+            EliminarProponenteResponse resp =
+                    (EliminarProponenteResponse) webServiceTemplate.marshalSendAndReceive(
+                            getSoapServiceUrl(), req
+                    );
+
+            return resp;
+
+        } catch (Exception e) {
+            logger.error("Error al eliminar proponente vía SOAP: {}", nickname, e);
+
+            EliminarProponenteResponse r = new EliminarProponenteResponse();
+            r.setExito(false);
+            r.setMensaje("Error de conexión SOAP");
+            return r;
+        }
+    }
+
+
+
 }

@@ -13,21 +13,7 @@ import com.culturarte.logica.IControlador;
 import com.culturarte.logica.datatypes.*;
 import com.culturarte.logica.enums.TipoEstado;
 import com.culturarte.logica.enums.TipoRetorno;
-import com.culturarte.soap.gen.BuscarUsuariosRequest;
-import com.culturarte.soap.gen.BuscarUsuariosResponse;
-import com.culturarte.soap.gen.CategoriaType;
-import com.culturarte.soap.gen.GetCategoriasRequest;
-import com.culturarte.soap.gen.GetCategoriasResponse;
-import com.culturarte.soap.gen.GetPropuestaRequest;
-import com.culturarte.soap.gen.GetPropuestaResponse;
-import com.culturarte.soap.gen.GetUsuarioRequest;
-import com.culturarte.soap.gen.GetUsuarioResponse;
-import com.culturarte.soap.gen.ListarPropuestasRequest;
-import com.culturarte.soap.gen.ListarPropuestasResponse;
-import com.culturarte.soap.gen.ListarUsuariosRequest;
-import com.culturarte.soap.gen.ListarUsuariosResponse;
-import com.culturarte.soap.gen.PropuestaType;
-import com.culturarte.soap.gen.UsuarioType;
+import com.culturarte.soap.gen.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -482,5 +468,30 @@ public class SoapControladorAdapter implements IControlador {
                 .map(CategoriaType::getNombre)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
+
+    @Override
+    public void eliminarProponente(String nick) throws Exception {
+        try {
+            String endpoint = getSoapServiceUrl() + "/usuarios";
+
+            EliminarProponenteRequest request = new EliminarProponenteRequest();
+            request.setNickname(nick);
+
+            EliminarProponenteResponse response =
+                    (EliminarProponenteResponse) webServiceTemplate.marshalSendAndReceive(endpoint, request);
+
+            if (response == null) {
+                throw new RuntimeException("Respuesta SOAP nula al eliminar proponente");
+            }
+
+            if (!response.isExito()) {
+                throw new RuntimeException("Error SOAP: " + response.getMensaje());
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al eliminar proponente vía SOAP", e);
+        }
+    }
+
 }
 

@@ -59,5 +59,6 @@ public interface IControlador {
     public abstract boolean verificarPassword(String password, String nick);
     public abstract ArrayList<DTUsuario> listarUsuarios();
     public abstract List<DTAcceso> getAccesos();
+    public abstract void eliminarProponente(String nick) throws Exception;
 }
 
