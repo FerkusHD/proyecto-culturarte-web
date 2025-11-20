@@ -38,6 +38,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private SeguirUsuario iframeSeguirUsuario;
     private EvaluarPropuesta iframeEvaluarPropuesta;
     private VerAccesos iframeVerAccesos;
+    private ProponenteEliminado iframeProponenteEliminado;
     
     // InternalFrames
     
@@ -81,6 +82,8 @@ public class MenuPrincipal extends javax.swing.JFrame {
         iframeEvaluarPropuesta.setVisible(false);
         iframeVerAccesos = new VerAccesos(IC);
         iframeVerAccesos.setVisible(false);
+        iframeProponenteEliminado= new ProponenteEliminado(IC);
+        iframeProponenteEliminado.setVisible(false);
         
         // Añadiendo al ContentPane
         this.getContentPane().add(iframeAltaCategoria);
@@ -98,6 +101,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
         this.getContentPane().add(iframeSeguirUsuario);
         this.getContentPane().add(iframeEvaluarPropuesta);
         this.getContentPane().add(iframeVerAccesos);
+        this.getContentPane().add(iframeProponenteEliminado);
         
     }
 
@@ -117,6 +121,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
         miConsultarColaborador = new javax.swing.JMenuItem();
         miSeguirUsuario = new javax.swing.JMenuItem();
         miDejarDeSeguir = new javax.swing.JMenuItem();
+        jMenuItem1 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         miAltaPropuesta = new javax.swing.JMenuItem();
         miModificarPropuesta = new javax.swing.JMenuItem();
@@ -183,6 +188,14 @@ public class MenuPrincipal extends javax.swing.JFrame {
             }
         });
         jMenu1.add(miDejarDeSeguir);
+
+        jMenuItem1.setText("Proponentes Eliminados");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem1);
 
         jMenuBar1.add(jMenu1);
 
@@ -277,6 +290,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
         jMenuBar1.add(jMenu3);
 
         jMenu5.setText("Accesos");
+        jMenu5.setFont(new java.awt.Font("Al Nile", 0, 17)); // NOI18N
 
         jmVerAccesos.setText("Ver accesos");
         jmVerAccesos.addActionListener(new java.awt.event.ActionListener() {
@@ -298,7 +312,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 712, Short.MAX_VALUE)
+            .addGap(0, 708, Short.MAX_VALUE)
         );
 
         pack();
@@ -363,6 +377,10 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private void jmVerAccesosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmVerAccesosActionPerformed
         iframeVerAccesos.setVisible(true);
     }//GEN-LAST:event_jmVerAccesosActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        iframeProponenteEliminado.setVisible(true);
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
  
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu jMenu1;
@@ -371,6 +389,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenu jMenu5;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jmVerAccesos;
     private javax.swing.JMenuItem miAltaCategoria;
     private javax.swing.JMenuItem miAltaPropuesta;

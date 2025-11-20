@@ -27,6 +27,7 @@
             <xs:element name="direccion" type="xs:string" minOccurs="0"/>
             <xs:element name="biografia" type="xs:string" minOccurs="0"/>
             <xs:element name="linkWeb" type="xs:string" minOccurs="0"/>
+            <xs:element name="eliminado" type="xs:boolean" minOccurs="0"/>
 
             <!-- Lista de usuarios seguidos -->
             <xs:element name="usuariosSeguidos" minOccurs="0" maxOccurs="unbounded" type="tns:usuarioLightType"/>
@@ -83,7 +84,7 @@
             <xs:element name="direccion" type="xs:string" minOccurs="0"/>
             <xs:element name="biografia" type="xs:string" minOccurs="0"/>
             <xs:element name="linkWeb" type="xs:string" minOccurs="0"/>
-
+            <xs:element name="eliminado" type="xs:boolean" minOccurs="0"/>
             <xs:element name="propuestas" minOccurs="0" maxOccurs="unbounded" type="prop:propuestaType"/>
 
         </xs:sequence>
