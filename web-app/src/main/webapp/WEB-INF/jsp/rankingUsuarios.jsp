@@ -100,22 +100,6 @@
 
 <main class="container mt-4">
 
-    <h2 class="mb-3">Buscar Usuarios</h2>
-
-    <!-- Formulario de búsqueda -->
-    <form class="row g-3 align-items-center mb-4"
-          action="${pageContext.request.contextPath}/usuarios/buscar"
-          method="get">
-        <div class="col-md-6 position-relative">
-            <input type="text" id="buscador" name="nombre" class="form-control"
-                   placeholder="Buscar por nombre o nickname"
-                   value="${nombre}" autocomplete="off" />
-        </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">Buscar</button>
-        </div>
-    </form>
-
     <!-- Resultados -->
 <h2 class="mb-3">Ranking de Usuarios</h2>
 
@@ -145,7 +129,7 @@
 
                     <div>
                         <h6 class="mb-0">${u.nombre} ${u.apellido}</h6>
-                        <small class="text-muted">@${u.nickname} — ${u.tipo} — ${fn:length(u.usuariosSeguidores)} seguidores</small>
+                        <small class="text-muted">@${u.nickname} — ${u.tipo} — ${u.cantSeguidores} seguidores</small>
                     </div>
                 </a>
             </c:forEach>

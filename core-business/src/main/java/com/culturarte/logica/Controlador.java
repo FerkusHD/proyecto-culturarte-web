@@ -492,6 +492,28 @@ public class Controlador implements IControlador{
     }
 
     @Override
+    public ArrayList<DTUsuario> getUsuariosPorCantSeguidores() {
+        ArrayList<DTUsuario> u = new ArrayList<>();
+
+        for (Usuario usuario : mu.listarUsuarios()) {
+            DTUsuario dtUsuario = new DTUsuario(
+                    usuario.getNickname(),
+                    usuario.getNombre(),
+                    usuario.getApellido(),
+                    usuario.getEmail(),
+                    usuario.getFechaNacimiento(),
+                    usuario.getImagen(),
+                    usuario.getUsuariosSeguidores().size()
+            );
+            u.add(dtUsuario);
+        }
+
+        u.sort((a, b) -> Integer.compare(b.getUsuariosSeguidores().size(), a.getUsuariosSeguidores().size()));
+
+        return u;
+    }
+
+    @Override
     public DTUsuario getDTUsuario(String nickname) {
         Usuario usu = mu.buscarUsuario(nickname);
 

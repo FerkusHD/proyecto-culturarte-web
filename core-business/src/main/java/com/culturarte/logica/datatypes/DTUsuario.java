@@ -22,6 +22,7 @@ public class DTUsuario {
     private ArrayList<DTPropuesta> propuestasSeguidas = new ArrayList<>();
     private String imagen;
     private String tipo;
+    private int cantSeguidores;
     
     public DTUsuario(){
         this.usuariosSeguidores = new ArrayList<>();
@@ -94,7 +95,13 @@ public class DTUsuario {
 
     public DTUsuario(String nickname2, String apellido2, String nombre2, String email2, LocalDate fechaNacimiento2,
             String imagen2, int size) {
-        //TODO Auto-generated constructor stub
+        this.nickname = nickname2;
+        this.apellido = apellido2;
+        this.nombre = nombre2;
+        this.email = email2;
+        this.fechaNacimiento = fechaNacimiento2;
+        this.imagen = imagen2;
+        this.cantSeguidores = size;
     }
 
     public String getImagen() {
@@ -211,5 +218,13 @@ public class DTUsuario {
             }
         }
         return false;
+    }
+
+    public int getCantSeguidores() {
+        return cantSeguidores;
+    }
+
+    public void setCantSeguidores(int cantSeguidores) {
+        this.cantSeguidores = cantSeguidores;
     }
 }
