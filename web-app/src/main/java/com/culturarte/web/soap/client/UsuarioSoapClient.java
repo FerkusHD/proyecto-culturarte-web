@@ -263,6 +263,24 @@ public class UsuarioSoapClient {
         }
     }
 
+    public List<UsuarioType> getUsuariosPorSeguidores() {
+        try {
+            ListarUsuariosPorSeguidoresRequest req = new ListarUsuariosPorSeguidoresRequest();
+            ListarUsuariosPorSeguidoresResponse response = (ListarUsuariosPorSeguidoresResponse)
+                    webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
+            if (response == null || response.getUsuario() == null) {
+                return Collections.emptyList();
+            }
+            return response.getUsuario();
+        } catch (Exception e) {
+            logger.error("Error al listar usuarios vía SOAP: {}", e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+
+
+
 
 
 }

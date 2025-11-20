@@ -20,7 +20,9 @@ import javax.xml.datatype.DatatypeFactory;
 import java.nio.file.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Controller
@@ -211,7 +213,7 @@ public class UsuarioController {
         logger.info("=== INICIO rankingUsu ===");
         try {
             logger.debug("Obteniendo lista de usuarios para ranking");
-            List<UsuarioType> usuariosSoap = usuariosSoapClient.listarUsuarios();
+            List<UsuarioType> usuariosSoap = usuariosSoapClient.getUsuariosPorSeguidores();
             if (usuariosSoap == null || usuariosSoap.isEmpty()) {
                 logger.warn("Lista de usuarios vacía o null desde SOAP");
                 model.addAttribute("usuarios", new ArrayList<>());
@@ -222,15 +224,9 @@ public class UsuarioController {
             logger.debug("Usuarios obtenidos desde SOAP: {}", usuariosSoap.size());
             List<DTUsuario> usuarios = usuariosSoap.stream()
                     .map(UsuarioController::convertirDT)
-                    .filter(u -> u != null)
-                    .sorted((u1, u2) -> {
-                        // Ordenar por cantidad de seguidores descendente
-                        int seguidores1 = (u1.getUsuariosSeguidores() != null) ? u1.getUsuariosSeguidores().size() : 0;
-                        int seguidores2 = (u2.getUsuariosSeguidores() != null) ? u2.getUsuariosSeguidores().size() : 0;
-                        return Integer.compare(seguidores2, seguidores1); // Descendente
-                    })
+                    .filter(Objects::nonNull)
+                    .sorted(Comparator.comparingInt(DTUsuario::getCantSeguidores).reversed()) // 👈 orden descendente
                     .collect(Collectors.toList());
-            
             model.addAttribute("usuarios", usuarios);
             logger.info("Ranking cargado exitosamente: {} usuarios", usuarios.size());
             logger.debug("=== FIN rankingUsu (exitoso) ===");
@@ -411,6 +407,11 @@ public class UsuarioController {
             dt.addUsuariosSeguidos(
                     new DTUsuario(uSeguido.getNickname(), uSeguido.getTipo(), uSeguido.getImagen()));
         }
+
+        if (u.getCantSeguidores() != null) {
+            dt.setCantSeguidores(u.getCantSeguidores());
+        }
+
         for (UsuarioLightType uSeguidor : u.getUsuariosSeguidores()) {
             dt.addUsuariosSeguidores(
                     new DTUsuario(uSeguidor.getNickname(), uSeguidor.getTipo(), uSeguidor.getImagen()));

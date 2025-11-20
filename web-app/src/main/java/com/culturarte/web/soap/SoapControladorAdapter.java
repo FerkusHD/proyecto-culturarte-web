@@ -498,5 +498,10 @@ public class SoapControladorAdapter implements IControlador {
         }
     }
 
+    @Override
+    public ArrayList<DTUsuario> getUsuariosPorCantSeguidores() {
+        return null;
+    }
+
 }
 

@@ -101,5 +101,7 @@ public interface IControlador {
 
     public abstract void eliminarProponente(String nick) throws Exception;
 
+    public abstract ArrayList<DTUsuario> getUsuariosPorCantSeguidores();
+
     public abstract ArrayList<DTProponente> verProponentesEliminados();
 }

@@ -483,6 +483,39 @@ public class UsuarioEndpoint {
 
         return resp;
     }
+    @PayloadRoot(namespace = NAMESPACE, localPart = "listarUsuariosPorSeguidoresRequest")
+    @ResponsePayload
+    public ListarUsuariosPorSeguidoresResponse listarUsuarios(@RequestPayload ListarUsuariosPorSeguidoresRequest request) throws Exception {
+        ListarUsuariosPorSeguidoresResponse resp = new ListarUsuariosPorSeguidoresResponse();
+        ObjectFactory of = new ObjectFactory();
+
+        java.util.List<com.culturarte.logica.datatypes.DTUsuario> usuarios = ctrl.listarUsuarios();
+        for (com.culturarte.logica.datatypes.DTUsuario du : usuarios) {
+            UsuarioType ut = of.createUsuarioType();
+            ut.setNickname(du.getNickname());
+            ut.setNombre(du.getNombre());
+            ut.setApellido(du.getApellido());
+            ut.setEmail(du.getEmail());
+            ut.setImagen(du.getImagen());
+            if (du.getFechaNacimiento() != null) {
+                javax.xml.datatype.XMLGregorianCalendar xgc = javax.xml.datatype.DatatypeFactory.newInstance()
+                        .newXMLGregorianCalendarDate(du.getFechaNacimiento().getYear(), du.getFechaNacimiento().getMonthValue(), du.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
+                ut.setFechaNacimiento(xgc);
+            }
+            ut.setTipo(du.getTipo());
+
+            ut.setCantSeguidores(du.getCantSeguidores());
+
+            if (du.getPropuestasSeguidas() != null) {
+                for (DTPropuesta propuesta : du.getPropuestasSeguidas()) {
+                    ut.getPropuestasSeguidas().add(propuestasEndpoint.mapToSoapPropuesta(propuesta));
+                }
+            }
+            resp.getUsuario().add(ut);
+        }
+
+        return resp;
+    }
 
 }
 
