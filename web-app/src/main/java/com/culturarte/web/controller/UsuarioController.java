@@ -393,6 +393,7 @@ public class UsuarioController {
     // ------------------- UTILIDADES -------------------
     public static DTUsuario convertirDT(com.culturarte.soap.gen.UsuarioType u) {
         if (u == null) return null;
+        u.setEliminado(true);
         DTUsuario dt = new DTUsuario();
         dt.setNickname(u.getNickname());
         dt.setNombre(u.getNombre());
