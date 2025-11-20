@@ -88,13 +88,6 @@ public class MenuController {
                 return "login";
             }
 
-            // Verificar si el usuario está eliminado
-            if (usuarioResp.isEliminado()) {
-                logger.warn("Intento de login de usuario eliminado: {}", nickOemail);
-                model.addAttribute("mensaje", "⚠️ Este usuario ha sido eliminado y no puede iniciar sesión.");
-                model.addAttribute("nickname", nickOemail);
-                return "login";
-            }
 
             DTUsuario usuario = UsuarioController.convertirDT(usuarioResp);
 
