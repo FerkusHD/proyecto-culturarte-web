@@ -197,11 +197,6 @@ public class UsuarioSoapClient {
         webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
     }
 
-    public List<PropuestaType> getPropuestasFavoritas(String nickname) {
-        logger.info("El contrato SOAP todavía no soporta getPropuestasFavoritas; se devuelve una lista vacía para {}", nickname);
-        return Collections.emptyList();
-    }
-
     public ColaboradorType getDTColaborador(String nick) {
         logger.debug("Obteniendo colaborador vía SOAP: {}", nick);
         try {

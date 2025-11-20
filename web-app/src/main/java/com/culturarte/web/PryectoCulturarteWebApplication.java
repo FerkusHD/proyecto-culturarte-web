@@ -12,16 +12,13 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 @EntityScan(basePackages = {"com.culturarte.logica.clases", "com.culturarte.web.entity"})
 @ComponentScan(
-    basePackages = {"com.culturarte.web", "com.culturarte.logica"},
+    basePackages = {"com.culturarte.web"},
     excludeFilters = {
         @ComponentScan.Filter(
             type = org.springframework.context.annotation.FilterType.REGEX,
             pattern = "com\\.culturarte\\.logica\\.Controlador"
         ),
-        @ComponentScan.Filter(
-            type = org.springframework.context.annotation.FilterType.REGEX,
-            pattern = "com\\.culturarte\\.logica\\.DataLoader"
-        )
+
     }
 )
 public class PryectoCulturarteWebApplication extends SpringBootServletInitializer {
