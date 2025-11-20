@@ -1,5 +1,6 @@
 package com.culturarte.web.controller;
 
+import com.culturarte.logica.datatypes.DTPropuesta;
 import com.culturarte.soap.gen.AgregarComentarioRequest;
 import com.culturarte.soap.gen.AgregarComentarioResponse;
 import com.culturarte.soap.gen.AgregarFavoritaRequest;
@@ -207,16 +208,6 @@ public class PropuestasController {
             if (usuarioLogueadoObj instanceof DTUsuario) {
                 usuarioLogueado = (DTUsuario) usuarioLogueadoObj;
                 nickUsuarioFinal = usuarioLogueado.getNickname();
-            } else if (usuarioLogueadoObj instanceof com.culturarte.soap.gen.GetUsuarioResponse) {
-                com.culturarte.soap.gen.GetUsuarioResponse resp = (com.culturarte.soap.gen.GetUsuarioResponse) usuarioLogueadoObj;
-                if (resp.getUsuario() != null) {
-                    usuarioLogueado = convertirDT(resp.getUsuario());
-                    nickUsuarioFinal = resp.getUsuario().getNickname();
-                }
-            } else if (usuarioLogueadoObj instanceof UsuarioType) {
-                UsuarioType u = (UsuarioType) usuarioLogueadoObj;
-                usuarioLogueado = convertirDT(u);
-                nickUsuarioFinal = u.getNickname();
             }
             
             if (usuarioLogueado == null) {
@@ -224,7 +215,7 @@ public class PropuestasController {
                 usuarioLogueado.setTipo("visitante");
                 usuarioLogueado.setNickname("visitante");
             }
-            
+
             final String nickUsuario = nickUsuarioFinal != null ? nickUsuarioFinal : "visitante";
             model.addAttribute("usuarioLogueado", usuarioLogueado);
             model.addAttribute("nickUsuario", nickUsuario);
@@ -232,14 +223,12 @@ public class PropuestasController {
             // Verificar si es favorita
             boolean esFavorita = false;
             if (nickUsuario != null && !"visitante".equals(nickUsuario)) {
-                try {
-                    List<PropuestaType> favoritas = usuarioSoapClient.getPropuestasFavoritas(nickUsuario);
-                    final String tituloFinal = titulo;
-                    esFavorita = favoritas != null && favoritas.stream()
-                            .anyMatch(p -> p.getTitulo() != null && p.getTitulo().equals(tituloFinal));
-                } catch (Exception e) {
-                    // Si falla, se asume que no es favorita
-                }
+                   for (DTPropuesta p : usuarioLogueado.getPropuestasSeguidas()) {
+                       if (p.getTitulo().equals(propuesta.getTitulo())) {
+                           esFavorita = true;
+                           break;
+                       }
+                   }
             }
             model.addAttribute("esFavorita", esFavorita);
 
@@ -423,8 +412,9 @@ public class PropuestasController {
     @PostMapping("/agregarFavorita")
     public String agregarFavorita(
             @RequestParam String tituloPropuesta,
+            Model model,
             HttpSession session,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes){
 
         try {
             // Obtener nickUsuario de la sesión
@@ -442,7 +432,10 @@ public class PropuestasController {
 
             if (response.isExito()) {
                 redirectAttributes.addFlashAttribute("mensajeExito", response.getMensaje());
-                actualizarUsuarioEnSesion(session, nickUsuario);
+                DTUsuario u = convertirDT(usuarioSoapClient.getUsuario(nickUsuario));
+                session.setAttribute("usuarioLogueado", u);
+                model.addAttribute("usuarioLogueado", u);
+                model.addAttribute("esFavorita", true);
             } else {
                 redirectAttributes.addFlashAttribute("mensajeError", response.getMensaje());
             }
@@ -457,6 +450,7 @@ public class PropuestasController {
     @PostMapping("/quitarFavorita")
     public String quitarFavorita(
             @RequestParam String tituloPropuesta,
+            Model model,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
@@ -476,7 +470,10 @@ public class PropuestasController {
 
             if (response.isExito()) {
                 redirectAttributes.addFlashAttribute("mensajeExito", response.getMensaje());
-                actualizarUsuarioEnSesion(session, nickUsuario);
+                DTUsuario u = convertirDT(usuarioSoapClient.getUsuario(nickUsuario));
+                session.setAttribute("usuarioLogueado", u);
+                model.addAttribute("usuarioLogueado", u);
+                model.addAttribute("esFavorita", false);
             } else {
                 redirectAttributes.addFlashAttribute("mensajeError", response.getMensaje());
             }
