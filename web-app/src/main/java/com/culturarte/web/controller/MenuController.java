@@ -20,8 +20,6 @@ public class MenuController {
 
     @Autowired
     private UsuarioSoapClient soapClient;
-    @Autowired
-    private HttpSession httpSession;
 
     @GetMapping("/")
     public String index(HttpSession session, Model model) {
@@ -90,6 +88,15 @@ public class MenuController {
 
 
             DTUsuario usuario = UsuarioController.convertirDT(usuarioResp);
+
+    String userAgent = request.getHeader("User-Agent");
+    boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
+
+    if (esMovil && !usuario.getTipo().equalsIgnoreCase("colaborador")) {
+        model.addAttribute("mensaje", "⚠️ Solo los colaboradores pueden iniciar sesión desde un dispositivo móvil.");
+        model.addAttribute("nickname", nickOemail);
+        return "login";
+    }
 
             session.setAttribute("usuarioLogueado", usuario);
             logger.info("Login exitoso para: {} (tipo: {})",

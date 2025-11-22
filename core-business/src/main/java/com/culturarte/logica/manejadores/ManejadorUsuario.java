@@ -1,4 +1,5 @@
 package com.culturarte.logica.manejadores;
+import com.culturarte.logica.clases.Colaboracion;
 import com.culturarte.logica.clases.Proponente;
 import com.culturarte.logica.clases.Propuesta;
 import jakarta.persistence.*;
@@ -108,6 +109,62 @@ public class ManejadorUsuario {
 
         em.merge(p);
     }
+ /*
+ @Transactional
+public void eliminarProponente(String nick) {
+    Proponente p = em.find(Proponente.class, nick);
+
+    if (p == null) {
+        throw new IllegalArgumentException("No existe proponente: " + nick);
+    }
+
+    // ============================
+    // 1. Relaciones de seguidores
+    // ============================
+
+    // A) Usuarios que lo siguen
+    for (Usuario seguidor : p.getUsuariosSeguidores()) {
+        seguidor.getUsuariosSeguidos().remove(p);
+        em.merge(seguidor);
+    }
+
+    // B) Usuarios que él sigue
+    for (Usuario seguido : p.getUsuariosSeguidos()) {
+        seguido.getUsuariosSeguidores().remove(p);
+        em.merge(seguido);
+    }
+
+    p.getUsuariosSeguidores().clear();
+    p.getUsuariosSeguidos().clear();
+
+
+    /*
+        // ============================
+    // 2. Quitar favoritos de sus propuestas
+    // ============================
+    for (Propuesta prop : p.getPropuestas()) {
+        for (Usuario u : prop.getUsuariosFavoritos()) {
+            u.getPropuestasFavoritas().remove(prop);
+            em.merge(u);
+        }
+        prop.getUsuariosFavoritos().clear();
+    }
+
+    // ============================
+    // 3. Eliminar propuestas
+    // ============================
+    for (Propuesta prop : p.getPropuestas()) {
+        em.remove(prop);
+    }
+    p.getPropuestas().clear();
+
+    // ============================
+    // 4. Eliminar proponente
+    // ============================
+    em.remove(p);
+
+*/
+
 
     @Transactional
     public ArrayList<DTProponente> listarProponentesEliminados() {
