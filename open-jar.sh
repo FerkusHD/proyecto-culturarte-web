@@ -9,6 +9,16 @@ SLEEP=3
 
 have() { command -v "$1" >/dev/null 2>&1; }
 
+# Detectar el comando de docker compose
+if command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE_CMD="docker-compose"
+elif docker compose version &> /dev/null; then
+    DOCKER_COMPOSE_CMD="docker compose"
+else
+    echo "Error: No se encontró docker-compose ni docker compose."
+    DOCKER_COMPOSE_CMD=""
+fi
+
 wait_for_service() {
   local url=$1
   local service_name=$2
@@ -23,16 +33,18 @@ wait_for_service() {
     elapsed=$((elapsed + SLEEP))
     echo "[open-jar] Still waiting for ${service_name}... (${elapsed}s)"
     if [ "$elapsed" -ge "$TIMEOUT" ]; then
-      echo "[open-jar] ⚠️  Timeout waiting for ${service_name}. Check 'docker compose logs -f ${service_name}' or run it manually."
+      echo "[open-jar] ⚠️  Timeout waiting for ${service_name}. Check '${DOCKER_COMPOSE_CMD} logs -f ${service_name}' or run it manually."
       return 1
     fi
   done
 }
 
-if have docker && docker compose version >/dev/null 2>&1; then
-  (cd "$ROOT_DIR" && docker compose up -d --build db soap web)
-  echo "[open-jar] Starting DB + SOAP + Web with Docker Compose..."
-  (cd "$ROOT_DIR" && docker compose up -d db soap web)
+if [ -n "$DOCKER_COMPOSE_CMD" ]; then
+  echo "[open-jar] Cleaning up old containers and images..."
+  (cd "$ROOT_DIR" && $DOCKER_COMPOSE_CMD down --remove-orphans --rmi local)
+
+  echo "[open-jar] Starting DB + SOAP + Web with Docker Compose (Force Build)..."
+  (cd "$ROOT_DIR" && $DOCKER_COMPOSE_CMD up -d --build --force-recreate db soap web)
   
   echo "[open-jar] Waiting for services to be ready..."
   wait_for_service "$SOAP_URL" "SOAP" || echo "[open-jar] ⚠️  SOAP service not ready, but continuing..."
@@ -50,6 +62,7 @@ export APP_UPLOADS_DIR="$UPLOADS_DIR"
 
 echo "[open-jar] Launching Swing app (JAR) locally... (uploads: $UPLOADS_DIR)"
 
+# Build desktop-gui specifically
 mvn -q -f "$ROOT_DIR/pom.xml" -pl desktop-gui -am install -DskipTests -Djacoco.skip=true
 
 exec mvn -q -f "$ROOT_DIR/desktop-gui/pom.xml" spring-boot:run -Dspring-boot.run.mainClass=com.culturarte.DesktopGuiApplication -Dspring-boot.run.jvmArguments="-Djava.awt.headless=false -Dapp.uploads.dir=$UPLOADS_DIR"

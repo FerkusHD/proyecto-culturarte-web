@@ -478,9 +478,12 @@ public class Controlador implements IControlador {
             throw new UsuarioYaSeguido("Uno de los usuarios no existe.");
         }
 
-        if (seguidor.getUsuariosSeguidos().contains(seguido)) {
-            throw new UsuarioYaSeguido("El usuario con nickname: " + nickSeguidor
-                    + "\nYa está siguiendo a usuario con nickname: " + nickSeguido);
+        // Verificar si ya sigue usando comparación por nickname
+        for (Usuario u : seguidor.getUsuariosSeguidos()) {
+            if (u.getNickname().equals(nickSeguido)) {
+                throw new UsuarioYaSeguido("El usuario con nickname: " + nickSeguidor
+                        + "\nYa está siguiendo a usuario con nickname: " + nickSeguido);
+            }
         }
 
         seguidor.addUsuariosSeguidos(seguido);
@@ -493,9 +496,32 @@ public class Controlador implements IControlador {
     public void dejarDeSeguirUsuario(String nickSeguidor, String nickSeguido) throws UsuarioNoSeguido {
         Usuario seguidor = mu.buscarUsuario(nickSeguidor);
         Usuario seguido = mu.buscarUsuario(nickSeguido);
-        if (seguidor.getUsuariosSeguidos().contains(seguido)) {
-            seguidor.getUsuariosSeguidos().remove(seguido);
-            seguido.getUsuariosSeguidores().remove(seguidor);
+
+        if (seguidor == null || seguido == null) {
+            throw new UsuarioNoSeguido("Uno de los usuarios no existe.");
+        }
+
+        // Buscar y eliminar de seguidos
+        Usuario usuarioAEliminarDeSeguidos = null;
+        for (Usuario u : seguidor.getUsuariosSeguidos()) {
+            if (u.getNickname().equals(nickSeguido)) {
+                usuarioAEliminarDeSeguidos = u;
+                break;
+            }
+        }
+
+        // Buscar y eliminar de seguidores
+        Usuario usuarioAEliminarDeSeguidores = null;
+        for (Usuario u : seguido.getUsuariosSeguidores()) {
+            if (u.getNickname().equals(nickSeguidor)) {
+                usuarioAEliminarDeSeguidores = u;
+                break;
+            }
+        }
+
+        if (usuarioAEliminarDeSeguidos != null && usuarioAEliminarDeSeguidores != null) {
+            seguidor.getUsuariosSeguidos().remove(usuarioAEliminarDeSeguidos);
+            seguido.getUsuariosSeguidores().remove(usuarioAEliminarDeSeguidores);
             mu.actualizarUsuario(seguidor);
             mu.actualizarUsuario(seguido);
         } else {
@@ -691,7 +717,7 @@ public class Controlador implements IControlador {
         }
         Comentario comentario = new Comentario(texto, c, p, LocalDate.now());
         p.agregarComentario(comentario);
-        c.agregarComentario(comentario);
+        // No llamamos a c.agregarComentario() para evitar lazy initialization error
         mp.actualizarPropuesta(p);
     }
 
@@ -826,7 +852,6 @@ public class Controlador implements IControlador {
     @Override
     @Transactional
     public void registrarPago(DTPago dtPago, String nickColaborador, String tituloPropuesta) throws Exception {
-        // Buscar la colaboración
         Colaborador colaborador = (Colaborador) mu.buscarUsuario(nickColaborador);
         if (colaborador == null) {
             throw new Exception("Colaborador no encontrado: " + nickColaborador);
@@ -837,7 +862,6 @@ public class Controlador implements IControlador {
             throw new Exception("Propuesta no encontrada: " + tituloPropuesta);
         }
 
-        // Buscar la colaboración específica
         Colaboracion colaboracion = null;
         for (Colaboracion colab : colaborador.getColaboraciones()) {
             if (colab.getPropuesta().getTitulo().equals(tituloPropuesta)) {
@@ -851,12 +875,10 @@ public class Controlador implements IControlador {
                     " para la propuesta " + tituloPropuesta);
         }
 
-        // Verificar que no tenga pago previo
         if (colaboracion.tienePago()) {
             throw new Exception("Esta colaboración ya tiene un pago registrado");
         }
 
-        // Crear el pago
         Pago pago = new Pago(
                 dtPago.getMonto(),
                 dtPago.getFechaPago(),
@@ -865,7 +887,6 @@ public class Controlador implements IControlador {
                 dtPago.getNombreTitular(),
                 colaboracion);
 
-        // Setear campos específicos según tipo de pago
         if (dtPago.getTipoPago() == com.culturarte.logica.enums.TipoPago.TARJETA) {
             pago.setTipoTarjeta(dtPago.getTipoTarjeta());
             pago.setNumeroTarjeta(dtPago.getNumeroTarjeta());
@@ -878,10 +899,8 @@ public class Controlador implements IControlador {
             pago.setNumeroCuenta(dtPago.getNumeroCuenta());
         }
 
-        // Asociar el pago a la colaboración
         colaboracion.setPago(pago);
 
-        // Actualizar la colaboración
         mcol.actualizarColaboracion(colaboracion);
     }
 

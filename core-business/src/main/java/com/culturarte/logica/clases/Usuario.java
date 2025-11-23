@@ -28,9 +28,11 @@ public abstract class Usuario {
     private List<Usuario> usuariosSeguidores;
     private String imagen;
 
-    public Usuario() { }
+    public Usuario() {
+    }
 
-    public Usuario(String nickname,String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen) {
+    public Usuario(String nickname, String password, String nombre, String apellido, String email,
+            LocalDate fechaNacimiento, String imagen) {
         this.nickname = nickname;
         this.password = password;
         this.nombre = nombre;
@@ -103,7 +105,9 @@ public abstract class Usuario {
         return nickname;
     }
 
-    public String getPassword() {return password;}
+    public String getPassword() {
+        return password;
+    }
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
@@ -131,7 +135,7 @@ public abstract class Usuario {
 
     public void agregarPropuestaFavorita(Propuesta propuesta) {
         if (this.propuestasSeguidas == null) {
-            this.propuestasSeguidas= new ArrayList<>();
+            this.propuestasSeguidas = new ArrayList<>();
         }
 
         for (Propuesta fav : this.propuestasSeguidas) {
@@ -145,19 +149,30 @@ public abstract class Usuario {
 
     public void sacarPropuestaFavorita(Propuesta propuesta) {
         if (this.propuestasSeguidas == null) {
-            this.propuestasSeguidas= new ArrayList<>();
+            this.propuestasSeguidas = new ArrayList<>();
+            return;
         }
 
-        if( this.propuestasSeguidas.contains(propuesta)) {
-            this.propuestasSeguidas.remove(propuesta);
+        // Buscar y eliminar por título en lugar de usar contains()
+        Propuesta propuestaAEliminar = null;
+        for (Propuesta fav : this.propuestasSeguidas) {
+            if (fav.getTitulo().equals(propuesta.getTitulo())) {
+                propuestaAEliminar = fav;
+                break;
+            }
         }
 
+        if (propuestaAEliminar != null) {
+            this.propuestasSeguidas.remove(propuestaAEliminar);
+        }
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Usuario)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Usuario))
+            return false;
         Usuario u = (Usuario) o;
         return nickname != null && nickname.equals(u.getNickname());
     }

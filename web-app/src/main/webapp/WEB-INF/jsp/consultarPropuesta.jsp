@@ -446,8 +446,11 @@
                                                         <div class="card-body">
                                                             <h6>Progreso</h6>
                                                             <h3>
-                                                                <c:set var="porcentaje"
-                                                                    value="${(propuesta.montoRecaudado / propuesta.montoNecesario) * 100}" />
+                                                                <c:set var="porcentaje" value="0" />
+                                                                <c:if test="${propuesta.montoNecesario > 0}">
+                                                                    <c:set var="porcentaje"
+                                                                        value="${(propuesta.montoRecaudado / propuesta.montoNecesario) * 100}" />
+                                                                </c:if>
                                                                 <fmt:formatNumber value="${porcentaje}"
                                                                     pattern="#.##" />%
                                                             </h3>
@@ -457,9 +460,12 @@
                                             </div>
                                             <div class="mt-3">
                                                 <div class="progress" style="height: 25px;">
+                                                    <c:set var="widthPorcentaje"
+                                                        value="${porcentaje > 100 ? 100 : porcentaje}" />
                                                     <div class="progress-bar bg-success" role="progressbar"
-                                                        style="width: ${porcentaje}%;" aria-valuenow="${porcentaje}"
-                                                        aria-valuemin="0" aria-valuemax="100">
+                                                        style="width: ${widthPorcentaje}%;"
+                                                        aria-valuenow="${porcentaje}" aria-valuemin="0"
+                                                        aria-valuemax="100">
                                                         <fmt:formatNumber value="${porcentaje}" pattern="#.##" />%
                                                         Completado
                                                     </div>

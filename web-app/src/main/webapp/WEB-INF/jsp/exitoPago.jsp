@@ -8,15 +8,14 @@
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Pago Exitoso - Culturarte</title>
-                <style>
-                    * {
-                        margin: 0;
-                        padding: 0;
-                        box-sizing: border-box;
-                    }
 
+                <!-- Bootstrap CSS -->
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+                <link rel="stylesheet"
+                    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+                <style>
                     body {
-                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                         min-height: 100vh;
                         display: flex;
@@ -26,12 +25,6 @@
                     }
 
                     .success-card {
-                        background: white;
-                        border-radius: 20px;
-                        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-                        max-width: 500px;
-                        width: 100%;
-                        overflow: hidden;
                         animation: slideUp 0.5s ease-out;
                     }
 
@@ -45,13 +38,6 @@
                             opacity: 1;
                             transform: translateY(0);
                         }
-                    }
-
-                    .success-header {
-                        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-                        color: white;
-                        padding: 40px 30px;
-                        text-align: center;
                     }
 
                     .success-icon {
@@ -80,171 +66,110 @@
                         }
                     }
 
-                    .success-icon svg {
-                        width: 50px;
-                        height: 50px;
-                        stroke: #28a745;
-                    }
-
-                    .success-header h1 {
-                        font-size: 28px;
-                        margin-bottom: 10px;
-                    }
-
-                    .success-header p {
-                        font-size: 16px;
-                        opacity: 0.9;
-                    }
-
-                    .success-body {
-                        padding: 30px;
-                    }
-
-                    .payment-details {
-                        background: #f8f9fa;
-                        border-radius: 12px;
-                        padding: 20px;
-                        margin-bottom: 25px;
-                    }
-
-                    .detail-row {
-                        display: flex;
-                        justify-content: space-between;
-                        padding: 12px 0;
-                        border-bottom: 1px solid #e0e0e0;
-                    }
-
-                    .detail-row:last-child {
-                        border-bottom: none;
-                    }
-
-                    .detail-label {
-                        color: #666;
-                        font-size: 14px;
-                    }
-
-                    .detail-value {
-                        color: #333;
-                        font-weight: 600;
-                        font-size: 14px;
-                    }
-
                     .monto-total {
-                        font-size: 32px;
+                        font-size: 2rem;
                         color: #28a745;
                         font-weight: bold;
                     }
 
-                    .info-box {
-                        background: #e7f3ff;
-                        border-left: 4px solid #2196F3;
-                        padding: 15px;
-                        border-radius: 8px;
-                        margin-bottom: 25px;
-                    }
-
-                    .info-box p {
-                        color: #1976D2;
-                        font-size: 14px;
-                        line-height: 1.6;
-                    }
-
-                    .btn-container {
-                        display: flex;
-                        gap: 10px;
-                    }
-
-                    .btn {
-                        flex: 1;
-                        padding: 15px;
-                        border-radius: 10px;
-                        font-size: 16px;
-                        font-weight: 600;
-                        text-align: center;
-                        text-decoration: none;
-                        transition: all 0.3s;
-                        cursor: pointer;
-                    }
-
-                    .btn-primary {
+                    .btn-primary-custom {
                         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        color: white;
+                        border: none;
+                        transition: all 0.3s;
                     }
 
-                    .btn-primary:hover {
+                    .btn-primary-custom:hover {
                         transform: translateY(-2px);
                         box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-                    }
-
-                    .btn-secondary {
-                        background: #f8f9fa;
-                        color: #667eea;
-                        border: 2px solid #667eea;
-                    }
-
-                    .btn-secondary:hover {
-                        background: #667eea;
-                        color: white;
                     }
                 </style>
             </head>
 
             <body>
-                <div class="success-card">
-                    <div class="success-header">
-                        <div class="success-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <h1>¡Pago Exitoso!</h1>
-                        <p>Tu pago ha sido procesado correctamente</p>
-                    </div>
-
-                    <div class="success-body">
-                        <div class="payment-details">
-                            <div class="detail-row">
-                                <span class="detail-label">Propuesta</span>
-                                <span class="detail-value">${colaboracion.tituloPropuesta}</span>
+                <div class="container" style="max-width: 500px;">
+                    <div class="card success-card shadow-lg">
+                        <!-- Header -->
+                        <div class="card-header text-white text-center py-5"
+                            style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                            <div class="success-icon">
+                                <i class="bi bi-check-lg text-success" style="font-size: 3rem;"></i>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Fecha de Pago</span>
-                                <span class="detail-value">
-                                    <fmt:formatDate value="${pago.fechaPago}" pattern="dd/MM/yyyy" />
-                                </span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Método de Pago</span>
-                                <span class="detail-value">${pago.tipoPago}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Monto Pagado</span>
-                                <span class="detail-value monto-total">
-                                    $
-                                    <fmt:formatNumber value="${pago.monto}" pattern="#,##0.00" />
-                                </span>
-                            </div>
+                            <h1 class="h3 mb-2">¡Pago Exitoso!</h1>
+                            <p class="mb-0">Tu pago ha sido procesado correctamente</p>
                         </div>
 
-                        <div class="info-box">
-                            <p>
-                                📧 Hemos enviado un correo electrónico de confirmación con los detalles del pago.
-                                Puedes descargar tu constancia de pago desde el enlace incluido en el email.
-                            </p>
-                        </div>
+                        <!-- Body -->
+                        <div class="card-body p-4">
+                            <!-- Payment Details -->
+                            <div class="bg-light rounded p-3 mb-4">
+                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                    <span class="text-muted">Propuesta</span>
+                                    <span class="fw-semibold">${colaboracion.tituloPropuesta}</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                    <span class="text-muted">Fecha de Pago</span>
+                                    <span class="fw-semibold">
+                                        <fmt:formatDate value="${pago.fechaPago}" pattern="dd/MM/yyyy" />
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                    <span class="text-muted">Método de Pago</span>
+                                    <span class="fw-semibold">
+                                        <c:choose>
+                                            <c:when test="${pago.tipoPago == 'TARJETA'}">
+                                                <i class="bi bi-credit-card me-1"></i>Tarjeta
+                                            </c:when>
+                                            <c:when test="${pago.tipoPago == 'TRANSFERENCIA'}">
+                                                <i class="bi bi-bank me-1"></i>Transferencia
+                                            </c:when>
+                                            <c:when test="${pago.tipoPago == 'PAYPAL'}">
+                                                <i class="bi bi-paypal me-1"></i>PayPal
+                                            </c:when>
+                                            <c:otherwise>
+                                                ${pago.tipoPago}
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center py-2">
+                                    <span class="text-muted">Monto Pagado</span>
+                                    <span class="monto-total">
+                                        $
+                                        <fmt:formatNumber value="${pago.monto}" pattern="#,##0.00" />
+                                    </span>
+                                </div>
+                            </div>
 
-                        <div class="btn-container">
-                            <a href="${pageContext.request.contextPath}/colaboraciones/pago/listar"
-                                class="btn btn-secondary">
-                                Ver Colaboraciones
-                            </a>
-                            <a href="${pageContext.request.contextPath}/" class="btn btn-primary">
-                                Ir al Inicio
-                            </a>
+                            <!-- Info Box -->
+                            <div class="alert alert-info border-start border-4 border-info">
+                                <i class="bi bi-envelope me-2"></i>
+                                <small>
+                                    Hemos enviado un correo electrónico de confirmación con los detalles del pago.
+                                    Puedes descargar tu constancia de pago desde el enlace incluido en el email.
+                                </small>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <a href="${pageContext.request.contextPath}/colaboraciones/pago/listar"
+                                        class="btn btn-outline-secondary w-100">
+                                        <i class="bi bi-list-ul me-2"></i>Ver Colaboraciones
+                                    </a>
+                                </div>
+                                <div class="col-6">
+                                    <a href="${pageContext.request.contextPath}/"
+                                        class="btn btn-primary btn-primary-custom w-100">
+                                        <i class="bi bi-house me-2"></i>Ir al Inicio
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Bootstrap JS -->
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
             </body>
 
             </html>
