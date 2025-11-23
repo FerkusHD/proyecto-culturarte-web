@@ -1,5 +1,4 @@
 package com.culturarte.logica.manejadores;
-import com.culturarte.logica.clases.Colaboracion;
 import com.culturarte.logica.clases.Proponente;
 import com.culturarte.logica.clases.Propuesta;
 import jakarta.persistence.*;
@@ -8,10 +7,7 @@ import java.util.List;
 import java.util.ArrayList;
 import com.culturarte.logica.datatypes.DTProponente;
 import com.culturarte.logica.datatypes.DTPropuesta;
-import java.time.LocalDateTime;
 import java.time.LocalDate;
-
-
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +21,9 @@ public class ManejadorUsuario {
     public void agregarUsuario(Usuario usuario) {
         em.persist(usuario);
     }
-    
-    @Transactional
+
+   /*
+       @Transactional
     public Usuario buscarUsuario(String nick) {
         Usuario u = em.find(Usuario.class, nick);
         if (u != null) {
@@ -34,7 +31,64 @@ public class ManejadorUsuario {
         }
         return u;
     }
+   */ 
 
+@Transactional
+public Usuario buscarUsuario(String nick) {
+
+    TypedQuery<Usuario> q = em.createQuery(
+        "SELECT u FROM Usuario u WHERE u.nickname = :nick",
+        Usuario.class
+    );
+    q.setParameter("nick", nick);
+
+    Usuario u = null;
+    try {
+        u = q.getSingleResult();
+
+        if (u.getUsuariosSeguidos() != null) {
+            u.getUsuariosSeguidos().size();
+        }
+
+        if (u instanceof Proponente && ((Proponente) u).isEliminado()) {
+            return null;
+        }
+
+    } catch (NoResultException e) {
+        return null;
+    }
+
+    return u;
+}
+
+@Transactional
+public Usuario buscarUsuarioPorEmail(String email) {
+    TypedQuery<Usuario> q = em.createQuery(
+        "SELECT u FROM Usuario u WHERE u.email = :email",
+        Usuario.class
+    );
+    q.setParameter("email", email);
+
+    Usuario u = null;
+    try {
+        u = q.getSingleResult();
+
+        if (u.getUsuariosSeguidos() != null) {
+            u.getUsuariosSeguidos().size();
+        }
+
+        if (u instanceof Proponente && ((Proponente) u).isEliminado()) {
+            return null; 
+        }
+
+    } catch (NoResultException e) {
+        return null;
+    }
+
+    return u;
+}
+
+/*
     public Usuario buscarUsuarioPorEmail(String email) {
         try {
             Usuario u = em.createQuery("SELECT u FROM Usuario u WHERE u.email = :email", Usuario.class)
@@ -49,6 +103,8 @@ public class ManejadorUsuario {
             return null;
         }
     }
+*/
+
 
 
     
@@ -99,17 +155,18 @@ public class ManejadorUsuario {
     @Transactional
     public void eliminarProponente(String nick) {
         Proponente p = em.find(Proponente.class, nick);
-
+        
         if (p == null) {
             throw new IllegalArgumentException("No existe proponente: " + nick);
         }
 
         p.setEliminado(true);
         p.setFechaEliminacion(LocalDate.now());
-
+    
         em.merge(p);
     }
- /*
+
+/*
  @Transactional
 public void eliminarProponente(String nick) {
     Proponente p = em.find(Proponente.class, nick);
@@ -138,7 +195,6 @@ public void eliminarProponente(String nick) {
     p.getUsuariosSeguidos().clear();
 
 
-    /*
         // ============================
     // 2. Quitar favoritos de sus propuestas
     // ============================
@@ -162,9 +218,8 @@ public void eliminarProponente(String nick) {
     // 4. Eliminar proponente
     // ============================
     em.remove(p);
-
+}
 */
-
 
     @Transactional
     public ArrayList<DTProponente> listarProponentesEliminados() {

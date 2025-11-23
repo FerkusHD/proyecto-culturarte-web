@@ -3,10 +3,7 @@ package com.culturarte.logica.clases;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
 import java.util.List;
-
 @Entity
 public class Proponente extends Usuario {
     private String direccion;

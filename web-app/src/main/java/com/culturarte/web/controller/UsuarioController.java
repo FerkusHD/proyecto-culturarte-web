@@ -1,5 +1,6 @@
 package com.culturarte.web.controller;
 
+import com.culturarte.logica.datatypes.DTProponente;
 import com.culturarte.logica.datatypes.DTPropuesta;
 import com.culturarte.logica.datatypes.DTUsuario;
 import com.culturarte.logica.enums.TipoEstado;
