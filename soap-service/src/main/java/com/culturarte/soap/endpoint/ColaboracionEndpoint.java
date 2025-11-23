@@ -3,14 +3,16 @@ package com.culturarte.soap.endpoint;
 import com.culturarte.logica.IControlador;
 import com.culturarte.logica.datatypes.DTColaboracion;
 import com.culturarte.logica.datatypes.DTColaborador;
-import com.culturarte.soap.gen.ColaboracionType;
-import com.culturarte.soap.gen.PropuestaType;
-import com.culturarte.soap.gen.GetColaboracionRequest;
-import com.culturarte.soap.gen.GetColaboracionResponse;
-import com.culturarte.soap.gen.GetColaboracionesPorUsuarioRequest;
-import com.culturarte.soap.gen.GetColaboracionesPorUsuarioResponse;
+import com.culturarte.logica.datatypes.DTPago;
+import com.culturarte.logica.enums.TipoPago;
+import com.culturarte.logica.enums.TipoTarjeta;
+import com.culturarte.soap.gen.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ws.server.endpoint.annotation.*;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
 
 @Endpoint
 public class ColaboracionEndpoint {
@@ -42,9 +44,54 @@ public class ColaboracionEndpoint {
     public GetColaboracionResponse getColaboracion(@RequestPayload GetColaboracionRequest request) {
         GetColaboracionResponse response = new GetColaboracionResponse();
 
-        DTColaboracion colab = ctrl.getDTColaboracionPropuesta(request.getNickColaborador(), request.getTituloPropuesta());
+        DTColaboracion colab = ctrl.getDTColaboracionPropuesta(request.getNickColaborador(),
+                request.getTituloPropuesta());
         if (colab != null) {
             response.setColaboracion(mapColaboracion(colab));
+        }
+
+        return response;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getColaboracionesSinPagoRequest")
+    @ResponsePayload
+    public GetColaboracionesSinPagoResponse getColaboracionesSinPago(
+            @RequestPayload GetColaboracionesSinPagoRequest request) {
+
+        GetColaboracionesSinPagoResponse response = new GetColaboracionesSinPagoResponse();
+
+        try {
+            ArrayList<DTColaboracion> colaboraciones = ctrl.getColaboracionesSinPago(request.getNickColaborador());
+
+            if (colaboraciones != null) {
+                colaboraciones.forEach(c -> response.getColaboraciones().add(mapColaboracion(c)));
+            }
+        } catch (Exception e) {
+            // Log error but return empty list
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "registrarPagoRequest")
+    @ResponsePayload
+    public RegistrarPagoResponse registrarPago(@RequestPayload RegistrarPagoRequest request) {
+        RegistrarPagoResponse response = new RegistrarPagoResponse();
+
+        try {
+            // Convertir PagoType a DTPago
+            DTPago pago = mapPagoTypeToDT(request.getPago());
+
+            // Registrar el pago
+            ctrl.registrarPago(pago, request.getNickColaborador(), request.getTituloPropuesta());
+
+            response.setExito(true);
+            response.setMensaje("Pago registrado exitosamente");
+        } catch (Exception e) {
+            response.setExito(false);
+            response.setMensaje("Error al registrar pago: " + e.getMessage());
+            e.printStackTrace();
         }
 
         return response;
@@ -58,6 +105,39 @@ public class ColaboracionEndpoint {
         dto.setHora(source.getHora() != null ? source.getHora().toString() : null);
         dto.setMonto(source.getMonto());
         dto.setTipoRetorno(source.getTipoRetorno() != null ? source.getTipoRetorno().name() : null);
+        // TODO: Mapear pago si existe
         return dto;
+    }
+
+    private DTPago mapPagoTypeToDT(PagoType pagoType) {
+        DTPago pago = new DTPago();
+        pago.setMonto(pagoType.getMonto());
+
+        // Parsear fecha y hora
+        if (pagoType.getFechaPago() != null) {
+            pago.setFechaPago(LocalDate.parse(pagoType.getFechaPago()));
+        }
+        if (pagoType.getHoraPago() != null) {
+            pago.setHoraPago(LocalTime.parse(pagoType.getHoraPago()));
+        }
+
+        // Tipo de pago
+        if (pagoType.getTipoPago() != null) {
+            pago.setTipoPago(TipoPago.valueOf(pagoType.getTipoPago()));
+        }
+
+        pago.setNombreTitular(pagoType.getNombreTitular());
+
+        // Campos específicos según tipo de pago
+        if (pagoType.getTipoTarjeta() != null) {
+            pago.setTipoTarjeta(TipoTarjeta.valueOf(pagoType.getTipoTarjeta()));
+        }
+        pago.setNumeroTarjeta(pagoType.getNumeroTarjeta());
+        pago.setFechaVencimiento(pagoType.getFechaVencimiento());
+        pago.setCvc(pagoType.getCvc());
+        pago.setNombreBanco(pagoType.getNombreBanco());
+        pago.setNumeroCuenta(pagoType.getNumeroCuenta());
+
+        return pago;
     }
 }

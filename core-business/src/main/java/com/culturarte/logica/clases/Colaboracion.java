@@ -1,6 +1,7 @@
 package com.culturarte.logica.clases;
 
 import com.culturarte.logica.enums.TipoRetorno;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -9,16 +10,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
 public class Colaboracion {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    
+
     private float monto;
     private LocalDate fechaAporte;
     private LocalTime horaAporte;
@@ -28,10 +30,15 @@ public class Colaboracion {
     private Propuesta propuesta;
     @ManyToOne(fetch = FetchType.EAGER)
     private Colaborador colaborador;
-   
-    public Colaboracion(){}
 
-    public Colaboracion(float monto, LocalDate fechaAporte, LocalTime horaAporte, TipoRetorno tipoRetorno, Propuesta propuesta, Colaborador colaborador) {
+    @OneToOne(mappedBy = "colaboracion", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Pago pago;
+
+    public Colaboracion() {
+    }
+
+    public Colaboracion(float monto, LocalDate fechaAporte, LocalTime horaAporte, TipoRetorno tipoRetorno,
+            Propuesta propuesta, Colaborador colaborador) {
         this.monto = monto;
         this.fechaAporte = fechaAporte;
         this.tipoRetorno = tipoRetorno;
@@ -91,8 +98,20 @@ public class Colaboracion {
     public void setColaborador(Colaborador colaborador) {
         this.colaborador = colaborador;
     }
-    
+
     public String getColaboradorNick() {
         return colaborador.getNickname();
+    }
+
+    public Pago getPago() {
+        return pago;
+    }
+
+    public void setPago(Pago pago) {
+        this.pago = pago;
+    }
+
+    public boolean tienePago() {
+        return pago != null;
     }
 }

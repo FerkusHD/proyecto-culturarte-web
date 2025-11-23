@@ -70,18 +70,18 @@ public class PropuestasController {
                 logger.warn("Lista de propuestas es null, retornando lista vacía");
                 return new ArrayList<>();
             }
-            
+
             // Convertir a DTOs para serialización JSON correcta
             List<PropuestaDTO> propuestasDTO = new ArrayList<>();
             for (PropuestaType p : propuestas) {
                 if (p != null) {
                     PropuestaDTO dto = new PropuestaDTO(p);
                     propuestasDTO.add(dto);
-                    logger.debug("Propuesta convertida: titulo={}, tieneImagen={}", 
+                    logger.debug("Propuesta convertida: titulo={}, tieneImagen={}",
                             dto.getTitulo(), dto.getImagenBase64() != null && !dto.getImagenBase64().isEmpty());
                 }
             }
-            
+
             logger.info("Retornando {} propuestas al cliente", propuestasDTO.size());
             logger.debug("=== FIN listarPropuestas (exitoso) ===");
             return propuestasDTO;
@@ -127,7 +127,8 @@ public class PropuestasController {
         logger.info("=== INICIO mostrarPropuesta ===");
         logger.info("Mostrando propuesta (raw): {}", titulo);
         try {
-            // Spring ya decodifica automáticamente, pero por si acaso intentamos decodificar de nuevo
+            // Spring ya decodifica automáticamente, pero por si acaso intentamos
+            // decodificar de nuevo
             String tituloDecodificado = titulo;
             try {
                 // Solo decodificar si contiene caracteres codificados
@@ -141,10 +142,10 @@ public class PropuestasController {
                 logger.warn("Error al decodificar título, usando original: {}", titulo, e);
                 tituloDecodificado = titulo;
             }
-            
+
             // Intentar buscar la propuesta
             PropuestaType propuesta = soapClient.getPropuesta(tituloDecodificado);
-            
+
             // Si no se encuentra, intentar con el título original
             if (propuesta == null && !tituloDecodificado.equals(titulo)) {
                 logger.info("No se encontró con título decodificado, intentando con original: {}", titulo);
@@ -156,8 +157,8 @@ public class PropuestasController {
                 model.addAttribute("mensajeError", "⚠️ La propuesta no existe");
                 return "redirect:/";
             }
-            
-            logger.debug("Propuesta obtenida: titulo={}, estado={}, categoria={}", 
+
+            logger.debug("Propuesta obtenida: titulo={}, estado={}, categoria={}",
                     propuesta.getTitulo(), propuesta.getEstadoActual(), propuesta.getCategoria());
 
             model.addAttribute("propuesta", propuesta);
@@ -204,12 +205,12 @@ public class PropuestasController {
             Object usuarioLogueadoObj = session.getAttribute("usuarioLogueado");
             DTUsuario usuarioLogueado = null;
             String nickUsuarioFinal = null;
-            
+
             if (usuarioLogueadoObj instanceof DTUsuario) {
                 usuarioLogueado = (DTUsuario) usuarioLogueadoObj;
                 nickUsuarioFinal = usuarioLogueado.getNickname();
             }
-            
+
             if (usuarioLogueado == null) {
                 usuarioLogueado = new DTUsuario();
                 usuarioLogueado.setTipo("visitante");
@@ -223,12 +224,12 @@ public class PropuestasController {
             // Verificar si es favorita
             boolean esFavorita = false;
             if (nickUsuario != null && !"visitante".equals(nickUsuario)) {
-                   for (DTPropuesta p : usuarioLogueado.getPropuestasSeguidas()) {
-                       if (p.getTitulo().equals(propuesta.getTitulo())) {
-                           esFavorita = true;
-                           break;
-                       }
-                   }
+                for (DTPropuesta p : usuarioLogueado.getPropuestasSeguidas()) {
+                    if (p.getTitulo().equals(propuesta.getTitulo())) {
+                        esFavorita = true;
+                        break;
+                    }
+                }
             }
             model.addAttribute("esFavorita", esFavorita);
 
@@ -255,7 +256,8 @@ public class PropuestasController {
 
     // Método auxiliar para convertir UsuarioType a DTUsuario
     private DTUsuario convertirDT(UsuarioType u) {
-        if (u == null) return null;
+        if (u == null)
+            return null;
         DTUsuario dt = new DTUsuario();
         dt.setNickname(u.getNickname());
         dt.setNombre(u.getNombre());
@@ -266,7 +268,23 @@ public class PropuestasController {
         if (u.getFechaNacimiento() != null) {
             dt.setFechaNacimiento(u.getFechaNacimiento().toGregorianCalendar().toZonedDateTime().toLocalDate());
         }
-        // Nota: UsuarioType no tiene getUsuariosSeguidos(), 
+
+        // Convertir propuestas seguidas (favoritas)
+        if (u.getPropuestasSeguidas() != null && !u.getPropuestasSeguidas().isEmpty()) {
+            ArrayList<DTPropuesta> propuestasSeguidas = new ArrayList<>();
+            for (PropuestaType p : u.getPropuestasSeguidas()) {
+                if (p != null) {
+                    DTPropuesta dtProp = new DTPropuesta();
+                    dtProp.setTitulo(p.getTitulo());
+                    dtProp.setImagen(p.getImagen());
+                    dtProp.setProponente(p.getProponente());
+                    propuestasSeguidas.add(dtProp);
+                }
+            }
+            dt.setPropuestasSeguidas(propuestasSeguidas);
+        }
+
+        // Nota: UsuarioType no tiene getUsuariosSeguidos(),
         // los usuarios seguidos se cargan cuando se necesita desde el servicio
         return dt;
     }
@@ -288,7 +306,8 @@ public class PropuestasController {
                 return "redirect:/login";
             }
             if (!"colaborador".equalsIgnoreCase(usuario.getTipo())) {
-                redirectAttributes.addFlashAttribute("mensajeError", "❌ Solo los colaboradores pueden realizar aportes.");
+                redirectAttributes.addFlashAttribute("mensajeError",
+                        "❌ Solo los colaboradores pueden realizar aportes.");
                 return "redirect:/propuestas/" + tituloPropuesta;
             }
 
@@ -358,7 +377,8 @@ public class PropuestasController {
 
             PropuestaType propuesta = soapClient.getPropuesta(tituloPropuesta);
             if (propuesta == null || propuesta.getColaboradores() == null ||
-                    propuesta.getColaboradores().stream().noneMatch(nick -> nick.equalsIgnoreCase(usuario.getNickname()))) {
+                    propuesta.getColaboradores().stream()
+                            .noneMatch(nick -> nick.equalsIgnoreCase(usuario.getNickname()))) {
                 redirectAttributes.addFlashAttribute("mensajeError",
                         "❌ Solo los colaboradores que apoyaron la propuesta pueden comentar.");
                 return "redirect:/propuestas/" + tituloPropuesta;
@@ -414,7 +434,7 @@ public class PropuestasController {
             @RequestParam String tituloPropuesta,
             Model model,
             HttpSession session,
-            RedirectAttributes redirectAttributes){
+            RedirectAttributes redirectAttributes) {
 
         try {
             // Obtener nickUsuario de la sesión
@@ -522,19 +542,20 @@ public class PropuestasController {
             // Verificar que el usuario sea proponente
             Object usuarioLogueadoObj = session.getAttribute("usuarioLogueado");
             DTUsuario usuarioLogueado = null;
-            
+
             if (usuarioLogueadoObj instanceof DTUsuario) {
                 usuarioLogueado = (DTUsuario) usuarioLogueadoObj;
             } else if (usuarioLogueadoObj instanceof UsuarioType) {
                 usuarioLogueado = convertirDT((UsuarioType) usuarioLogueadoObj);
             }
-            
+
             if (usuarioLogueado == null || !"proponente".equals(usuarioLogueado.getTipo())) {
                 return "redirect:/login";
             }
 
             // Obtener categorías
-            List<String> categorias = categoriasSoapClient.obtenerCategorias(new com.culturarte.soap.gen.GetCategoriasRequest())
+            List<String> categorias = categoriasSoapClient
+                    .obtenerCategorias(new com.culturarte.soap.gen.GetCategoriasRequest())
                     .getCategoria().stream()
                     .map(com.culturarte.soap.gen.CategoriaType::getNombre)
                     .collect(java.util.stream.Collectors.toList());
@@ -575,7 +596,7 @@ public class PropuestasController {
             Object usuarioLogueadoObj = session.getAttribute("usuarioLogueado");
             DTUsuario usuarioLogueado = null;
             String nickProponente = null;
-            
+
             if (usuarioLogueadoObj instanceof DTUsuario) {
                 usuarioLogueado = (DTUsuario) usuarioLogueadoObj;
                 nickProponente = usuarioLogueado.getNickname();
@@ -583,7 +604,7 @@ public class PropuestasController {
                 usuarioLogueado = convertirDT((UsuarioType) usuarioLogueadoObj);
                 nickProponente = usuarioLogueado.getNickname();
             }
-            
+
             if (nickProponente == null || !"proponente".equals(usuarioLogueado.getTipo())) {
                 redirectAttributes.addFlashAttribute("mensaje", "❌ Solo los proponentes pueden crear propuestas.");
                 return "redirect:/propuestas/alta";
@@ -598,10 +619,11 @@ public class PropuestasController {
                     if (!Files.exists(directorio)) {
                         Files.createDirectories(directorio);
                     }
-                    String nombreArchivo = titulo.replaceAll("[^a-zA-Z0-9]", "_") + "_" + System.currentTimeMillis() + "_" + imagenFile.getOriginalFilename();
+                    String nombreArchivo = titulo.replaceAll("[^a-zA-Z0-9]", "_") + "_" + System.currentTimeMillis()
+                            + "_" + imagenFile.getOriginalFilename();
                     Path rutaCompleta = directorio.resolve(nombreArchivo);
                     Files.copy(imagenFile.getInputStream(), rutaCompleta, StandardCopyOption.REPLACE_EXISTING);
-                    
+
                     // Convertir a base64 para el SOAP
                     byte[] imagenBytes = Files.readAllBytes(rutaCompleta);
                     imagenBase64 = Base64.getEncoder().encodeToString(imagenBytes);
@@ -615,7 +637,8 @@ public class PropuestasController {
             request.setTitulo(titulo);
             request.setDescripcion(descripcion);
             request.setLugar(lugar);
-            request.setFechaPrevista(DatatypeFactory.newInstance().newXMLGregorianCalendar(LocalDate.parse(fechaPrevista).toString()));
+            request.setFechaPrevista(
+                    DatatypeFactory.newInstance().newXMLGregorianCalendar(LocalDate.parse(fechaPrevista).toString()));
             request.setCategoria(categoria);
             request.setMontoEntrada(montoEntrada);
             request.setMontoNecesario(montoNecesario);
@@ -623,7 +646,7 @@ public class PropuestasController {
             if (imagenBase64 != null) {
                 request.setImagenBase64(imagenBase64);
             }
-            
+
             // Agregar tipos de retorno
             for (String tipo : tiposRetorno) {
                 request.getTiposRetorno().add(tipo);
@@ -643,9 +666,10 @@ public class PropuestasController {
                 model.addAttribute("categoria", categoria);
                 model.addAttribute("montoEntrada", montoEntrada);
                 model.addAttribute("montoNecesario", montoNecesario);
-                
+
                 // Recargar categorías y tipos de retorno
-                List<String> categorias = categoriasSoapClient.obtenerCategorias(new com.culturarte.soap.gen.GetCategoriasRequest())
+                List<String> categorias = categoriasSoapClient
+                        .obtenerCategorias(new com.culturarte.soap.gen.GetCategoriasRequest())
                         .getCategoria().stream()
                         .map(com.culturarte.soap.gen.CategoriaType::getNombre)
                         .collect(java.util.stream.Collectors.toList());
@@ -654,7 +678,7 @@ public class PropuestasController {
                 tiposRetornoList.add("ENTRADAGRATIS");
                 tiposRetornoList.add("PORCENTAJEGANANCIA");
                 model.addAttribute("tiposRetorno", tiposRetornoList);
-                
+
                 return "altaPropuesta";
             }
         } catch (Exception e) {
@@ -682,12 +706,12 @@ public class PropuestasController {
                 logger.error("Error al obtener propuestas desde SOAP", e);
                 todasLasPropuestas = new ArrayList<>();
             }
-            
+
             if (todasLasPropuestas == null) {
                 logger.warn("Lista de propuestas es null, usando lista vacía");
                 todasLasPropuestas = new ArrayList<>();
             }
-            
+
             logger.debug("Total de propuestas obtenidas: {}", todasLasPropuestas.size());
             List<PropuestaType> resultados = new ArrayList<>();
 
@@ -696,7 +720,7 @@ public class PropuestasController {
                 String queryLower = query.toLowerCase().trim();
                 for (PropuestaType p : todasLasPropuestas) {
                     if ((p.getTitulo() != null && p.getTitulo().toLowerCase().contains(queryLower)) ||
-                        (p.getDescripcion() != null && p.getDescripcion().toLowerCase().contains(queryLower))) {
+                            (p.getDescripcion() != null && p.getDescripcion().toLowerCase().contains(queryLower))) {
                         resultados.add(p);
                     }
                 }
@@ -742,7 +766,8 @@ public class PropuestasController {
             try {
                 com.culturarte.soap.gen.GetCategoriasRequest categoriasRequest = new com.culturarte.soap.gen.GetCategoriasRequest();
                 GetCategoriasResponse categoriasResponse = categoriasSoapClient.obtenerCategorias(categoriasRequest);
-                if (categoriasResponse != null && categoriasResponse.getCategoria() != null && !categoriasResponse.getCategoria().isEmpty()) {
+                if (categoriasResponse != null && categoriasResponse.getCategoria() != null
+                        && !categoriasResponse.getCategoria().isEmpty()) {
                     List<String> categorias = categoriasResponse.getCategoria().stream()
                             .filter(cat -> cat != null && cat.getNombre() != null)
                             .map(com.culturarte.soap.gen.CategoriaType::getNombre)
@@ -787,13 +812,13 @@ public class PropuestasController {
         try {
             Object usuarioLogueadoObj = session.getAttribute("usuarioLogueado");
             DTUsuario usuarioLogueado = null;
-            
+
             if (usuarioLogueadoObj instanceof DTUsuario) {
                 usuarioLogueado = (DTUsuario) usuarioLogueadoObj;
             } else if (usuarioLogueadoObj instanceof UsuarioType) {
                 usuarioLogueado = convertirDT((UsuarioType) usuarioLogueadoObj);
             }
-            
+
             if (usuarioLogueado == null || !"colaborador".equals(usuarioLogueado.getTipo())) {
                 return "redirect:/login";
             }
@@ -819,13 +844,13 @@ public class PropuestasController {
         try {
             Object usuarioLogueadoObj = session.getAttribute("usuarioLogueado");
             DTUsuario usuarioLogueado = null;
-            
+
             if (usuarioLogueadoObj instanceof DTUsuario) {
                 usuarioLogueado = (DTUsuario) usuarioLogueadoObj;
             } else if (usuarioLogueadoObj instanceof UsuarioType) {
                 usuarioLogueado = convertirDT((UsuarioType) usuarioLogueadoObj);
             }
-            
+
             if (usuarioLogueado == null || !"colaborador".equals(usuarioLogueado.getTipo())) {
                 return "redirect:/login";
             }
@@ -854,7 +879,7 @@ public class PropuestasController {
             Object usuarioLogueadoObj = session.getAttribute("usuarioLogueado");
             DTUsuario usuarioLogueado = null;
             String nickUsuario = null;
-            
+
             if (usuarioLogueadoObj instanceof DTUsuario) {
                 usuarioLogueado = (DTUsuario) usuarioLogueadoObj;
                 nickUsuario = usuarioLogueado.getNickname();
@@ -862,16 +887,18 @@ public class PropuestasController {
                 usuarioLogueado = convertirDT((UsuarioType) usuarioLogueadoObj);
                 nickUsuario = usuarioLogueado.getNickname();
             }
-            
+
             if (nickUsuario == null || !"proponente".equals(usuarioLogueado.getTipo())) {
-                redirectAttributes.addFlashAttribute("mensajeError", "❌ Solo el proponente puede extender la financiación.");
+                redirectAttributes.addFlashAttribute("mensajeError",
+                        "❌ Solo el proponente puede extender la financiación.");
                 return "redirect:/propuestas/" + titulo;
             }
 
             // Obtener la propuesta para verificar que el usuario es el proponente
             PropuestaType propuesta = soapClient.getPropuesta(titulo);
             if (propuesta == null || !nickUsuario.equals(propuesta.getProponente())) {
-                redirectAttributes.addFlashAttribute("mensajeError", "❌ Solo el proponente de la propuesta puede extender la financiación.");
+                redirectAttributes.addFlashAttribute("mensajeError",
+                        "❌ Solo el proponente de la propuesta puede extender la financiación.");
                 return "redirect:/propuestas/" + titulo;
             }
 

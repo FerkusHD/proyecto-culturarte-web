@@ -27,10 +27,14 @@ public class DTPropuesta {
     private String nickProponente;
     private int cantColaboradores;
     private List<DTComentario> comentarios = new ArrayList<>();
-    
-    public DTPropuesta(){}
 
-    public DTPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, float precioEntrada, float montoNecesario, String imagen, ArrayList<String> colaboradores, String nickProponente, TipoEstado estadoActual, String categoria, ArrayList<DTEstado> histEstados, float montoRecaudado, List<DTComentario> comentarios) {
+    public DTPropuesta() {
+    }
+
+    public DTPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, float precioEntrada,
+            float montoNecesario, String imagen, ArrayList<String> colaboradores, String nickProponente,
+            TipoEstado estadoActual, String categoria, ArrayList<DTEstado> histEstados, float montoRecaudado,
+            List<DTComentario> comentarios) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.lugar = lugar;
@@ -46,8 +50,9 @@ public class DTPropuesta {
         this.montoRecaudado = montoRecaudado;
         this.comentarios = comentarios;
     }
-    
-    public DTPropuesta(String titulo, TipoEstado estado, ArrayList<String> colaboradores, float montoRecaudado, float montoNecesario) {
+
+    public DTPropuesta(String titulo, TipoEstado estado, ArrayList<String> colaboradores, float montoRecaudado,
+            float montoNecesario) {
         this.titulo = titulo;
         this.estadoActual = estado;
         this.colaboradores = colaboradores;
@@ -55,7 +60,9 @@ public class DTPropuesta {
         this.montoNecesario = montoNecesario;
     }
 
-    public DTPropuesta(String titulo, String descripcion, TipoEstado estado, int cantColaboradores, float montoRecaudado, float montoNecesario, LocalDate fechaPrevista, String imagen, String categoria, String nickProponente) {
+    public DTPropuesta(String titulo, String descripcion, TipoEstado estado, int cantColaboradores,
+            float montoRecaudado, float montoNecesario, LocalDate fechaPrevista, String imagen, String categoria,
+            String nickProponente) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.estadoActual = estado;
@@ -64,18 +71,20 @@ public class DTPropuesta {
         this.montoNecesario = montoNecesario;
         this.fechaPrevista = fechaPrevista;
         this.imagen = imagen;
-        this.categoria= categoria;
+        this.categoria = categoria;
     }
-    
-    public DTPropuesta(String titulo, TipoEstado estado, String nickProponente, float montoRecaudado, float montoNecesario) {
+
+    public DTPropuesta(String titulo, TipoEstado estado, String nickProponente, float montoRecaudado,
+            float montoNecesario) {
         this.titulo = titulo;
         this.estadoActual = estado;
         this.nickProponente = nickProponente;
         this.montoRecaudado = montoRecaudado;
         this.montoNecesario = montoNecesario;
     }
-    
-    public DTPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, float precioEntrada, float montoNecesario){
+
+    public DTPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, float precioEntrada,
+            float montoNecesario) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.lugar = lugar;
@@ -91,8 +100,8 @@ public class DTPropuesta {
         this.fechaPrevista = propuesta.getFechaPrevista();
         this.montoNecesario = propuesta.getMontoNecesario();
         this.imagen = propuesta.getImagen();
-        this.estadoActual= propuesta.getHistorialEstados().getLast().getEstado();
-        this.categoria=propuesta.getCategoria().getNombre();
+        this.estadoActual = propuesta.getHistorialEstados().getLast().getEstado();
+        this.categoria = propuesta.getCategoria().getNombre();
     }
 
     public List<DTEstado> getHistEstados() {
@@ -126,7 +135,7 @@ public class DTPropuesta {
     public float getMontoNecesario() {
         return montoNecesario;
     }
-    
+
     public float getMontoRecaudado() {
         return montoRecaudado;
     }
@@ -146,16 +155,17 @@ public class DTPropuesta {
     public String getCategoria() {
         return categoria;
     }
-    public String getProponente(){
-     return nickProponente;
+
+    public String getProponente() {
+        return nickProponente;
     }
-    
+
     public void addColaborador(String nom) {
         this.colaboradores.add(nom);
     }
 
-    public ArrayList<String> getNomColaboradores(){
-    ArrayList<String> retorno = new ArrayList<>();
+    public ArrayList<String> getNomColaboradores() {
+        ArrayList<String> retorno = new ArrayList<>();
         for (String nomCol : this.colaboradores) {
             retorno.add(nomCol);
         }
@@ -188,5 +198,16 @@ public class DTPropuesta {
         }
         this.comentarios.add(comentario);
     }
-}
 
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
+
+    public void setProponente(String nickProponente) {
+        this.nickProponente = nickProponente;
+    }
+}

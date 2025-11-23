@@ -19,9 +19,12 @@ import javax.swing.tree.DefaultTreeModel;
 
 public interface IControlador {
 
-    public abstract void altaColaborador(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen) throws UsuarioYaExiste, EmailYaExiste;
+    public abstract void altaColaborador(String nickname, String password, String nombre, String apellido, String email,
+            LocalDate fechaNacimiento, String imagen) throws UsuarioYaExiste, EmailYaExiste;
 
-    public abstract void altaProponente(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen, String direccion, String linkWeb, String bibliografia) throws UsuarioYaExiste, EmailYaExiste;
+    public abstract void altaProponente(String nickname, String password, String nombre, String apellido, String email,
+            LocalDate fechaNacimiento, String imagen, String direccion, String linkWeb, String bibliografia)
+            throws UsuarioYaExiste, EmailYaExiste;
 
     public abstract ArrayList<String> getNomProponentes();
 
@@ -31,7 +34,9 @@ public interface IControlador {
 
     public abstract DefaultTreeModel listarCategorias();
 
-    public abstract void altaPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, EnumSet<TipoRetorno> tipoRetornos, String imagen, String proponente, String categoria, LocalDate fechaActual, LocalTime horaActual) throws PropuestaYaExiste;
+    public abstract void altaPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista,
+            Float precioEntrada, Float montoNecesario, EnumSet<TipoRetorno> tipoRetornos, String imagen,
+            String proponente, String categoria, LocalDate fechaActual, LocalTime horaActual) throws PropuestaYaExiste;
 
     public abstract ArrayList<String> getNickColaboradores();
 
@@ -47,29 +52,32 @@ public interface IControlador {
 
     public abstract ArrayList<String> getTituloPropuestasPorEstado(TipoEstado estado); // cu6 y cu7
 
-    public abstract void altaColaboracion(float monto, LocalDate fecha, LocalTime hora, TipoRetorno tipoRetorno, String tituloPropuesta, String nickColaborador) throws ColaboracionYaExiste; // cu9
+    public abstract void altaColaboracion(float monto, LocalDate fecha, LocalTime hora, TipoRetorno tipoRetorno,
+            String tituloPropuesta, String nickColaborador) throws ColaboracionYaExiste; // cu9
 
-    public abstract String getNickProponente(String tituloPropuesta); //cu9
+    public abstract String getNickProponente(String tituloPropuesta); // cu9
 
     public abstract ArrayList<String> getNickUsuarios(); // cu12 y cu13
 
     public abstract void seguirUsuario(String nickSeguidor, String nickSeguido) throws UsuarioYaSeguido; // cu12
 
-    public abstract void dejarDeSeguirUsuario(String nickSeguidor, String nickSeguido) throws UsuarioNoSeguido; //cu13
+    public abstract void dejarDeSeguirUsuario(String nickSeguidor, String nickSeguido) throws UsuarioNoSeguido; // cu13
 
-    public abstract ArrayList<DTColaboracion> getDTColaboracionesPropuestas(String nickColab);//cu10
+    public abstract ArrayList<DTColaboracion> getDTColaboracionesPropuestas(String nickColab);// cu10
 
-    public abstract DTColaboracion getDTColaboracionPropuesta(String nickColab, String tituloProp);//cu10
+    public abstract DTColaboracion getDTColaboracionPropuesta(String nickColab, String tituloProp);// cu10
 
-    public abstract void cancelarColaboracionPropuesta(String tituloPropuesta, String nickColaborador);//cu11
+    public abstract void cancelarColaboracionPropuesta(String tituloPropuesta, String nickColaborador);// cu11
 
-    public abstract ArrayList<DTColaboracion> getDTColaboraciones();//cu11
+    public abstract ArrayList<DTColaboracion> getDTColaboraciones();// cu11
 
     public abstract DTUsuario getDTUsuario(String nickname);
 
     public abstract void nuevoEstadoPropuesta(String propuesta, TipoEstado estado, LocalDate fecha, LocalTime hora);
 
-    public abstract void modificarPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, String imagen, String proponente, String categoria, String nuevoEstado) throws DatosIncorrectos;
+    public abstract void modificarPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista,
+            Float precioEntrada, Float montoNecesario, String imagen, String proponente, String categoria,
+            String nuevoEstado) throws DatosIncorrectos;
 
     public abstract ArrayList<DTPropuesta> getDTPropuestasWeb();
 
@@ -104,4 +112,8 @@ public interface IControlador {
     public abstract ArrayList<DTUsuario> getUsuariosPorCantSeguidores();
 
     public abstract ArrayList<DTProponente> verProponentesEliminados();
+
+    public abstract ArrayList<DTColaboracion> getColaboracionesSinPago(String nickColaborador);
+
+    public abstract void registrarPago(DTPago pago, String nickColaborador, String tituloPropuesta) throws Exception;
 }

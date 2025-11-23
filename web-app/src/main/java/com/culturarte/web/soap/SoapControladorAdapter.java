@@ -34,19 +34,19 @@ public class SoapControladorAdapter implements IControlador {
     private static final Logger logger = LoggerFactory.getLogger(SoapControladorAdapter.class);
 
     private final WebServiceTemplate webServiceTemplate;
-    
+
     @Value("${soap.service.url:}")
     private String soapServiceUrl;
-    
+
     @Value("${soap.service.host:localhost}")
     private String soapServiceHost;
-    
+
     @Value("${soap.service.port:8081}")
     private String soapServicePort;
-    
+
     @Value("${soap.service.context-path:/soap/ws}")
     private String soapServiceContextPath;
-    
+
     /**
      * Obtiene la URL base del servicio SOAP.
      * Si no está definida directamente, se construye desde los componentes.
@@ -71,18 +71,19 @@ public class SoapControladorAdapter implements IControlador {
         try {
             GetCategoriasRequest request = new GetCategoriasRequest();
             logger.debug("Enviando request SOAP para listar categorías web");
-            GetCategoriasResponse response = (GetCategoriasResponse) webServiceTemplate.marshalSendAndReceive(endpoint, request);
-            
+            GetCategoriasResponse response = (GetCategoriasResponse) webServiceTemplate.marshalSendAndReceive(endpoint,
+                    request);
+
             if (response == null) {
                 logger.warn("Respuesta SOAP null en listarCategoriasWeb");
                 return new ArrayList<>();
             }
-            
+
             if (response.getCategoria() == null) {
                 logger.warn("Lista de categorías null en respuesta");
                 return new ArrayList<>();
             }
-            
+
             List<String> resultado = mapCategoriaResponse(response.getCategoria());
             logger.info("Se obtuvieron {} categorías web exitosamente", resultado.size());
             logger.debug("=== FIN listarCategoriasWeb (exitoso) ===");
@@ -107,19 +108,20 @@ public class SoapControladorAdapter implements IControlador {
         try {
             ListarPropuestasRequest request = new ListarPropuestasRequest();
             logger.debug("Enviando request SOAP para obtener propuestas web");
-            ListarPropuestasResponse response = (ListarPropuestasResponse) webServiceTemplate.marshalSendAndReceive(endpoint, request);
-            
+            ListarPropuestasResponse response = (ListarPropuestasResponse) webServiceTemplate
+                    .marshalSendAndReceive(endpoint, request);
+
             ArrayList<DTPropuesta> result = new ArrayList<>();
             if (response == null) {
                 logger.warn("Respuesta SOAP null en getDTPropuestasWeb");
                 return result;
             }
-            
+
             if (response.getPropuesta() == null) {
                 logger.warn("Lista de propuestas null en respuesta");
                 return result;
             }
-            
+
             logger.debug("Convirtiendo {} propuestas de PropuestaType a DTPropuesta", response.getPropuesta().size());
             for (PropuestaType pt : response.getPropuesta()) {
                 try {
@@ -129,7 +131,7 @@ public class SoapControladorAdapter implements IControlador {
                     logger.error("Error al convertir propuesta '{}' a DTPropuesta", pt.getTitulo(), e);
                 }
             }
-            
+
             logger.info("Se obtuvieron {} propuestas web exitosamente", result.size());
             logger.debug("=== FIN getDTPropuestasWeb (exitoso) ===");
             return result;
@@ -146,8 +148,8 @@ public class SoapControladorAdapter implements IControlador {
             GetPropuestaRequest request = new GetPropuestaRequest();
             request.setTitulo(titulo);
             GetPropuestaResponse response = (GetPropuestaResponse) webServiceTemplate.marshalSendAndReceive(
-                getSoapServiceUrl() + "/propuestas", request);
-            
+                    getSoapServiceUrl() + "/propuestas", request);
+
             if (response.getPropuesta() != null) {
                 return convertPropuestaTypeToDT(response.getPropuesta());
             }
@@ -163,8 +165,8 @@ public class SoapControladorAdapter implements IControlador {
             GetUsuarioRequest request = new GetUsuarioRequest();
             request.setNickname(nickname);
             GetUsuarioResponse response = (GetUsuarioResponse) webServiceTemplate.marshalSendAndReceive(
-                getSoapServiceUrl() + "/usuarios", request);
-            
+                    getSoapServiceUrl() + "/usuarios", request);
+
             if (response.getUsuario() != null) {
                 return convertUsuarioTypeToDT(response.getUsuario());
             }
@@ -177,12 +179,15 @@ public class SoapControladorAdapter implements IControlador {
     // ========== Métodos no implementados en SOAP (lanzan excepción) ==========
 
     @Override
-    public void altaColaborador(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen) throws UsuarioYaExiste, EmailYaExiste {
+    public void altaColaborador(String nickname, String password, String nombre, String apellido, String email,
+            LocalDate fechaNacimiento, String imagen) throws UsuarioYaExiste, EmailYaExiste {
         throw new UnsupportedOperationException("altaColaborador no está disponible vía SOAP");
     }
 
     @Override
-    public void altaProponente(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen, String direccion, String linkWeb, String bibliografia) throws UsuarioYaExiste, EmailYaExiste {
+    public void altaProponente(String nickname, String password, String nombre, String apellido, String email,
+            LocalDate fechaNacimiento, String imagen, String direccion, String linkWeb, String bibliografia)
+            throws UsuarioYaExiste, EmailYaExiste {
         throw new UnsupportedOperationException("altaProponente no está disponible vía SOAP");
     }
 
@@ -212,7 +217,9 @@ public class SoapControladorAdapter implements IControlador {
     }
 
     @Override
-    public void altaPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, EnumSet<TipoRetorno> tipoRetornos, String imagen, String proponente, String categoria, LocalDate fechaActual, LocalTime horaActual) throws PropuestaYaExiste {
+    public void altaPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista,
+            Float precioEntrada, Float montoNecesario, EnumSet<TipoRetorno> tipoRetornos, String imagen,
+            String proponente, String categoria, LocalDate fechaActual, LocalTime horaActual) throws PropuestaYaExiste {
         throw new UnsupportedOperationException("altaPropuesta no está disponible vía SOAP");
     }
 
@@ -240,21 +247,22 @@ public class SoapControladorAdapter implements IControlador {
     public ArrayList<String> getTituloPropuestas() {
         ArrayList<DTPropuesta> propuestas = getDTPropuestasWeb();
         return propuestas.stream()
-            .map(DTPropuesta::getTitulo)
-            .collect(Collectors.toCollection(ArrayList::new));
+                .map(DTPropuesta::getTitulo)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
     public ArrayList<String> getTituloPropuestasPorEstado(TipoEstado estado) {
         ArrayList<DTPropuesta> propuestas = getDTPropuestasWeb();
         return propuestas.stream()
-            .filter(p -> p.getEstadoActual() != null && p.getEstadoActual().equals(estado))
-            .map(DTPropuesta::getTitulo)
-            .collect(Collectors.toCollection(ArrayList::new));
+                .filter(p -> p.getEstadoActual() != null && p.getEstadoActual().equals(estado))
+                .map(DTPropuesta::getTitulo)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
-    public void altaColaboracion(float monto, LocalDate fecha, LocalTime hora, TipoRetorno tipoRetorno, String tituloPropuesta, String nickColaborador) throws ColaboracionYaExiste {
+    public void altaColaboracion(float monto, LocalDate fecha, LocalTime hora, TipoRetorno tipoRetorno,
+            String tituloPropuesta, String nickColaborador) throws ColaboracionYaExiste {
         throw new UnsupportedOperationException("altaColaboracion no está disponible vía SOAP");
     }
 
@@ -305,7 +313,9 @@ public class SoapControladorAdapter implements IControlador {
     }
 
     @Override
-    public void modificarPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, Float precioEntrada, Float montoNecesario, String imagen, String proponente, String categoria, String nuevoEstado) throws DatosIncorrectos {
+    public void modificarPropuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista,
+            Float precioEntrada, Float montoNecesario, String imagen, String proponente, String categoria,
+            String nuevoEstado) throws DatosIncorrectos {
         throw new UnsupportedOperationException("modificarPropuesta no está disponible vía SOAP");
     }
 
@@ -314,9 +324,9 @@ public class SoapControladorAdapter implements IControlador {
         ArrayList<DTPropuesta> todas = getDTPropuestasWeb();
         String textoLower = texto.toLowerCase();
         return todas.stream()
-            .filter(p -> p.getTitulo().toLowerCase().contains(textoLower) ||
+                .filter(p -> p.getTitulo().toLowerCase().contains(textoLower) ||
                         (p.getDescripcion() != null && p.getDescripcion().toLowerCase().contains(textoLower)))
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -340,8 +350,8 @@ public class SoapControladorAdapter implements IControlador {
             BuscarUsuariosRequest request = new BuscarUsuariosRequest();
             request.setNombre(nombre != null ? nombre : "");
             BuscarUsuariosResponse response = (BuscarUsuariosResponse) webServiceTemplate.marshalSendAndReceive(
-                getSoapServiceUrl() + "/usuarios", request);
-            
+                    getSoapServiceUrl() + "/usuarios", request);
+
             ArrayList<DTUsuario> result = new ArrayList<>();
             if (response != null && response.getUsuario() != null) {
                 for (UsuarioType ut : response.getUsuario()) {
@@ -380,8 +390,8 @@ public class SoapControladorAdapter implements IControlador {
         try {
             ListarUsuariosRequest request = new ListarUsuariosRequest();
             ListarUsuariosResponse response = (ListarUsuariosResponse) webServiceTemplate.marshalSendAndReceive(
-                getSoapServiceUrl() + "/usuarios", request);
-            
+                    getSoapServiceUrl() + "/usuarios", request);
+
             ArrayList<DTUsuario> result = new ArrayList<>();
             if (response != null && response.getUsuario() != null) {
                 for (UsuarioType ut : response.getUsuario()) {
@@ -411,32 +421,30 @@ public class SoapControladorAdapter implements IControlador {
                 // Si no se puede convertir, se deja null
             }
         }
-        
+
         LocalDate fechaPrevista = null;
         if (pt.getFechaPrevista() != null) {
             fechaPrevista = LocalDate.of(
-                pt.getFechaPrevista().getYear(),
-                pt.getFechaPrevista().getMonth(),
-                pt.getFechaPrevista().getDay()
-            );
+                    pt.getFechaPrevista().getYear(),
+                    pt.getFechaPrevista().getMonth(),
+                    pt.getFechaPrevista().getDay());
         }
-        
+
         float montoNecesario = pt.getMontoNecesario() != null ? pt.getMontoNecesario() : 0.0f;
         float montoRecaudado = pt.getMontoRecaudado() != null ? pt.getMontoRecaudado() : 0.0f;
         int cantColaboradores = pt.getCantColaboradores() != null ? pt.getCantColaboradores() : 0;
-        
+
         DTPropuesta dtp = new DTPropuesta(
-            pt.getTitulo(),
-            pt.getDescripcion() != null ? pt.getDescripcion() : "",
-            estado,
-            cantColaboradores,
-            montoRecaudado,
-            montoNecesario,
-            fechaPrevista,
-            pt.getImagen() != null ? pt.getImagen() : "",
-            pt.getCategoria() != null ? pt.getCategoria() : "",
-            pt.getProponente() != null ? pt.getProponente() : ""
-        );
+                pt.getTitulo(),
+                pt.getDescripcion() != null ? pt.getDescripcion() : "",
+                estado,
+                cantColaboradores,
+                montoRecaudado,
+                montoNecesario,
+                fechaPrevista,
+                pt.getImagen() != null ? pt.getImagen() : "",
+                pt.getCategoria() != null ? pt.getCategoria() : "",
+                pt.getProponente() != null ? pt.getProponente() : "");
         return dtp;
     }
 
@@ -457,10 +465,9 @@ public class SoapControladorAdapter implements IControlador {
         }
         if (ut.getFechaNacimiento() != null) {
             dtu.setFechaNacimiento(LocalDate.of(
-                ut.getFechaNacimiento().getYear(),
-                ut.getFechaNacimiento().getMonth(),
-                ut.getFechaNacimiento().getDay()
-            ));
+                    ut.getFechaNacimiento().getYear(),
+                    ut.getFechaNacimiento().getMonth(),
+                    ut.getFechaNacimiento().getDay()));
         }
         if (ut.getTipo() != null) {
             dtu.setTipo(ut.getTipo());
@@ -482,8 +489,8 @@ public class SoapControladorAdapter implements IControlador {
             EliminarProponenteRequest request = new EliminarProponenteRequest();
             request.setNickname(nick);
 
-            EliminarProponenteResponse response =
-                    (EliminarProponenteResponse) webServiceTemplate.marshalSendAndReceive(endpoint, request);
+            EliminarProponenteResponse response = (EliminarProponenteResponse) webServiceTemplate
+                    .marshalSendAndReceive(endpoint, request);
 
             if (response == null) {
                 throw new RuntimeException("Respuesta SOAP nula al eliminar proponente");
@@ -503,5 +510,14 @@ public class SoapControladorAdapter implements IControlador {
         return null;
     }
 
-}
+    @Override
+    public ArrayList<DTColaboracion> getColaboracionesSinPago(String nickColaborador) {
+        throw new UnsupportedOperationException("getColaboracionesSinPago no está disponible vía SOAP");
+    }
 
+    @Override
+    public void registrarPago(DTPago pago, String nickColaborador, String tituloPropuesta) throws Exception {
+        throw new UnsupportedOperationException("registrarPago no está disponible vía SOAP");
+    }
+
+}
