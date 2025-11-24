@@ -743,7 +743,17 @@
                                                                                     <c:if test="${esMiPropioPerfil}">
                                                                                         <c:if
                                                                                             test="${colaboracion.pagada}">
-                                                                                            <a href="${pageContext.request.contextPath}/colaboraciones/constancia-pago?nickColaborador=${colaborador.nickname}&tituloPropuesta=${colaboracion.propuesta.titulo}"
+                                                                                            <c:url
+                                                                                                value="/colaboraciones/constancia-pago"
+                                                                                                var="constanciaUrl">
+                                                                                                <c:param
+                                                                                                    name="nickColaborador"
+                                                                                                    value="${colaborador.nickname}" />
+                                                                                                <c:param
+                                                                                                    name="tituloPropuesta"
+                                                                                                    value="${colaboracion.propuesta.titulo}" />
+                                                                                            </c:url>
+                                                                                            <a href="${constanciaUrl}"
                                                                                                 class="btn btn-sm btn-outline-success"
                                                                                                 target="_blank">
                                                                                                 <i
@@ -758,7 +768,14 @@
                                                                                                 <span
                                                                                                     class="badge bg-warning text-dark">Pendiente
                                                                                                     de Pago</span>
-                                                                                                <a href="${pageContext.request.contextPath}/colaboraciones/pago/formulario?tituloPropuesta=${colaboracion.propuesta.titulo}"
+                                                                                                <c:url
+                                                                                                    value="/colaboraciones/pago/formulario"
+                                                                                                    var="pagoUrl">
+                                                                                                    <c:param
+                                                                                                        name="tituloPropuesta"
+                                                                                                        value="${colaboracion.propuesta.titulo}" />
+                                                                                                </c:url>
+                                                                                                <a href="${pagoUrl}"
                                                                                                     class="btn btn-sm btn-success">
                                                                                                     <i
                                                                                                         class="bi bi-credit-card"></i>

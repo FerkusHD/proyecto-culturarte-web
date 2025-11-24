@@ -88,7 +88,11 @@
                                 <p class="text-muted small mb-0">
                                     <i class="bi bi-calendar3 me-1"></i>
                                     Colaboración realizada el
-                                    <fmt:formatDate value="${colaboracion.fecha}" pattern="dd/MM/yyyy" />
+                                    <% com.culturarte.logica.datatypes.DTColaboracion
+                                        dtc=(com.culturarte.logica.datatypes.DTColaboracion)
+                                        request.getAttribute("colaboracion"); if (dtc !=null && dtc.getFecha() !=null) {
+                                        out.print(dtc.getFecha().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                                        } %>
                                 </p>
                             </div>
 

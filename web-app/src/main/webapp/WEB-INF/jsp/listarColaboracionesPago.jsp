@@ -112,10 +112,16 @@
                                                         <h5 class="mb-1">${colab.tituloPropuesta}</h5>
                                                         <p class="text-muted small mb-0">
                                                             <i class="bi bi-calendar3 me-1"></i>
-                                                            <fmt:formatDate value="${colab.fecha}"
-                                                                pattern="dd/MM/yyyy" /> -
-                                                            <i class="bi bi-clock ms-2 me-1"></i>
-                                                            <fmt:formatDate value="${colab.hora}" pattern="HH:mm" />
+                                                            <% com.culturarte.logica.datatypes.DTColaboracion
+                                                                dtc=(com.culturarte.logica.datatypes.DTColaboracion)
+                                                                pageContext.getAttribute("colab"); if (dtc !=null &&
+                                                                dtc.getFecha() !=null) {
+                                                                out.print(dtc.getFecha().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                                                                } %> -
+                                                                <i class="bi bi-clock ms-2 me-1"></i>
+                                                                <% if (dtc !=null && dtc.getHora() !=null) {
+                                                                    out.print(dtc.getHora().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")));
+                                                                    } %>
                                                         </p>
                                                     </div>
                                                 </div>
@@ -127,8 +133,11 @@
                                                         $
                                                         <fmt:formatNumber value="${colab.monto}" pattern="#,##0.00" />
                                                     </div>
-                                                    <a href="${pageContext.request.contextPath}/colaboraciones/pago/formulario?tituloPropuesta=${colab.tituloPropuesta}"
-                                                        class="btn btn-primary btn-pagar px-4">
+                                                    <c:url value="/colaboraciones/pago/formulario" var="pagoUrl">
+                                                        <c:param name="tituloPropuesta"
+                                                            value="${colab.tituloPropuesta}" />
+                                                    </c:url>
+                                                    <a href="${pagoUrl}" class="btn btn-primary btn-pagar px-4">
                                                         <i class="bi bi-credit-card me-2"></i>Pagar Ahora
                                                     </a>
                                                 </div>

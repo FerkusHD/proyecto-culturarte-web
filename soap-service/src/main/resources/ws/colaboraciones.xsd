@@ -109,4 +109,24 @@
         </xs:sequence>
     </xs:complexType>
 
+    <!-- Alta colaboración -->
+    <xs:element name="altaColaboracionRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="tituloPropuesta" type="xs:string"/>
+                <xs:element name="nickColaborador" type="xs:string"/>
+                <xs:element name="monto" type="xs:float"/>
+                <xs:element name="tipoRetorno" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="altaColaboracionResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exito" type="xs:boolean"/>
+                <xs:element name="mensaje" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
 </xs:schema>

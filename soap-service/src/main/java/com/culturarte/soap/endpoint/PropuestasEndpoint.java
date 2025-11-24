@@ -1,9 +1,7 @@
 package com.culturarte.soap.endpoint;
 
-import com.culturarte.exepciones.ColaboracionYaExiste;
 import com.culturarte.exepciones.PropuestaYaExiste;
 import com.culturarte.logica.IControlador;
-import com.culturarte.logica.datatypes.DTColaboracion;
 import com.culturarte.logica.datatypes.DTPropuesta;
 import com.culturarte.logica.enums.TipoEstado;
 import com.culturarte.logica.enums.TipoRetorno;
@@ -11,8 +9,6 @@ import com.culturarte.soap.gen.AgregarComentarioRequest;
 import com.culturarte.soap.gen.AgregarComentarioResponse;
 import com.culturarte.soap.gen.AgregarFavoritaRequest;
 import com.culturarte.soap.gen.AgregarFavoritaResponse;
-import com.culturarte.soap.gen.AltaColaboracionRequest;
-import com.culturarte.soap.gen.AltaColaboracionResponse;
 import com.culturarte.soap.gen.AltaPropuestaRequest;
 import com.culturarte.soap.gen.AltaPropuestaResponse;
 import com.culturarte.soap.gen.CancelarPropuestaRequest;
@@ -144,39 +140,6 @@ public class PropuestasEndpoint {
         } catch (Exception e) {
             response.setExito(false);
             response.setMensaje("Error al registrar la propuesta: " + e.getMessage());
-        }
-        return response;
-    }
-
-    // ------------------ ALTA DE COLABORACIÓN -------------------
-    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "altaColaboracionRequest")
-    @ResponsePayload
-    public AltaColaboracionResponse altaColaboracion(@RequestPayload AltaColaboracionRequest request) {
-        AltaColaboracionResponse response = new AltaColaboracionResponse();
-        try {
-            DTColaboracion existe = ctrl.getDTColaboracionPropuesta(request.getNickColaborador(),
-                    request.getTituloPropuesta());
-            if (existe != null) {
-                response.setExito(false);
-                response.setMensaje("Ya existe una colaboración para este usuario y propuesta");
-                return response;
-            }
-
-            ctrl.altaColaboracion(
-                    request.getMonto(),
-                    LocalDate.now(),
-                    LocalTime.now(),
-                    TipoRetorno.valueOf(request.getTipoRetorno().toUpperCase()),
-                    request.getTituloPropuesta(),
-                    request.getNickColaborador());
-            response.setExito(true);
-            response.setMensaje("Colaboración registrada correctamente");
-        } catch (ColaboracionYaExiste e) {
-            response.setExito(false);
-            response.setMensaje("Colaboración ya existe");
-        } catch (Exception e) {
-            response.setExito(false);
-            response.setMensaje("Error al registrar colaboración: " + e.getMessage());
         }
         return response;
     }

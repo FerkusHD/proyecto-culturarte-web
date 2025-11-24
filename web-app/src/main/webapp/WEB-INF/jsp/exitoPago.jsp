@@ -109,7 +109,12 @@
                                 <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
                                     <span class="text-muted">Fecha de Pago</span>
                                     <span class="fw-semibold">
-                                        <fmt:formatDate value="${pago.fechaPago}" pattern="dd/MM/yyyy" />
+                                        <% com.culturarte.logica.datatypes.DTPago
+                                            dtPago=(com.culturarte.logica.datatypes.DTPago)
+                                            request.getAttribute("pago"); if (dtPago !=null && dtPago.getFechaPago()
+                                            !=null) {
+                                            out.print(dtPago.getFechaPago().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                                            } %>
                                     </span>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center py-2 border-bottom">

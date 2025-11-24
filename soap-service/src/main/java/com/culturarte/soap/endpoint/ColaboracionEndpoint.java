@@ -99,6 +99,38 @@ public class ColaboracionEndpoint {
         return response;
     }
 
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "altaColaboracionRequest")
+    @ResponsePayload
+    public AltaColaboracionResponse altaColaboracion(@RequestPayload AltaColaboracionRequest request) {
+        AltaColaboracionResponse response = new AltaColaboracionResponse();
+        try {
+            DTColaboracion existe = ctrl.getDTColaboracionPropuesta(request.getNickColaborador(),
+                    request.getTituloPropuesta());
+            if (existe != null) {
+                response.setExito(false);
+                response.setMensaje("Ya existe una colaboración para este usuario y propuesta");
+                return response;
+            }
+
+            ctrl.altaColaboracion(
+                    request.getMonto(),
+                    LocalDate.now(),
+                    LocalTime.now(),
+                    com.culturarte.logica.enums.TipoRetorno.valueOf(request.getTipoRetorno().toUpperCase()),
+                    request.getTituloPropuesta(),
+                    request.getNickColaborador());
+            response.setExito(true);
+            response.setMensaje("Colaboración registrada correctamente");
+        } catch (com.culturarte.exepciones.ColaboracionYaExiste e) {
+            response.setExito(false);
+            response.setMensaje("Colaboración ya existe");
+        } catch (Exception e) {
+            response.setExito(false);
+            response.setMensaje("Error al registrar colaboración: " + e.getMessage());
+        }
+        return response;
+    }
+
     protected ColaboracionType mapColaboracion(com.culturarte.logica.datatypes.DTColaboracion source) {
         ColaboracionType dto = new ColaboracionType();
         dto.setNickColaborador(source.getNickColaborador());

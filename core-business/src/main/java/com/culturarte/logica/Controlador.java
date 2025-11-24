@@ -426,26 +426,39 @@ public class Controlador implements IControlador {
     public void altaColaboracion(float monto, LocalDate fecha, LocalTime hora, TipoRetorno tipoRetorno,
             String tituloPropuesta, String nickColaborador) {
 
+        System.out.println("DEBUG altaColaboracion: Iniciando para " + nickColaborador + " en " + tituloPropuesta);
+
         // 🔑 Cargar propuesta con sus colaboraciones
         Propuesta p = mp.getPropuesta(tituloPropuesta);
-        if (p == null)
+        if (p == null) {
+            System.out.println("DEBUG altaColaboracion: Propuesta no encontrada: " + tituloPropuesta);
             throw new IllegalArgumentException("No existe la propuesta: " + tituloPropuesta);
+        }
+        System.out.println("DEBUG altaColaboracion: Propuesta encontrada: " + p.getTitulo());
 
         // 🔑 Cargar colaborador con sus colaboraciones
         Colaborador c = (Colaborador) mu.buscarUsuario(nickColaborador);
-        if (c == null)
+        if (c == null) {
+            System.out.println("DEBUG altaColaboracion: Colaborador no encontrado: " + nickColaborador);
             throw new IllegalArgumentException("No existe el colaborador: " + nickColaborador);
+        }
+        System.out.println("DEBUG altaColaboracion: Colaborador encontrado: " + c.getNickname());
+
         if (p.getEstadoActual().getEstado() == TipoEstado.PUBLICADA
                 || p.getEstadoActual().getEstado() == TipoEstado.ENFINANCIACION) {
             // Crear la colaboración
+            System.out.println("DEBUG altaColaboracion: Creando nueva colaboración...");
             Colaboracion colab = new Colaboracion(monto, fecha, hora, tipoRetorno, p, c);
+            System.out.println("DEBUG altaColaboracion: Colaboración creada. tienePago=" + colab.tienePago());
 
             // Asociar bidireccionalmente
             p.addColaboracion(colab);
             c.addColaboracion(colab);
 
             // Persistir colaboración
+            System.out.println("DEBUG altaColaboracion: Persistiendo colaboración...");
             mcol.agregarColaboracion(colab);
+            System.out.println("DEBUG altaColaboracion: Colaboración persistida con ID=" + colab.getId());
 
             if (p.getEstadoActual().getEstado() == TipoEstado.PUBLICADA) {
                 nuevoEstadoPropuesta(p.getTitulo(), TipoEstado.ENFINANCIACION, fecha, hora);
@@ -453,7 +466,10 @@ public class Controlador implements IControlador {
             if (p.getMontoRecaudado() >= p.getMontoNecesario()) {
                 nuevoEstadoPropuesta(p.getTitulo(), TipoEstado.FINANCIADA, fecha, hora);
             }
+            System.out.println("DEBUG altaColaboracion: Colaboración completada exitosamente");
         } else {
+            System.out.println(
+                    "DEBUG altaColaboracion: Estado no permite colaboraciones: " + p.getEstadoActual().getEstado());
             throw new IllegalArgumentException(
                     "El estado de esta propuesta no permite colaboraciones: " + p.getEstadoActual().getEstado());
         }
@@ -649,9 +665,9 @@ public class Controlador implements IControlador {
                     colab.getPropuesta().getTitulo(),
                     colab.getFechaAporte(), colab.getHoraAporte(), colab.getMonto(), colab.getTipoRetorno());
             dtColab.setPagada(colab.tienePago());
+            dtColab.setPropuesta(new DTPropuesta(colab.getPropuesta()));
             ret.add(dtColab);
         }
-
         return ret;
     }
 
@@ -872,20 +888,46 @@ public class Controlador implements IControlador {
         }
 
         Colaboracion colaboracion = null;
+        System.out.println("DEBUG: Buscando colaboración para " + nickColaborador + " en propuesta " + tituloPropuesta);
+        if (colaborador.getColaboraciones() != null) {
+            for (Colaboracion c : colaborador.getColaboraciones()) {
+                System.out.println("DEBUG: Encontrada colab id=" + c.getId() + " propuesta="
+                        + c.getPropuesta().getTitulo() + " tienePago=" + c.tienePago());
+            }
+        } else {
+            System.out.println("DEBUG: El colaborador no tiene colaboraciones cargadas.");
+        }
+
+        // Primera pasada: buscar colaboración sin pago
         for (Colaboracion colab : colaborador.getColaboraciones()) {
-            if (colab.getPropuesta().getTitulo().equals(tituloPropuesta)) {
+            if (colab.getPropuesta().getTitulo().equals(tituloPropuesta) && !colab.tienePago()) {
                 colaboracion = colab;
                 break;
             }
         }
 
+        // Segunda pasada: si no se encontró sin pago, buscar cualquiera (para reportar
+        // el error correcto)
         if (colaboracion == null) {
+            for (Colaboracion colab : colaborador.getColaboraciones()) {
+                if (colab.getPropuesta().getTitulo().equals(tituloPropuesta)) {
+                    colaboracion = colab;
+                    break;
+                }
+            }
+        }
+
+        if (colaboracion == null) {
+            System.out.println(
+                    "DEBUG: No se encontró ninguna colaboración para " + nickColaborador + " en " + tituloPropuesta);
             throw new Exception("No existe colaboración del usuario " + nickColaborador +
                     " para la propuesta " + tituloPropuesta);
         }
 
         if (colaboracion.tienePago()) {
-            throw new Exception("Esta colaboración ya tiene un pago registrado");
+            System.out.println("DEBUG: La colaboración id=" + colaboracion.getId() + " ya tiene pago");
+            throw new Exception(
+                    "Esta colaboración ya fue pagada. Por favor, recargue la página para ver el estado actualizado.");
         }
 
         Pago pago = new Pago(
