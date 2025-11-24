@@ -14,7 +14,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import com.culturarte.soap.gen.UsuarioType;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.xml.datatype.DatatypeFactory;
 
@@ -53,6 +52,7 @@ public class UsuarioController {
             @RequestParam(required = false) MultipartFile imagenFile,
             @RequestParam(required = false) String direccion,
             @RequestParam(required = false) String biografia,
+            HttpServletRequest request,
             @RequestParam(required = false) String web,
             Model model,
             HttpSession session) {
@@ -94,6 +94,15 @@ public class UsuarioController {
             // Obtener usuario recién creado y guardarlo en sesión
             logger.debug("Obteniendo usuario recién creado: {}", nickname);
             DTUsuario usuario = convertirDT(usuariosSoapClient.getUsuario(nickname));
+
+    String userAgent = request.getHeader("User-Agent");
+    boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
+
+    if (esMovil && !usuario.getTipo().equalsIgnoreCase("colaborador")) {
+        model.addAttribute("mensaje", "⚠️ Solo los colaboradores pueden iniciar sesión desde un dispositivo móvil.");
+        
+        return "login";
+    }
             session.setAttribute("usuarioLogueado", usuario);
             logger.info("Usuario creado exitosamente: {} (rol: {})", nickname, rol);
             logger.debug("=== FIN altaUsuario (exitoso) ===");
