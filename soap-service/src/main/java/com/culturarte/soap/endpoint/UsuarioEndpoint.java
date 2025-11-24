@@ -4,6 +4,7 @@ import com.culturarte.exepciones.*;
 import com.culturarte.logica.IControlador;
 import com.culturarte.logica.datatypes.*;
 import com.culturarte.soap.gen.*;
+import org.springframework.stereotype.Component;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
@@ -11,6 +12,7 @@ import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
 import java.util.List;
 
+@Component
 @Endpoint
 public class UsuarioEndpoint {
 
@@ -20,7 +22,8 @@ public class UsuarioEndpoint {
     private final PropuestasEndpoint propuestasEndpoint;
     private final ColaboracionEndpoint colaboracionEndpoint;
 
-    public UsuarioEndpoint(IControlador ctrl, PropuestasEndpoint propuestasEndpoint, ColaboracionEndpoint colaboracionEndpoint) {
+    public UsuarioEndpoint(IControlador ctrl, PropuestasEndpoint propuestasEndpoint,
+            ColaboracionEndpoint colaboracionEndpoint) {
         this.ctrl = ctrl;
         this.propuestasEndpoint = propuestasEndpoint;
         this.colaboracionEndpoint = colaboracionEndpoint;
@@ -49,7 +52,9 @@ public class UsuarioEndpoint {
 
             if (dc.getFechaNacimiento() != null) {
                 javax.xml.datatype.XMLGregorianCalendar xgc = javax.xml.datatype.DatatypeFactory.newInstance()
-                        .newXMLGregorianCalendarDate(dc.getFechaNacimiento().getYear(), dc.getFechaNacimiento().getMonthValue(), dc.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
+                        .newXMLGregorianCalendarDate(dc.getFechaNacimiento().getYear(),
+                                dc.getFechaNacimiento().getMonthValue(), dc.getFechaNacimiento().getDayOfMonth(),
+                                javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
                 cdt.setFechaNacimiento(xgc);
             }
 
@@ -70,7 +75,6 @@ public class UsuarioEndpoint {
 
         return resp;
     }
-
 
     @PayloadRoot(namespace = NAMESPACE, localPart = "getProponenteRequest")
     @ResponsePayload
@@ -98,7 +102,9 @@ public class UsuarioEndpoint {
 
             if (dt.getFechaNacimiento() != null) {
                 javax.xml.datatype.XMLGregorianCalendar xgc = javax.xml.datatype.DatatypeFactory.newInstance()
-                        .newXMLGregorianCalendarDate(dt.getFechaNacimiento().getYear(), dt.getFechaNacimiento().getMonthValue(), dt.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
+                        .newXMLGregorianCalendarDate(dt.getFechaNacimiento().getYear(),
+                                dt.getFechaNacimiento().getMonthValue(), dt.getFechaNacimiento().getDayOfMonth(),
+                                javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
                 cdt.setFechaNacimiento(xgc);
             }
 
@@ -132,10 +138,12 @@ public class UsuarioEndpoint {
             ut.setTipo(du.getTipo());
             if (du.getFechaNacimiento() != null) {
                 javax.xml.datatype.XMLGregorianCalendar xgc = javax.xml.datatype.DatatypeFactory.newInstance()
-                        .newXMLGregorianCalendarDate(du.getFechaNacimiento().getYear(), du.getFechaNacimiento().getMonthValue(), du.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
+                        .newXMLGregorianCalendarDate(du.getFechaNacimiento().getYear(),
+                                du.getFechaNacimiento().getMonthValue(), du.getFechaNacimiento().getDayOfMonth(),
+                                javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
                 ut.setFechaNacimiento(xgc);
             }
-            
+
             // Si es proponente, obtener campos adicionales
             if ("proponente".equals(du.getTipo())) {
                 try {
@@ -170,7 +178,6 @@ public class UsuarioEndpoint {
                 ut.getPropuestasSeguidas().add(propuestasEndpoint.mapToSoapPropuesta(prop));
             }
 
-
             resp.setUsuario(ut);
         }
         return resp;
@@ -181,10 +188,33 @@ public class UsuarioEndpoint {
     public AgregarColaboradorResponse agregarColaborador(@RequestPayload AgregarColaboradorRequest request) {
         AgregarColaboradorResponse resp = new AgregarColaboradorResponse();
         try {
+            String imagenPath = request.getImagen();
+            if (request.getImagenBase64() != null && !request.getImagenBase64().isEmpty()) {
+                try {
+                    byte[] imagenBytes = java.util.Base64.getDecoder().decode(request.getImagenBase64());
+                    String userHome = System.getProperty("user.home");
+                    java.nio.file.Path uploadDir = java.nio.file.Paths.get(userHome, ".Culturarte", "uploads",
+                            "imagenes");
+
+                    if (!java.nio.file.Files.exists(uploadDir)) {
+                        java.nio.file.Files.createDirectories(uploadDir);
+                    }
+
+                    String fileName = request.getNickname().replaceAll("[^a-zA-Z0-9]", "_") + "_"
+                            + System.currentTimeMillis() + ".jpg";
+                    java.nio.file.Path filePath = uploadDir.resolve(fileName);
+                    java.nio.file.Files.write(filePath, imagenBytes);
+
+                    imagenPath = "uploads/imagenes/" + fileName;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
             ctrl.altaColaborador(request.getNickname(), request.getPassword(), request.getNombre(),
                     request.getApellido(), request.getEmail(),
                     request.getFechaNacimiento().toGregorianCalendar().toZonedDateTime().toLocalDate(),
-                    request.getImagen());
+                    imagenPath);
             resp.setExito(true);
             resp.setMensaje("Colaborador agregado exitosamente");
         } catch (UsuarioYaExiste | EmailYaExiste e) {
@@ -202,10 +232,33 @@ public class UsuarioEndpoint {
     public AgregarProponenteResponse agregarProponente(@RequestPayload AgregarProponenteRequest request) {
         AgregarProponenteResponse resp = new AgregarProponenteResponse();
         try {
+            String imagenPath = request.getImagen();
+            if (request.getImagenBase64() != null && !request.getImagenBase64().isEmpty()) {
+                try {
+                    byte[] imagenBytes = java.util.Base64.getDecoder().decode(request.getImagenBase64());
+                    String userHome = System.getProperty("user.home");
+                    java.nio.file.Path uploadDir = java.nio.file.Paths.get(userHome, ".Culturarte", "uploads",
+                            "imagenes");
+
+                    if (!java.nio.file.Files.exists(uploadDir)) {
+                        java.nio.file.Files.createDirectories(uploadDir);
+                    }
+
+                    String fileName = request.getNickname().replaceAll("[^a-zA-Z0-9]", "_") + "_"
+                            + System.currentTimeMillis() + ".jpg";
+                    java.nio.file.Path filePath = uploadDir.resolve(fileName);
+                    java.nio.file.Files.write(filePath, imagenBytes);
+
+                    imagenPath = "uploads/imagenes/" + fileName;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
             ctrl.altaProponente(request.getNickname(), request.getPassword(), request.getNombre(),
                     request.getApellido(), request.getEmail(),
                     request.getFechaNacimiento().toGregorianCalendar().toZonedDateTime().toLocalDate(),
-                    request.getImagen(), request.getDireccion(), request.getLinkWeb(), request.getBibliografia());
+                    imagenPath, request.getDireccion(), request.getLinkWeb(), request.getBibliografia());
             resp.setExito(true);
             resp.setMensaje("Proponente agregado exitosamente");
         } catch (UsuarioYaExiste | EmailYaExiste e) {
@@ -256,7 +309,8 @@ public class UsuarioEndpoint {
 
     @PayloadRoot(namespace = NAMESPACE, localPart = "agregarPropuestaFavoritaRequest")
     @ResponsePayload
-    public AgregarPropuestaFavoritaResponse agregarPropuestaFavorita(@RequestPayload AgregarPropuestaFavoritaRequest request) {
+    public AgregarPropuestaFavoritaResponse agregarPropuestaFavorita(
+            @RequestPayload AgregarPropuestaFavoritaRequest request) {
         AgregarPropuestaFavoritaResponse resp = new AgregarPropuestaFavoritaResponse();
         try {
             ctrl.agregarPropuestaFavorita(request.getNickname(), request.getTituloPropuesta());
@@ -271,7 +325,8 @@ public class UsuarioEndpoint {
 
     @PayloadRoot(namespace = NAMESPACE, localPart = "sacarPropuestaFavoritaRequest")
     @ResponsePayload
-    public SacarPropuestaFavoritaResponse sacarPropuestaFavorita(@RequestPayload SacarPropuestaFavoritaRequest request) {
+    public SacarPropuestaFavoritaResponse sacarPropuestaFavorita(
+            @RequestPayload SacarPropuestaFavoritaRequest request) {
         SacarPropuestaFavoritaResponse resp = new SacarPropuestaFavoritaResponse();
         try {
             ctrl.sacarPropuestaFavorita(request.getNickname(), request.getTituloPropuesta());
@@ -288,12 +343,11 @@ public class UsuarioEndpoint {
     @ResponsePayload
     public com.culturarte.soap.gen.VerificarNicknameResponse verificarNickname(
             @RequestPayload com.culturarte.soap.gen.VerificarNicknameRequest request) {
-        
-        com.culturarte.soap.gen.VerificarNicknameResponse response = 
-            new com.culturarte.soap.gen.VerificarNicknameResponse();
-        
+
+        com.culturarte.soap.gen.VerificarNicknameResponse response = new com.culturarte.soap.gen.VerificarNicknameResponse();
+
         String nickname = request.getNickname();
-        
+
         if (nickname == null || nickname.trim().isEmpty()) {
             response.setDisponible(false);
             response.setMensaje("El nickname no puede estar vacío");
@@ -313,7 +367,7 @@ public class UsuarioEndpoint {
             response.setDisponible(false);
             response.setMensaje("Error al verificar disponibilidad");
         }
-        
+
         return response;
     }
 
@@ -322,8 +376,7 @@ public class UsuarioEndpoint {
     public com.culturarte.soap.gen.VerificarEmailResponse verificarEmail(
             @RequestPayload com.culturarte.soap.gen.VerificarEmailRequest request) {
 
-        com.culturarte.soap.gen.VerificarEmailResponse response =
-                new com.culturarte.soap.gen.VerificarEmailResponse();
+        com.culturarte.soap.gen.VerificarEmailResponse response = new com.culturarte.soap.gen.VerificarEmailResponse();
 
         String email = request.getEmail();
 
@@ -369,7 +422,6 @@ public class UsuarioEndpoint {
         return response;
     }
 
-
     @PayloadRoot(namespace = NAMESPACE, localPart = "listarUsuariosRequest")
     @ResponsePayload
     public ListarUsuariosResponse listarUsuarios(@RequestPayload ListarUsuariosRequest request) throws Exception {
@@ -386,7 +438,9 @@ public class UsuarioEndpoint {
             ut.setImagen(du.getImagen());
             if (du.getFechaNacimiento() != null) {
                 javax.xml.datatype.XMLGregorianCalendar xgc = javax.xml.datatype.DatatypeFactory.newInstance()
-                        .newXMLGregorianCalendarDate(du.getFechaNacimiento().getYear(), du.getFechaNacimiento().getMonthValue(), du.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
+                        .newXMLGregorianCalendarDate(du.getFechaNacimiento().getYear(),
+                                du.getFechaNacimiento().getMonthValue(), du.getFechaNacimiento().getDayOfMonth(),
+                                javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
                 ut.setFechaNacimiento(xgc);
             }
             ut.setTipo(du.getTipo());
@@ -436,7 +490,9 @@ public class UsuarioEndpoint {
             ut.setImagen(du.getImagen());
             if (du.getFechaNacimiento() != null) {
                 javax.xml.datatype.XMLGregorianCalendar xgc = javax.xml.datatype.DatatypeFactory.newInstance()
-                        .newXMLGregorianCalendarDate(du.getFechaNacimiento().getYear(), du.getFechaNacimiento().getMonthValue(), du.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
+                        .newXMLGregorianCalendarDate(du.getFechaNacimiento().getYear(),
+                                du.getFechaNacimiento().getMonthValue(), du.getFechaNacimiento().getDayOfMonth(),
+                                javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
                 ut.setFechaNacimiento(xgc);
             }
             ut.setTipo(du.getTipo());
@@ -461,7 +517,6 @@ public class UsuarioEndpoint {
         return resp;
     }
 
-
     @PayloadRoot(namespace = NAMESPACE, localPart = "eliminarProponenteRequest")
     @ResponsePayload
     public EliminarProponenteResponse eliminarProponente(
@@ -483,9 +538,11 @@ public class UsuarioEndpoint {
 
         return resp;
     }
+
     @PayloadRoot(namespace = NAMESPACE, localPart = "listarUsuariosPorSeguidoresRequest")
     @ResponsePayload
-    public ListarUsuariosPorSeguidoresResponse listarUsuarios(@RequestPayload ListarUsuariosPorSeguidoresRequest request) throws Exception {
+    public ListarUsuariosPorSeguidoresResponse listarUsuarios(
+            @RequestPayload ListarUsuariosPorSeguidoresRequest request) throws Exception {
         ListarUsuariosPorSeguidoresResponse resp = new ListarUsuariosPorSeguidoresResponse();
         ObjectFactory of = new ObjectFactory();
 
@@ -499,7 +556,9 @@ public class UsuarioEndpoint {
             ut.setImagen(du.getImagen());
             if (du.getFechaNacimiento() != null) {
                 javax.xml.datatype.XMLGregorianCalendar xgc = javax.xml.datatype.DatatypeFactory.newInstance()
-                        .newXMLGregorianCalendarDate(du.getFechaNacimiento().getYear(), du.getFechaNacimiento().getMonthValue(), du.getFechaNacimiento().getDayOfMonth(), javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
+                        .newXMLGregorianCalendarDate(du.getFechaNacimiento().getYear(),
+                                du.getFechaNacimiento().getMonthValue(), du.getFechaNacimiento().getDayOfMonth(),
+                                javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED);
                 ut.setFechaNacimiento(xgc);
             }
             ut.setTipo(du.getTipo());
@@ -518,4 +577,3 @@ public class UsuarioEndpoint {
     }
 
 }
-

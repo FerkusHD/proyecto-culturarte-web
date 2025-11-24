@@ -36,9 +36,7 @@ public class UsuarioSoapClient {
     }
 
     private String getSoapServiceUrl() {
-        if (soapServiceUrl != null && !soapServiceUrl.isEmpty() && !soapServiceUrl.startsWith("${")) {
-            return soapServiceUrl;
-        }
+        // Siempre construir la URL con el endpoint /usuarios
         return String.format("http://%s:%s%s/usuarios", soapServiceHost, soapServicePort, soapServiceContextPath);
     }
 
@@ -47,7 +45,8 @@ public class UsuarioSoapClient {
         try {
             GetUsuarioRequest request = new GetUsuarioRequest();
             request.setNickname(nickname);
-            GetUsuarioResponse response = (GetUsuarioResponse) webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), request);
+            GetUsuarioResponse response = (GetUsuarioResponse) webServiceTemplate
+                    .marshalSendAndReceive(getSoapServiceUrl(), request);
             if (response != null && response.getUsuario() != null) {
                 logger.debug("Usuario obtenido exitosamente: {}", nickname);
             } else {
@@ -61,8 +60,8 @@ public class UsuarioSoapClient {
     }
 
     public void agregarProponente(String nickname, String password, String nombre, String apellido, String email,
-                                  XMLGregorianCalendar fechaNacimiento, String imagen, String direccion,
-                                  String linkWeb, String bibliografia) {
+            XMLGregorianCalendar fechaNacimiento, String imagen, String direccion,
+            String linkWeb, String bibliografia) {
         AgregarProponenteRequest request = new AgregarProponenteRequest();
         request.setNickname(nickname);
         request.setPassword(password);
@@ -70,7 +69,15 @@ public class UsuarioSoapClient {
         request.setApellido(apellido);
         request.setEmail(email);
         request.setFechaNacimiento(fechaNacimiento);
-        request.setImagen(imagen);
+        // Si imagen es base64, la ponemos en imagenBase64, si no, en imagen
+        // Si imagen es base64, la ponemos en imagenBase64, si no, en imagen
+        if (imagen != null && (imagen.length() > 200 || (!imagen.startsWith("uploads/") && !imagen.startsWith("/")))) {
+            request.setImagenBase64(imagen);
+            request.setImagen(null);
+        } else {
+            request.setImagen(imagen);
+            request.setImagenBase64(null);
+        }
         request.setDireccion(direccion);
         request.setLinkWeb(linkWeb);
         request.setBibliografia(bibliografia);
@@ -78,7 +85,7 @@ public class UsuarioSoapClient {
     }
 
     public void agregarColaborador(String nickname, String password, String nombre, String apellido, String email,
-                                   XMLGregorianCalendar fechaNacimiento, String imagen) {
+            XMLGregorianCalendar fechaNacimiento, String imagen) {
         AgregarColaboradorRequest request = new AgregarColaboradorRequest();
         request.setNickname(nickname);
         request.setPassword(password);
@@ -86,7 +93,15 @@ public class UsuarioSoapClient {
         request.setApellido(apellido);
         request.setEmail(email);
         request.setFechaNacimiento(fechaNacimiento);
-        request.setImagen(imagen);
+        // Si imagen es base64, la ponemos en imagenBase64, si no, en imagen
+        // Si imagen es base64, la ponemos en imagenBase64, si no, en imagen
+        if (imagen != null && (imagen.length() > 200 || (!imagen.startsWith("uploads/") && !imagen.startsWith("/")))) {
+            request.setImagenBase64(imagen);
+            request.setImagen(null);
+        } else {
+            request.setImagen(imagen);
+            request.setImagenBase64(null);
+        }
         webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), request);
     }
 
@@ -96,7 +111,8 @@ public class UsuarioSoapClient {
             VerificarPasswordRequest req = new VerificarPasswordRequest();
             req.setNickname(nickname);
             req.setPassword(password);
-            VerificarPasswordResponse response = (VerificarPasswordResponse) webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
+            VerificarPasswordResponse response = (VerificarPasswordResponse) webServiceTemplate
+                    .marshalSendAndReceive(getSoapServiceUrl(), req);
             if (response != null) {
                 logger.debug("Verificación de password completada: exito={}", response.isExito());
             }
@@ -141,8 +157,8 @@ public class UsuarioSoapClient {
     public List<UsuarioType> listarUsuarios() {
         try {
             ListarUsuariosRequest req = new ListarUsuariosRequest();
-            ListarUsuariosResponse response = (ListarUsuariosResponse)
-                    webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
+            ListarUsuariosResponse response = (ListarUsuariosResponse) webServiceTemplate
+                    .marshalSendAndReceive(getSoapServiceUrl(), req);
             if (response == null || response.getUsuario() == null) {
                 return Collections.emptyList();
             }
@@ -157,8 +173,8 @@ public class UsuarioSoapClient {
         try {
             BuscarUsuariosRequest req = new BuscarUsuariosRequest();
             req.setNombre(nombre);
-            BuscarUsuariosResponse response = (BuscarUsuariosResponse)
-                    webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
+            BuscarUsuariosResponse response = (BuscarUsuariosResponse) webServiceTemplate
+                    .marshalSendAndReceive(getSoapServiceUrl(), req);
             if (response == null || response.getUsuario() == null) {
                 return Collections.emptyList();
             }
@@ -202,7 +218,8 @@ public class UsuarioSoapClient {
         try {
             GetColaboradorRequest request = new GetColaboradorRequest();
             request.setNickname(nick);
-            GetColaboradorResponse response = (GetColaboradorResponse) webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), request);
+            GetColaboradorResponse response = (GetColaboradorResponse) webServiceTemplate
+                    .marshalSendAndReceive(getSoapServiceUrl(), request);
             if (response != null && response.getColaborador() != null) {
                 logger.debug("colaborador obtenido exitosamente: {}", nick);
             } else {
@@ -220,7 +237,8 @@ public class UsuarioSoapClient {
         try {
             GetProponenteRequest request = new GetProponenteRequest();
             request.setNickname(nick);
-            GetProponenteResponse response = (GetProponenteResponse) webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), request);
+            GetProponenteResponse response = (GetProponenteResponse) webServiceTemplate
+                    .marshalSendAndReceive(getSoapServiceUrl(), request);
             if (response != null && response.getProponente() != null) {
                 logger.debug("proponente obtenido exitosamente: {}", nick);
             } else {
@@ -246,10 +264,8 @@ public class UsuarioSoapClient {
             EliminarProponenteRequest req = new EliminarProponenteRequest();
             req.setNickname(nickname);
 
-            EliminarProponenteResponse resp =
-                    (EliminarProponenteResponse) webServiceTemplate.marshalSendAndReceive(
-                            getSoapServiceUrl(), req
-                    );
+            EliminarProponenteResponse resp = (EliminarProponenteResponse) webServiceTemplate.marshalSendAndReceive(
+                    getSoapServiceUrl(), req);
 
             return resp;
 
@@ -266,8 +282,8 @@ public class UsuarioSoapClient {
     public List<UsuarioType> getUsuariosPorSeguidores() {
         try {
             ListarUsuariosPorSeguidoresRequest req = new ListarUsuariosPorSeguidoresRequest();
-            ListarUsuariosPorSeguidoresResponse response = (ListarUsuariosPorSeguidoresResponse)
-                    webServiceTemplate.marshalSendAndReceive(getSoapServiceUrl(), req);
+            ListarUsuariosPorSeguidoresResponse response = (ListarUsuariosPorSeguidoresResponse) webServiceTemplate
+                    .marshalSendAndReceive(getSoapServiceUrl(), req);
             if (response == null || response.getUsuario() == null) {
                 return Collections.emptyList();
             }
@@ -277,10 +293,5 @@ public class UsuarioSoapClient {
             return Collections.emptyList();
         }
     }
-
-
-
-
-
 
 }

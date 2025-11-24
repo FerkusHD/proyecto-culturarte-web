@@ -5,6 +5,7 @@ import java.util.Enumeration;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import org.springframework.stereotype.Component;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
@@ -16,6 +17,7 @@ import com.culturarte.soap.gen.GetCategoriasRequest;
 import com.culturarte.soap.gen.GetCategoriasResponse;
 import com.culturarte.soap.gen.ObjectFactory;
 
+@Component
 @Endpoint
 public class CategoriasEndpoint {
 

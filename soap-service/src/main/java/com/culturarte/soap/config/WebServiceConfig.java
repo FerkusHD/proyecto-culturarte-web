@@ -16,7 +16,8 @@ import org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition;
 public class WebServiceConfig {
 
     @Bean
-    public ServletRegistrationBean<MessageDispatcherServlet> messageDispatcherServlet(ApplicationContext applicationContext) {
+    public ServletRegistrationBean<MessageDispatcherServlet> messageDispatcherServlet(
+            ApplicationContext applicationContext) {
         MessageDispatcherServlet servlet = new MessageDispatcherServlet();
         servlet.setApplicationContext(applicationContext);
         servlet.setTransformWsdlLocations(true);
@@ -84,6 +85,22 @@ public class WebServiceConfig {
         definition.setLocationUri("/ws/core");
         definition.setTargetNamespace("http://culturarte.com/soap");
         definition.setSchema(culturarteSchema);
+        return definition;
+    }
+
+    // ==================== COLABORACIONES ====================
+    @Bean
+    public XsdSchema colaboracionesSchema() {
+        return new SimpleXsdSchema(new ClassPathResource("ws/colaboraciones.xsd"));
+    }
+
+    @Bean(name = "colaboraciones")
+    public DefaultWsdl11Definition colaboracionesWsdl(XsdSchema colaboracionesSchema) {
+        DefaultWsdl11Definition definition = new DefaultWsdl11Definition();
+        definition.setPortTypeName("ColaboracionesPort");
+        definition.setLocationUri("/ws/colaboraciones");
+        definition.setTargetNamespace("http://www.culturarte.com/ws/colaboraciones");
+        definition.setSchema(colaboracionesSchema);
         return definition;
     }
 }

@@ -70,7 +70,8 @@ public class PropuestasEndpoint {
         ListarPropuestasResponse response = new ListarPropuestasResponse();
         List<DTPropuesta> propuestas = ctrl.getDTPropuestasWeb();
         if (propuestas != null) {
-            response.getPropuesta().addAll(propuestas.stream().map(this::mapToSoapPropuesta).collect(Collectors.toList()));
+            response.getPropuesta()
+                    .addAll(propuestas.stream().map(this::mapToSoapPropuesta).collect(Collectors.toList()));
         }
         return response;
     }
@@ -98,6 +99,29 @@ public class PropuestasEndpoint {
                     .collect(Collectors.toCollection(() -> EnumSet.noneOf(TipoRetorno.class)));
             LocalDate fechaPrevista = toLocalDate(request.getFechaPrevista());
 
+            String imagenPath = null;
+            if (request.getImagenBase64() != null && !request.getImagenBase64().isEmpty()) {
+                try {
+                    byte[] imagenBytes = java.util.Base64.getDecoder().decode(request.getImagenBase64());
+                    String userHome = System.getProperty("user.home");
+                    java.nio.file.Path uploadDir = java.nio.file.Paths.get(userHome, ".Culturarte", "uploads",
+                            "imagenes");
+
+                    if (!java.nio.file.Files.exists(uploadDir)) {
+                        java.nio.file.Files.createDirectories(uploadDir);
+                    }
+
+                    String fileName = request.getTitulo().replaceAll("[^a-zA-Z0-9]", "_") + "_"
+                            + System.currentTimeMillis() + ".jpg";
+                    java.nio.file.Path filePath = uploadDir.resolve(fileName);
+                    java.nio.file.Files.write(filePath, imagenBytes);
+
+                    imagenPath = "uploads/imagenes/" + fileName;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
             ctrl.altaPropuesta(
                     request.getTitulo(),
                     request.getDescripcion(),
@@ -106,12 +130,11 @@ public class PropuestasEndpoint {
                     request.getMontoEntrada(),
                     request.getMontoNecesario(),
                     tiposRet,
-                    request.getImagenBase64(),
+                    imagenPath,
                     request.getNickProponente(),
                     request.getCategoria(),
                     LocalDate.now(),
-                    LocalTime.now()
-            );
+                    LocalTime.now());
 
             response.setExito(true);
             response.setMensaje("Propuesta registrada con éxito");
@@ -131,7 +154,8 @@ public class PropuestasEndpoint {
     public AltaColaboracionResponse altaColaboracion(@RequestPayload AltaColaboracionRequest request) {
         AltaColaboracionResponse response = new AltaColaboracionResponse();
         try {
-            DTColaboracion existe = ctrl.getDTColaboracionPropuesta(request.getNickColaborador(), request.getTituloPropuesta());
+            DTColaboracion existe = ctrl.getDTColaboracionPropuesta(request.getNickColaborador(),
+                    request.getTituloPropuesta());
             if (existe != null) {
                 response.setExito(false);
                 response.setMensaje("Ya existe una colaboración para este usuario y propuesta");
@@ -144,8 +168,7 @@ public class PropuestasEndpoint {
                     LocalTime.now(),
                     TipoRetorno.valueOf(request.getTipoRetorno().toUpperCase()),
                     request.getTituloPropuesta(),
-                    request.getNickColaborador()
-            );
+                    request.getNickColaborador());
             response.setExito(true);
             response.setMensaje("Colaboración registrada correctamente");
         } catch (ColaboracionYaExiste e) {
@@ -164,7 +187,8 @@ public class PropuestasEndpoint {
     public CancelarPropuestaResponse cancelarPropuesta(@RequestPayload CancelarPropuestaRequest request) {
         CancelarPropuestaResponse response = new CancelarPropuestaResponse();
         try {
-            ctrl.nuevoEstadoPropuesta(request.getTituloPropuesta(), TipoEstado.CANCELADA, LocalDate.now(), LocalTime.now());
+            ctrl.nuevoEstadoPropuesta(request.getTituloPropuesta(), TipoEstado.CANCELADA, LocalDate.now(),
+                    LocalTime.now());
             response.setExito(true);
             response.setMensaje("Propuesta cancelada con éxito");
         } catch (Exception e) {
@@ -263,7 +287,8 @@ public class PropuestasEndpoint {
             cantColabs = dt.getColaboradores().size();
         }
         p.setCantColaboradores(cantColabs);
-        if (dt.getColaboradores() != null) p.getColaboradores().addAll(dt.getColaboradores());
+        if (dt.getColaboradores() != null)
+            p.getColaboradores().addAll(dt.getColaboradores());
         if (dt.getComentarios() != null) {
             dt.getComentarios().forEach(c -> {
                 ComentarioType ct = new ComentarioType();
@@ -292,7 +317,6 @@ public class PropuestasEndpoint {
                 date.getYear(),
                 date.getMonthValue(),
                 date.getDayOfMonth(),
-                DatatypeConstants.FIELD_UNDEFINED
-        );
+                DatatypeConstants.FIELD_UNDEFINED);
     }
 }

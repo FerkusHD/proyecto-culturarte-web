@@ -49,7 +49,7 @@ cleanup() {
 trap cleanup EXIT
 
 echo "[open-jar] 🔨 Compilando proyecto..."
-# ./compilar.sh
+./compilar.sh
 
 echo "[open-jar] 🗄️  Iniciando Base de Datos (Docker)..."
 (cd "$ROOT_DIR" && $DOCKER_COMPOSE_CMD up -d db)
@@ -103,4 +103,4 @@ echo "[open-jar] Launching Swing app (JAR) locally... (uploads: $UPLOADS_DIR)"
 # Build desktop-gui specifically
 mvn -q -f "$ROOT_DIR/pom.xml" -pl desktop-gui -am install -DskipTests -Djacoco.skip=true
 
-exec mvn -q -f "$ROOT_DIR/desktop-gui/pom.xml" spring-boot:run -Dspring-boot.run.mainClass=com.culturarte.DesktopGuiApplication -Dspring-boot.run.jvmArguments="-Djava.awt.headless=false -Dapp.uploads.dir=$UPLOADS_DIR"
+mvn -q -f "$ROOT_DIR/desktop-gui/pom.xml" spring-boot:run -Dspring-boot.run.mainClass=com.culturarte.DesktopGuiApplication -Dspring-boot.run.jvmArguments="-Djava.awt.headless=false -Dapp.uploads.dir=$UPLOADS_DIR"

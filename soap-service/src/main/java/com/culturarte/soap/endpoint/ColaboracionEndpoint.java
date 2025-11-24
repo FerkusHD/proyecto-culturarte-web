@@ -8,12 +8,14 @@ import com.culturarte.logica.enums.TipoPago;
 import com.culturarte.logica.enums.TipoTarjeta;
 import com.culturarte.soap.gen.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.ws.server.endpoint.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
+@Component
 @Endpoint
 public class ColaboracionEndpoint {
 
@@ -105,7 +107,8 @@ public class ColaboracionEndpoint {
         dto.setHora(source.getHora() != null ? source.getHora().toString() : null);
         dto.setMonto(source.getMonto());
         dto.setTipoRetorno(source.getTipoRetorno() != null ? source.getTipoRetorno().name() : null);
-        // TODO: Mapear pago si existe
+        // Asegurar que pagada nunca sea null
+        dto.setPagada(Boolean.valueOf(source.isPagada()));
         return dto;
     }
 
