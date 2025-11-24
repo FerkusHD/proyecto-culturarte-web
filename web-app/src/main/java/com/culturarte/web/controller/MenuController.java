@@ -27,7 +27,7 @@ public class MenuController {
     public String index(HttpSession session, Model model) {
         logger.info("=== INICIO index (página principal) ===");
         try {
-            DTUsuario usuarioLogueado =(DTUsuario) session.getAttribute("usuarioLogueado");
+            DTUsuario usuarioLogueado = (DTUsuario) session.getAttribute("usuarioLogueado");
 
             if (usuarioLogueado == null) {
                 logger.debug("No hay usuario en sesión, creando usuario visitante");
@@ -64,10 +64,10 @@ public class MenuController {
 
     @PostMapping("/login")
     public String procesarLogin(@RequestParam String nickOemail,
-                                @RequestParam String password,
-                                HttpSession session,
-                                HttpServletRequest request,
-                                Model model) {
+            @RequestParam String password,
+            HttpSession session,
+            HttpServletRequest request,
+            Model model) {
         logger.info("=== INICIO procesarLogin ===");
         logger.info("Intento de login para: {}", nickOemail);
         try {
@@ -88,8 +88,19 @@ public class MenuController {
                 return "login";
             }
 
-
             DTUsuario usuario = UsuarioController.convertirDT(usuarioResp);
+
+            // Verificación de acceso móvil
+            String userAgent = request.getHeader("User-Agent");
+            boolean esMovil = userAgent != null && userAgent.toLowerCase().matches(".*(mobi|android|iphone|ipad).*");
+
+            if (esMovil && "proponente".equals(usuario.getTipo())) {
+                logger.warn("Login denegado: Proponente intentando acceder desde móvil: {}", usuario.getNickname());
+                model.addAttribute("mensaje",
+                        "⚠️ El acceso desde dispositivos móviles está restringido a colaboradores.");
+                model.addAttribute("nickname", nickOemail);
+                return "login";
+            }
 
             session.setAttribute("usuarioLogueado", usuario);
             logger.info("Login exitoso para: {} (tipo: {})",
