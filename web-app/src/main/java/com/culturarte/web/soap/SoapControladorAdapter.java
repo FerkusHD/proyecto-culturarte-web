@@ -520,4 +520,53 @@ public class SoapControladorAdapter implements IControlador {
         throw new UnsupportedOperationException("registrarPago no está disponible vía SOAP");
     }
 
+    @Override
+    public ArrayList<DTPropuesta> obtenerRecomendaciones(String nickColaborador) {
+        String endpoint = getSoapServiceUrl() + "/propuestas";
+        logger.info("=== INICIO obtenerRecomendaciones ===");
+        logger.info("Endpoint: {}", endpoint);
+        logger.info("Colaborador: {}", nickColaborador);
+
+        try {
+            ObtenerRecomendacionesRequest request = new ObtenerRecomendacionesRequest();
+            request.setNickColaborador(nickColaborador);
+
+            logger.debug("Enviando request SOAP para obtener recomendaciones");
+            ObtenerRecomendacionesResponse response = (ObtenerRecomendacionesResponse) webServiceTemplate
+                    .marshalSendAndReceive(endpoint, request);
+
+            ArrayList<DTPropuesta> result = new ArrayList<>();
+            if (response == null) {
+                logger.warn("Respuesta SOAP null en obtenerRecomendaciones");
+                return result;
+            }
+
+            if (response.getPropuesta() == null) {
+                logger.warn("Lista de recomendaciones null en respuesta");
+                return result;
+            }
+
+            logger.debug("Convirtiendo {} propuestas recomendadas de PropuestaType a DTPropuesta",
+                    response.getPropuesta().size());
+            for (PropuestaType pt : response.getPropuesta()) {
+                try {
+                    DTPropuesta dtp = convertPropuestaTypeToDT(pt);
+                    result.add(dtp);
+                } catch (Exception e) {
+                    logger.error("Error al convertir propuesta recomendada '{}' a DTPropuesta",
+                            pt.getTitulo(), e);
+                }
+            }
+
+            logger.info("Se obtuvieron {} propuestas recomendadas exitosamente", result.size());
+            logger.debug("=== FIN obtenerRecomendaciones (exitoso) ===");
+            return result;
+        } catch (Exception e) {
+            logger.error("=== ERROR en obtenerRecomendaciones ===", e);
+            logger.error("Endpoint que falló: {}", endpoint);
+            // Retornar lista vacía en caso de error en lugar de lanzar excepción
+            return new ArrayList<>();
+        }
+    }
+
 }

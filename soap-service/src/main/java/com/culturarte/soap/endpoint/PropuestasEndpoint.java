@@ -231,6 +231,29 @@ public class PropuestasEndpoint {
         return response;
     }
 
+    // ------------------ OBTENER RECOMENDACIONES -------------------
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "obtenerRecomendacionesRequest")
+    @ResponsePayload
+    public com.culturarte.soap.gen.ObtenerRecomendacionesResponse obtenerRecomendaciones(
+            @RequestPayload com.culturarte.soap.gen.ObtenerRecomendacionesRequest request) {
+        com.culturarte.soap.gen.ObtenerRecomendacionesResponse response = new com.culturarte.soap.gen.ObtenerRecomendacionesResponse();
+
+        try {
+            List<DTPropuesta> recomendaciones = ctrl.obtenerRecomendaciones(request.getNickColaborador());
+            if (recomendaciones != null) {
+                response.getPropuesta()
+                        .addAll(recomendaciones.stream()
+                                .map(this::mapToSoapPropuesta)
+                                .collect(Collectors.toList()));
+            }
+        } catch (Exception e) {
+            // Si hay error, retornar lista vacía
+            System.err.println("Error al obtener recomendaciones: " + e.getMessage());
+        }
+
+        return response;
+    }
+
     // ------------------ MAPEO DTPropuesta -> SOAP -------------------
     protected PropuestaType mapToSoapPropuesta(DTPropuesta dt) {
         PropuestaType p = new PropuestaType();

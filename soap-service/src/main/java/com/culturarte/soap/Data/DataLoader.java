@@ -18,6 +18,7 @@ import com.culturarte.logica.enums.TipoPago;
 import com.culturarte.logica.enums.TipoTarjeta;
 
 @Component
+@Profile("dev")
 public class DataLoader implements CommandLineRunner {
 
         private static final Logger logger = LoggerFactory.getLogger(DataLoader.class);

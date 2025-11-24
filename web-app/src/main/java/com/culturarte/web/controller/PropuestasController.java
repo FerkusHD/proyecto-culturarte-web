@@ -932,7 +932,50 @@ public class PropuestasController {
         return null;
     }
 
+    // --- Recomendaciones para colaboradores ---
+    @GetMapping("/recomendaciones")
+    public String mostrarRecomendaciones(Model model, HttpSession session) {
+        logger.info("=== INICIO mostrarRecomendaciones ===");
+        try {
+            // Verificar que el usuario sea colaborador
+            DTUsuario usuarioLogueado = obtenerUsuarioDesdeSesion(session);
+
+            if (usuarioLogueado == null || !"colaborador".equals(usuarioLogueado.getTipo())) {
+                logger.warn("Usuario no es colaborador o no está logueado");
+                model.addAttribute("mensajeError", "❌ Debe ser un colaborador para ver recomendaciones.");
+                return "redirect:/login";
+            }
+
+            String nickColaborador = usuarioLogueado.getNickname();
+            logger.info("Obteniendo recomendaciones para colaborador: {}", nickColaborador);
+
+            // Obtener recomendaciones desde el cliente SOAP
+            List<PropuestaType> recomendaciones = soapClient.obtenerRecomendaciones(nickColaborador);
+
+            if (recomendaciones == null) {
+                logger.warn("Lista de recomendaciones es null");
+                recomendaciones = new ArrayList<>();
+            }
+
+            logger.info("Se obtuvieron {} propuestas recomendadas", recomendaciones.size());
+            model.addAttribute("recomendaciones", recomendaciones);
+            model.addAttribute("usuarioLogueado", usuarioLogueado);
+
+            logger.debug("=== FIN mostrarRecomendaciones (exitoso) ===");
+            return "recomendaciones";
+
+        } catch (Exception e) {
+            logger.error("=== ERROR en mostrarRecomendaciones ===", e);
+            logger.error("Tipo de excepción: {}", e.getClass().getName());
+            logger.error("Mensaje: {}", e.getMessage());
+            model.addAttribute("recomendaciones", new ArrayList<>());
+            model.addAttribute("mensajeError", "❌ Error al obtener recomendaciones: " + e.getMessage());
+            return "recomendaciones";
+        }
+    }
+
     private void actualizarUsuarioEnSesion(HttpSession session, String nickname) {
+
         try {
             UsuarioType usuarioActualizado = usuarioSoapClient.getUsuario(nickname);
             if (usuarioActualizado != null) {

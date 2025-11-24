@@ -958,4 +958,16 @@ public class Controlador implements IControlador {
         }
     }
 
+    @Override
+    public ArrayList<DTPropuesta> obtenerRecomendaciones(String nickColaborador) {
+        List<Propuesta> propuestas = mp.obtenerRecomendaciones(nickColaborador);
+        ArrayList<DTPropuesta> recomendaciones = new ArrayList<>();
+
+        for (Propuesta p : propuestas) {
+            recomendaciones.add(new DTPropuesta(p));
+        }
+
+        return recomendaciones;
+    }
+
 }
