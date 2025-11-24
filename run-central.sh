@@ -2,9 +2,30 @@
 
 echo "Iniciando componentes del Servidor Central..."
 
+# Detectar docker compose
+if command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE_CMD="docker-compose"
+elif docker compose version &> /dev/null; then
+    DOCKER_COMPOSE_CMD="docker compose"
+else
+    echo "Error: No se encontró docker-compose ni docker compose."
+    exit 1
+fi
+
+echo "Iniciando Base de Datos (Docker)..."
+$DOCKER_COMPOSE_CMD up -d db
+
+echo "Esperando a que la DB esté lista..."
+until $DOCKER_COMPOSE_CMD exec -T db mysqladmin ping -h "localhost" --silent; do
+    printf '.'
+    sleep 1
+done
+echo ""
+echo "DB lista."
+
 # Verificar si el JAR existe
-SOAP_JAR=$(find soap-service/target -name "soap-service-*.jar" | head -n 1)
-GUI_JAR=$(find desktop-gui/target -name "desktop-gui-*.jar" | head -n 1)
+SOAP_JAR=$(find soap-service/target -name "soap-service-*-exec.jar" | head -n 1)
+GUI_JAR=$(find desktop-gui/target -name "app-*.jar" | head -n 1)
 
 if [ -z "$SOAP_JAR" ]; then
     echo "Error: No se encontró el JAR de soap-service. Ejecuta ./compilar.sh primero."
