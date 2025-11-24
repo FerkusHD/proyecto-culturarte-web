@@ -142,7 +142,7 @@ public class ColaboracionController {
         // Verificar que sea dispositivo móvil
         if (!MobileDetectionUtil.isMobileDevice(request)) {
             logger.warn("Intento de acceso desde dispositivo no móvil");
-            model.addAttribute("error", "Esta funcionalidad solo está disponible desde dispositivos móviles");
+            model.addAttribute("mensajeError", "Esta funcionalidad solo está disponible desde dispositivos móviles");
             return "error";
         }
 
@@ -179,7 +179,7 @@ public class ColaboracionController {
 
         } catch (Exception e) {
             logger.error("Error al listar colaboraciones sin pago", e);
-            model.addAttribute("error", "Error al obtener las colaboraciones: " + e.getMessage());
+            model.addAttribute("mensajeError", "Error al obtener las colaboraciones: " + e.getMessage());
             return "error";
         }
     }
@@ -200,7 +200,7 @@ public class ColaboracionController {
         // Verificar que sea dispositivo móvil
         if (!MobileDetectionUtil.isMobileDevice(request)) {
             logger.warn("Intento de acceso desde dispositivo no móvil");
-            model.addAttribute("error", "Esta funcionalidad solo está disponible desde dispositivos móviles");
+            model.addAttribute("mensajeError", "Esta funcionalidad solo está disponible desde dispositivos móviles");
             return "error";
         }
 
@@ -217,7 +217,7 @@ public class ColaboracionController {
                     usuarioLogueado.getNickname(), tituloPropuesta);
 
             if (colaboracion == null) {
-                model.addAttribute("error", "No se encontró la colaboración");
+                model.addAttribute("mensajeError", "No se encontró la colaboración");
                 return "error";
             }
 
@@ -239,7 +239,7 @@ public class ColaboracionController {
 
         } catch (Exception e) {
             logger.error("Error al mostrar formulario de pago", e);
-            model.addAttribute("error", "Error al cargar el formulario: " + e.getMessage());
+            model.addAttribute("mensajeError", "Error al cargar el formulario: " + e.getMessage());
             return "error";
         }
     }
@@ -270,7 +270,7 @@ public class ColaboracionController {
         // Verificar que sea dispositivo móvil
         if (!MobileDetectionUtil.isMobileDevice(request)) {
             logger.warn("Intento de acceso desde dispositivo no móvil");
-            model.addAttribute("error", "Esta funcionalidad solo está disponible desde dispositivos móviles");
+            model.addAttribute("mensajeError", "Esta funcionalidad solo está disponible desde dispositivos móviles");
             return "error";
         }
 
@@ -338,7 +338,7 @@ public class ColaboracionController {
 
         } catch (Exception e) {
             logger.error("Error al procesar pago", e);
-            model.addAttribute("error", "Error al procesar el pago: " + e.getMessage());
+            model.addAttribute("mensajeError", "Error al procesar el pago: " + e.getMessage());
             model.addAttribute("tituloPropuesta", tituloPropuesta);
             return "error";
         }

@@ -23,8 +23,11 @@ public class ImagenController {
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
         try {
             String baseUrl = soapServiceUrl;
-            if (baseUrl.contains("/soap")) {
-                baseUrl = baseUrl.substring(0, baseUrl.indexOf("/soap"));
+            // Eliminar /ws al final si existe, pero MANTENER el context path (/soap)
+            if (baseUrl.endsWith("/ws")) {
+                baseUrl = baseUrl.substring(0, baseUrl.length() - 3);
+            } else if (baseUrl.endsWith("/ws/")) {
+                baseUrl = baseUrl.substring(0, baseUrl.length() - 4);
             }
 
             String remoteUrl = baseUrl + "/uploads/imagenes/" + filename;
@@ -33,7 +36,7 @@ public class ImagenController {
 
             if (file.exists() || file.isReadable()) {
                 return ResponseEntity.ok()
-                        .contentType(MediaType.IMAGE_JPEG) 
+                        .contentType(MediaType.IMAGE_JPEG)
                         .body(file);
             } else {
                 return ResponseEntity.notFound().build();
