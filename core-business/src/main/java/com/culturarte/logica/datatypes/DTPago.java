@@ -5,9 +5,6 @@ import com.culturarte.logica.enums.TipoTarjeta;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-/**
- * DataType para transferir información de pagos
- */
 public class DTPago {
 
     private float monto;
@@ -15,16 +12,13 @@ public class DTPago {
     private LocalTime horaPago;
     private TipoPago tipoPago;
 
-    // Campos para pago con tarjeta
     private TipoTarjeta tipoTarjeta;
     private String numeroTarjeta;
     private String fechaVencimiento;
     private String cvc;
 
-    // Campos comunes
     private String nombreTitular;
 
-    // Campos para transferencia bancaria
     private String nombreBanco;
     private String numeroCuenta;
 

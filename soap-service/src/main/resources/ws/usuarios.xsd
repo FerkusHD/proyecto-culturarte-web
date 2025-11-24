@@ -234,6 +234,7 @@
                 <xs:element name="email" type="xs:string"/>
                 <xs:element name="fechaNacimiento" type="xs:date"/>
                 <xs:element name="imagen" type="xs:string" minOccurs="0"/>
+                <xs:element name="imagenBase64" type="xs:string" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -256,6 +257,7 @@
                 <xs:element name="email" type="xs:string"/>
                 <xs:element name="fechaNacimiento" type="xs:date"/>
                 <xs:element name="imagen" type="xs:string" minOccurs="0"/>
+                <xs:element name="imagenBase64" type="xs:string" minOccurs="0"/>
                 <xs:element name="direccion" type="xs:string" minOccurs="0"/>
                 <xs:element name="linkWeb" type="xs:string" minOccurs="0"/>
                 <xs:element name="bibliografia" type="xs:string" minOccurs="0"/>

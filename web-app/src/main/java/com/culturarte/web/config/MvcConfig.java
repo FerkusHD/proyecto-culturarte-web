@@ -42,7 +42,11 @@ public class MvcConfig implements WebMvcConfigurer {
         Path path = Paths.get(dir).toAbsolutePath().normalize();
         String location = path.toUri().toString();
 
+        String userHome = System.getProperty("user.home");
+        Path userHomeUploads = Paths.get(userHome, ".Culturarte", "uploads").toAbsolutePath().normalize();
+        String userHomeLocation = userHomeUploads.toUri().toString();
+
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations(location, "classpath:/static/uploads/");
+                .addResourceLocations(location, userHomeLocation, "classpath:/static/uploads/");
     }
 }

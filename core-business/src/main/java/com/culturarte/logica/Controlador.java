@@ -165,8 +165,10 @@ public class Controlador implements IControlador {
             Propuesta prop = mp.getPropuesta(colab.getPropuesta().getTitulo());
             if (prop != null) {
                 DTPropuesta dtp = new DTPropuesta(prop);
-                colaboraciones
-                        .add(new DTColaboracion(colab.getMonto(), colab.getFechaAporte(), colab.getTipoRetorno(), dtp));
+                DTColaboracion dtColab = new DTColaboracion(colab.getMonto(), colab.getFechaAporte(),
+                        colab.getTipoRetorno(), dtp);
+                dtColab.setPagada(colab.tienePago());
+                colaboraciones.add(dtColab);
             }
         }
 
@@ -643,8 +645,11 @@ public class Controlador implements IControlador {
         ArrayList<DTColaboracion> ret = new ArrayList<>();
 
         for (Colaboracion colab : c.getColaboraciones()) {
-            ret.add(new DTColaboracion(colab.getColaborador().getNickname(), colab.getPropuesta().getTitulo(),
-                    colab.getFechaAporte(), colab.getHoraAporte(), colab.getMonto(), colab.getTipoRetorno()));
+            DTColaboracion dtColab = new DTColaboracion(colab.getColaborador().getNickname(),
+                    colab.getPropuesta().getTitulo(),
+                    colab.getFechaAporte(), colab.getHoraAporte(), colab.getMonto(), colab.getTipoRetorno());
+            dtColab.setPagada(colab.tienePago());
+            ret.add(dtColab);
         }
 
         return ret;
@@ -669,8 +674,11 @@ public class Controlador implements IControlador {
         for (Propuesta p : mp.getPropuestas()) {
             if (p.getColaboraciones() != null)
                 for (Colaboracion c : p.getColaboraciones()) {
-                    ret.add(new DTColaboracion(c.getColaborador().getNickname(), c.getPropuesta().getTitulo(),
-                            c.getFechaAporte(), c.getHoraAporte(), c.getMonto(), c.getTipoRetorno()));
+                    DTColaboracion dtColab = new DTColaboracion(c.getColaborador().getNickname(),
+                            c.getPropuesta().getTitulo(),
+                            c.getFechaAporte(), c.getHoraAporte(), c.getMonto(), c.getTipoRetorno());
+                    dtColab.setPagada(c.tienePago());
+                    ret.add(dtColab);
                 }
         }
         return ret;
@@ -843,6 +851,7 @@ public class Controlador implements IControlador {
                     colab.getHoraAporte(),
                     colab.getMonto(),
                     colab.getTipoRetorno());
+            dtColab.setPagada(false);
             resultado.add(dtColab);
         }
 
@@ -902,6 +911,12 @@ public class Controlador implements IControlador {
         colaboracion.setPago(pago);
 
         mcol.actualizarColaboracion(colaboracion);
+
+        if (propuesta.getEstadoActual().getEstado() == com.culturarte.logica.enums.TipoEstado.ENFINANCIACION &&
+                propuesta.getMontoRecaudado() >= propuesta.getMontoNecesario()) {
+            nuevoEstadoPropuesta(propuesta.getTitulo(), com.culturarte.logica.enums.TipoEstado.FINANCIADA,
+                    dtPago.getFechaPago(), dtPago.getHoraPago());
+        }
     }
 
 }

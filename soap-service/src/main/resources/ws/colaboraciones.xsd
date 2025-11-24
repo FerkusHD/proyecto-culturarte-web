@@ -44,7 +44,6 @@
         </xs:complexType>
     </xs:element>
 
-    <!-- Request y Response para colaboraciones sin pago -->
     <xs:element name="getColaboracionesSinPagoRequest">
         <xs:complexType>
             <xs:sequence>
@@ -61,7 +60,6 @@
         </xs:complexType>
     </xs:element>
 
-    <!-- Request y Response para registrar pago -->
     <xs:element name="registrarPagoRequest">
         <xs:complexType>
             <xs:sequence>
@@ -91,6 +89,7 @@
             <xs:element name="monto" type="xs:float"/>
             <xs:element name="tipoRetorno" type="xs:string"/>
             <xs:element name="pago" type="tns:pagoType" minOccurs="0"/>
+            <xs:element name="pagada" type="xs:boolean"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -101,12 +100,10 @@
             <xs:element name="horaPago" type="xs:string"/>
             <xs:element name="tipoPago" type="xs:string"/>
             <xs:element name="nombreTitular" type="xs:string"/>
-            <!-- Campos específicos para tarjeta -->
             <xs:element name="tipoTarjeta" type="xs:string" minOccurs="0"/>
             <xs:element name="numeroTarjeta" type="xs:string" minOccurs="0"/>
             <xs:element name="fechaVencimiento" type="xs:string" minOccurs="0"/>
             <xs:element name="cvc" type="xs:string" minOccurs="0"/>
-            <!-- Campos para transferencia y PayPal -->
             <xs:element name="nombreBanco" type="xs:string" minOccurs="0"/>
             <xs:element name="numeroCuenta" type="xs:string" minOccurs="0"/>
         </xs:sequence>

@@ -35,10 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeFactory;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -97,7 +93,6 @@ public class PropuestasController {
         }
     }
 
-    // --- Ver detalle de una propuesta como DTO (para consumo AJAX) ---
     @GetMapping("/listar/{titulo}")
     @ResponseBody
     public PropuestaDTO obtenerPropuestaPorTitulo(@PathVariable String titulo) {
@@ -127,11 +122,8 @@ public class PropuestasController {
         logger.info("=== INICIO mostrarPropuesta ===");
         logger.info("Mostrando propuesta (raw): {}", titulo);
         try {
-            // Spring ya decodifica automáticamente, pero por si acaso intentamos
-            // decodificar de nuevo
             String tituloDecodificado = titulo;
             try {
-                // Solo decodificar si contiene caracteres codificados
                 if (titulo.contains("%")) {
                     tituloDecodificado = java.net.URLDecoder.decode(titulo, "UTF-8");
                     logger.info("Título decodificado: {}", tituloDecodificado);
@@ -143,10 +135,8 @@ public class PropuestasController {
                 tituloDecodificado = titulo;
             }
 
-            // Intentar buscar la propuesta
             PropuestaType propuesta = soapClient.getPropuesta(tituloDecodificado);
 
-            // Si no se encuentra, intentar con el título original
             if (propuesta == null && !tituloDecodificado.equals(titulo)) {
                 logger.info("No se encontró con título decodificado, intentando con original: {}", titulo);
                 propuesta = soapClient.getPropuesta(titulo);
@@ -284,8 +274,6 @@ public class PropuestasController {
             dt.setPropuestasSeguidas(propuestasSeguidas);
         }
 
-        // Nota: UsuarioType no tiene getUsuariosSeguidos(),
-        // los usuarios seguidos se cargan cuando se necesita desde el servicio
         return dt;
     }
 
@@ -614,18 +602,8 @@ public class PropuestasController {
             String imagenBase64 = null;
             if (imagenFile != null && !imagenFile.isEmpty()) {
                 try {
-                    // Guardar imagen en el sistema de archivos
-                    Path directorio = Paths.get(System.getProperty("user.dir"), "uploads", "imagenes");
-                    if (!Files.exists(directorio)) {
-                        Files.createDirectories(directorio);
-                    }
-                    String nombreArchivo = titulo.replaceAll("[^a-zA-Z0-9]", "_") + "_" + System.currentTimeMillis()
-                            + "_" + imagenFile.getOriginalFilename();
-                    Path rutaCompleta = directorio.resolve(nombreArchivo);
-                    Files.copy(imagenFile.getInputStream(), rutaCompleta, StandardCopyOption.REPLACE_EXISTING);
-
                     // Convertir a base64 para el SOAP
-                    byte[] imagenBytes = Files.readAllBytes(rutaCompleta);
+                    byte[] imagenBytes = imagenFile.getBytes();
                     imagenBase64 = Base64.getEncoder().encodeToString(imagenBytes);
                 } catch (Exception e) {
                     e.printStackTrace();

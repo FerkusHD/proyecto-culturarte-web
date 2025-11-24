@@ -6,9 +6,6 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-/**
- * Entidad que representa un pago realizado para una colaboración
- */
 @Entity
 public class Pago {
 

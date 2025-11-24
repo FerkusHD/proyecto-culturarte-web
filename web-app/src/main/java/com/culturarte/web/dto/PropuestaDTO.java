@@ -63,15 +63,12 @@ public class PropuestaDTO {
             this.estado = propuesta.getEstadoActual();
             this.estadoActual = propuesta.getEstadoActual();
 
-            // La imagen viene como ruta, no como base64
             String img = propuesta.getImagen();
             if (img != null && !img.trim().isEmpty()) {
-                // Si parece ser base64 (muy largo o empieza con data:), usar imagenBase64
                 if (img.length() > 500 || img.startsWith("data:")) {
                     this.imagenBase64 = img;
                     this.imagen = null;
                 } else {
-                    // Si es una ruta normal, usar imagen
                     this.imagen = img;
                     this.imagenBase64 = null;
                 }
@@ -86,7 +83,6 @@ public class PropuestaDTO {
             this.cantColaboradores = propuesta.getCantColaboradores();
             this.colaboradores = propuesta.getColaboradores();
 
-            // Convertir fecha XMLGregorianCalendar a string ISO
             if (propuesta.getFechaPrevista() != null) {
                 try {
                     XMLGregorianCalendar cal = propuesta.getFechaPrevista();

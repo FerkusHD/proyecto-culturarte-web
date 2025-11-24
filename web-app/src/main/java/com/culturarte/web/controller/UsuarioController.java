@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.culturarte.soap.gen.UsuarioType;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.xml.datatype.DatatypeFactory;
-import java.nio.file.*;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -55,8 +55,7 @@ public class UsuarioController {
             @RequestParam(required = false) String biografia,
             @RequestParam(required = false) String web,
             Model model,
-            HttpSession session
-    ) {
+            HttpSession session) {
         logger.info("=== INICIO altaUsuario (POST) ===");
         logger.info("Alta de usuario: nickname={}, rol={}, email={}", nickname, rol, email);
         try {
@@ -64,16 +63,16 @@ public class UsuarioController {
             String imagen = null;
 
             // Guardar imagen si se sube
+            // Guardar imagen si se sube
             if (imagenFile != null && !imagenFile.isEmpty()) {
                 logger.debug("Procesando imagen para usuario: {}", nickname);
-                Path directorio = Paths.get(System.getProperty("user.dir"), "uploads", "imagenes");
-                if (!Files.exists(directorio)) Files.createDirectories(directorio);
-
-                String nombreArchivo = nickname + "_" + System.currentTimeMillis() + "_" + imagenFile.getOriginalFilename();
-                Path rutaCompleta = directorio.resolve(nombreArchivo);
-                Files.copy(imagenFile.getInputStream(), rutaCompleta, StandardCopyOption.REPLACE_EXISTING);
-                imagen = "uploads/imagenes/" + nombreArchivo;
-                logger.debug("Imagen guardada: {}", imagen);
+                try {
+                    byte[] bytes = imagenFile.getBytes();
+                    imagen = java.util.Base64.getEncoder().encodeToString(bytes);
+                    logger.debug("Imagen convertida a Base64");
+                } catch (Exception e) {
+                    logger.error("Error al convertir imagen a Base64", e);
+                }
             }
 
             // Crear usuario según tipo
@@ -135,7 +134,7 @@ public class UsuarioController {
 
             try {
                 usuarioLogueado = (DTUsuario) session.getAttribute("usuarioLogueado");
-                if (usuarioLogueado == null){
+                if (usuarioLogueado == null) {
                     logger.debug("No hay usuario en sesión o tipo incorrecto, creando visitante");
                     usuarioLogueado = new DTUsuario();
                     usuarioLogueado.setTipo("visitante");
@@ -151,7 +150,7 @@ public class UsuarioController {
             model.addAttribute("usuarioLogueado", usuarioLogueado);
 
             logger.debug("Obteniendo usuario desde SOAP: {}", nick);
-            DTUsuario perfilVisitado = new  DTUsuario();
+            DTUsuario perfilVisitado = new DTUsuario();
             try {
                 perfilVisitado = convertirDT(usuariosSoapClient.getUsuario(nick));
             } catch (Exception e) {
@@ -159,7 +158,7 @@ public class UsuarioController {
                 model.addAttribute("mensajeError", "Error al cargar el perfil: " + e.getMessage());
                 return "error/404";
             }
-            
+
             if (perfilVisitado == null) {
                 logger.warn("Usuario null en respuesta SOAP: {}", nick);
                 model.addAttribute("mensajeError", "Usuario no encontrado");
@@ -168,15 +167,15 @@ public class UsuarioController {
 
             model.addAttribute("perfilVisitado", perfilVisitado);
 
-            //es mi perfil
+            // es mi perfil
             boolean esMiPropioPerfil = perfilVisitado.getNickname().equals(usuarioLogueado.getNickname());
             model.addAttribute("esMiPropioPerfil", esMiPropioPerfil);
-            
+
             // Verificar si lo sigue (solo si no es visitante)
             boolean loSigo = false;
             if (!usuarioLogueado.getTipo().equals("visitante")) {
                 for (DTUsuario u : usuarioLogueado.getUsuariosSeguidos()) {
-                    if( u.getNickname().equals(nick)) {
+                    if (u.getNickname().equals(nick)) {
                         loSigo = true;
                     }
                 }
@@ -202,7 +201,8 @@ public class UsuarioController {
             logger.error("=== ERROR en mostrarPerfil ===", e);
             logger.error("Error al mostrar perfil de usuario: {}", nick, e);
             logger.error("Stack trace completo:", e);
-            model.addAttribute("mensajeError", "Error al cargar el perfil: " + (e.getMessage() != null ? e.getMessage() : "Error desconocido"));
+            model.addAttribute("mensajeError",
+                    "Error al cargar el perfil: " + (e.getMessage() != null ? e.getMessage() : "Error desconocido"));
             return "error/404";
         }
     }
@@ -220,7 +220,7 @@ public class UsuarioController {
                 model.addAttribute("mensaje", "No hay usuarios registrados");
                 return "rankingUsuarios";
             }
-            
+
             logger.debug("Usuarios obtenidos desde SOAP: {}", usuariosSoap.size());
             List<DTUsuario> usuarios = usuariosSoap.stream()
                     .map(UsuarioController::convertirDT)
@@ -261,11 +261,13 @@ public class UsuarioController {
     @PostMapping("/seguir")
     public String seguir(@RequestParam String nickSeguido, HttpSession session, HttpServletRequest request) {
         DTUsuario usuarioLogueado = (DTUsuario) session.getAttribute("usuarioLogueado");
-        if (usuarioLogueado == null || "visitante".equals(usuarioLogueado.getTipo())) return "redirect:/login";
+        if (usuarioLogueado == null || "visitante".equals(usuarioLogueado.getTipo()))
+            return "redirect:/login";
 
         try {
             usuariosSoapClient.seguirUsuario(usuarioLogueado.getNickname(), nickSeguido);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         UsuarioType usuarioResp = usuariosSoapClient.getUsuario(usuarioLogueado.getNickname());
         usuarioLogueado = UsuarioController.convertirDT(usuarioResp);
@@ -277,11 +279,13 @@ public class UsuarioController {
     @PostMapping("/dejarDeSeguir")
     public String dejarDeSeguir(@RequestParam String nickSeguido, HttpSession session, HttpServletRequest request) {
         DTUsuario usuarioLogueado = (DTUsuario) session.getAttribute("usuarioLogueado");
-        if (usuarioLogueado == null || "visitante".equals(usuarioLogueado.getTipo())) return "redirect:/login";
+        if (usuarioLogueado == null || "visitante".equals(usuarioLogueado.getTipo()))
+            return "redirect:/login";
 
         try {
             usuariosSoapClient.dejarDeSeguirUsuario(usuarioLogueado.getNickname(), nickSeguido);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         usuarioLogueado = convertirDT(usuariosSoapClient.getUsuario(usuarioLogueado.getNickname()));
         session.setAttribute("usuarioLogueado", usuarioLogueado);
@@ -318,7 +322,8 @@ public class UsuarioController {
                 redirectAttributes.addFlashAttribute("mensajeExito", "Tu cuenta fue eliminada correctamente.");
                 return "redirect:/";
             } else {
-                redirectAttributes.addFlashAttribute("mensajeError", "No se pudo eliminar la cuenta: " + resp.getMensaje());
+                redirectAttributes.addFlashAttribute("mensajeError",
+                        "No se pudo eliminar la cuenta: " + resp.getMensaje());
                 return "redirect:/usuarios/" + usuarioLogueado.getNickname();
             }
 
@@ -329,20 +334,17 @@ public class UsuarioController {
         }
     }
 
-
-
-
-
-
     // ------------------- FAVORITOS -------------------
     @PostMapping("/agregar-favorito")
     public String agregarFavorito(@RequestParam String titulo, HttpSession session, HttpServletRequest request) {
         DTUsuario usuarioLogueado = (DTUsuario) session.getAttribute("usuarioLogueado");
-        if (usuarioLogueado == null || "visitante".equals(usuarioLogueado.getTipo())) return "redirect:/login";
+        if (usuarioLogueado == null || "visitante".equals(usuarioLogueado.getTipo()))
+            return "redirect:/login";
 
         try {
             usuariosSoapClient.agregarPropuestaFavorita(usuarioLogueado.getNickname(), titulo);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         return "redirect:" + request.getHeader("Referer");
     }
@@ -350,11 +352,13 @@ public class UsuarioController {
     @PostMapping("/sacar-favorito")
     public String sacarFavorito(@RequestParam String titulo, HttpSession session, HttpServletRequest request) {
         DTUsuario usuarioLogueado = (DTUsuario) session.getAttribute("usuarioLogueado");
-        if (usuarioLogueado == null || "visitante".equals(usuarioLogueado.getTipo())) return "redirect:/login";
+        if (usuarioLogueado == null || "visitante".equals(usuarioLogueado.getTipo()))
+            return "redirect:/login";
 
         try {
             usuariosSoapClient.sacarPropuestaFavorita(usuarioLogueado.getNickname(), titulo);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         return "redirect:" + request.getHeader("Referer");
     }
@@ -392,7 +396,8 @@ public class UsuarioController {
 
     // ------------------- UTILIDADES -------------------
     public static DTUsuario convertirDT(com.culturarte.soap.gen.UsuarioType u) {
-        if (u == null) return null;
+        if (u == null)
+            return null;
         DTUsuario dt = new DTUsuario();
         dt.setNickname(u.getNickname());
         dt.setNombre(u.getNombre());
@@ -449,20 +454,35 @@ public class UsuarioController {
                 fechaPrevista,
                 p.getImagen(),
                 p.getCategoria(),
-                p.getProponente()
-        );
+                p.getProponente());
     }
 
     public static class VerificacionResponse {
         private boolean disponible;
         private String mensaje;
 
-        public VerificacionResponse() {}
-        public VerificacionResponse(boolean disponible, String mensaje) { this.disponible = disponible; this.mensaje = mensaje; }
+        public VerificacionResponse() {
+        }
 
-        public boolean isDisponible() { return disponible; }
-        public void setDisponible(boolean disponible) { this.disponible = disponible; }
-        public String getMensaje() { return mensaje; }
-        public void setMensaje(String mensaje) { this.mensaje = mensaje; }
+        public VerificacionResponse(boolean disponible, String mensaje) {
+            this.disponible = disponible;
+            this.mensaje = mensaje;
+        }
+
+        public boolean isDisponible() {
+            return disponible;
+        }
+
+        public void setDisponible(boolean disponible) {
+            this.disponible = disponible;
+        }
+
+        public String getMensaje() {
+            return mensaje;
+        }
+
+        public void setMensaje(String mensaje) {
+            this.mensaje = mensaje;
+        }
     }
 }

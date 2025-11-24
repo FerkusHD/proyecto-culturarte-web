@@ -29,9 +29,6 @@ public class ManejadorColaboracion {
         return em.find(Colaboracion.class, id);
     }
 
-    /**
-     * Obtiene las colaboraciones sin pago de un colaborador
-     */
     public java.util.List<Colaboracion> getColaboracionesSinPago(String nickColaborador) {
         TypedQuery<Colaboracion> query = em.createQuery(
                 "SELECT c FROM Colaboracion c WHERE c.colaborador.nickname = :nick AND c.pago IS NULL",
@@ -40,9 +37,6 @@ public class ManejadorColaboracion {
         return query.getResultList();
     }
 
-    /**
-     * Actualiza una colaboración
-     */
     @Transactional
     public void actualizarColaboracion(Colaboracion colab) {
         em.merge(colab);

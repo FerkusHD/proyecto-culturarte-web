@@ -1,4 +1,5 @@
 package com.culturarte.logica.clases;
+
 import com.culturarte.logica.enums.TipoRetorno;
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -9,17 +10,17 @@ import java.util.Set;
 
 @Entity
 public class Propuesta {
-    
+
     @Id
     private String titulo;
-    
+
     @Column(length = 5000)
     private String descripcion;
     private String lugar;
     private LocalDate fechaPrevista;
     private float precioEntrada;
     private float montoNecesario;
-    
+
     @ElementCollection(targetClass = TipoRetorno.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "propuesta_retornos", joinColumns = @JoinColumn(name = "propuesta_id"))
     @Column(name = "retorno")
@@ -27,19 +28,19 @@ public class Propuesta {
     private Set<TipoRetorno> tipoRetornos = EnumSet.noneOf(TipoRetorno.class);
 
     private String imagen;
-    
+
     @OneToMany(mappedBy = "propuesta", fetch = FetchType.EAGER)
     private List<Colaboracion> colaboraciones;
-    
+
     @ManyToOne(fetch = FetchType.EAGER)
     private Proponente proponente;
-    
-    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Estado> historialEstados;
-    
+
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Estado estadoActual;
-    
+
     @ManyToOne
     private Categoria categoria;
 
@@ -49,7 +50,9 @@ public class Propuesta {
     public Propuesta() {
     }
 
-    public Propuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, float precioEntrada, float montoNecesario, EnumSet<TipoRetorno> tipoRetornos, String imagen, Proponente proponente, Categoria categoria) {
+    public Propuesta(String titulo, String descripcion, String lugar, LocalDate fechaPrevista, float precioEntrada,
+            float montoNecesario, EnumSet<TipoRetorno> tipoRetornos, String imagen, Proponente proponente,
+            Categoria categoria) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.lugar = lugar;
@@ -69,9 +72,7 @@ public class Propuesta {
     public void setImagen(String imagen) {
         this.imagen = imagen;
     }
-    
-    
-    
+
     public String getTitulo() {
         return titulo;
     }
@@ -143,12 +144,12 @@ public class Propuesta {
     public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
     }
-    
-    public String getImagen(){
+
+    public String getImagen() {
         return imagen;
     }
-    
-    public List<Colaboracion> getColaboraciones(){
+
+    public List<Colaboracion> getColaboraciones() {
         return colaboraciones;
     }
 
@@ -163,31 +164,33 @@ public class Propuesta {
     public List<Estado> getHistorialEstados() {
         return historialEstados;
     }
-    
-    public void addColaboracion(Colaboracion colab){
+
+    public void addColaboracion(Colaboracion colab) {
         this.colaboraciones.add(colab);
     }
-    
-    public ArrayList<String> getNicknameColaboradores(){
+
+    public ArrayList<String> getNicknameColaboradores() {
         ArrayList<String> listaNicks = new ArrayList<>();
-        for(Colaboracion c : colaboraciones){
+        for (Colaboracion c : colaboraciones) {
             listaNicks.add(c.getColaboradorNick());
         }
         return listaNicks;
     }
-    
+
     public String getProponenteNick() {
         return proponente.getNickname();
     }
-    
+
     public float getMontoRecaudado() {
         float montoRecuadado = 0;
-        for(Colaboracion c : this.colaboraciones){
-            montoRecuadado += c.getMonto();
+        for (Colaboracion c : this.colaboraciones) {
+            if (c.tienePago()) {
+                montoRecuadado += c.getMonto();
+            }
         }
         return montoRecuadado;
     }
-    
+
     public void agregarEstado(Estado estado) {
         this.historialEstados.add(estado);
         this.estadoActual = estado;

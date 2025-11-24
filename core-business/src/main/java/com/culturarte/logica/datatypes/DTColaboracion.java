@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.culturarte.logica.datatypes;
+
 import com.culturarte.logica.enums.TipoRetorno;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -13,7 +14,7 @@ import java.util.List;
  * @author fabriciorivero
  */
 public class DTColaboracion {
-    
+
     private float monto;
     private LocalDate fecha;
     private LocalTime hora;
@@ -21,8 +22,10 @@ public class DTColaboracion {
     private String tituloPropuesta;
     private String nickColaborador;
     private DTPropuesta propuesta;
-    
-    public DTColaboracion(String nickColaborador,String tituloPropuesta, LocalDate fecha, LocalTime hora, float monto, TipoRetorno tipoRetorno) {
+    private boolean pagada;
+
+    public DTColaboracion(String nickColaborador, String tituloPropuesta, LocalDate fecha, LocalTime hora, float monto,
+            TipoRetorno tipoRetorno) {
         this.tituloPropuesta = tituloPropuesta;
         this.fecha = fecha;
         this.monto = monto;
@@ -49,7 +52,7 @@ public class DTColaboracion {
     public String getPropuestaTitulo() {
         return tituloPropuesta;
     }
-    
+
     public String getNickColaborador() {
         return nickColaborador;
     }
@@ -97,5 +100,12 @@ public class DTColaboracion {
     public void setPropuesta(DTPropuesta propuesta) {
         this.propuesta = propuesta;
     }
-}
 
+    public boolean isPagada() {
+        return pagada;
+    }
+
+    public void setPagada(boolean pagada) {
+        this.pagada = pagada;
+    }
+}
