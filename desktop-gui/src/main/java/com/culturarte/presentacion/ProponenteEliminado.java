@@ -21,6 +21,7 @@ public class ProponenteEliminado extends javax.swing.JInternalFrame {
      * Creates new form ProponenteEliminado
      */
     private IControlador controlador;
+    private DTProponente proponenteActual; // Almacena el proponente actual
 
     public ProponenteEliminado(IControlador controlador) {
 
@@ -259,6 +260,7 @@ public class ProponenteEliminado extends javax.swing.JInternalFrame {
         if (proponenteSeleccionado != null) {
             DTProponente p = getProponenteEliminado(proponenteSeleccionado);
             if (p != null) {
+                this.proponenteActual = p; // Guardar el proponente actual
                 mostrarInfoProponente(p);
                 mostrarPropuestas(p);
             }
@@ -278,6 +280,7 @@ public class ProponenteEliminado extends javax.swing.JInternalFrame {
         if (proponente != null) {
             DTProponente p = getProponenteEliminado(proponente);
             if (p != null) {
+                this.proponenteActual = p; // Guardar el proponente actual
                 mostrarPropuestas(p);
             }
         }
@@ -292,6 +295,7 @@ public class ProponenteEliminado extends javax.swing.JInternalFrame {
         if (proponente != null) {
             DTProponente p = getProponenteEliminado(proponente);
             if (p != null) {
+                this.proponenteActual = p; // Guardar el proponente actual
                 mostrarPropuestas(p);
             }
         }
@@ -300,47 +304,73 @@ public class ProponenteEliminado extends javax.swing.JInternalFrame {
     private void mostrarPropuestas(DTProponente proponente) {
 
         String estado = (String) comboEstadoProp.getSelectedItem();
+        System.out.println("DEBUG: Estado seleccionado: " + estado);
         if (estado == null) {
+            System.out.println("DEBUG: Estado es null, retornando");
             return;
         }
         TipoEstado estadoElegido = TipoEstado.valueOf(estado);
+        System.out.println("DEBUG: Estado elegido (enum): " + estadoElegido);
+
         DefaultTableModel dtm = new DefaultTableModel(new Object[] { "Titulo", "Monto Recaudado", "Monto Necesario" },
                 0);
         jTable2.setDefaultEditor(Object.class, null);
+
         // Constructor
         if (proponente.getPropuestas() != null) {
+            System.out.println("DEBUG: Proponente tiene " + proponente.getPropuestas().size() + " propuestas");
             for (DTPropuesta p : proponente.getPropuestas()) {
-                if (p.getEstadoActual() == estadoElegido) {
+                System.out.println("DEBUG: Propuesta: " + p.getTitulo() + ", Estado: " + p.getEstadoActual());
+                // Usar .equals() para comparar enums y manejar null
+                if (p.getEstadoActual() != null && p.getEstadoActual().equals(estadoElegido)) {
+                    System.out.println("DEBUG: Agregando propuesta a la tabla: " + p.getTitulo());
                     Object[] filas = {
                             p.getTitulo(),
                             p.getMontoRecaudado(),
                             p.getMontoNecesario()
                     };
                     dtm.addRow(filas);
+                } else {
+                    System.out.println("DEBUG: Propuesta NO coincide con estado elegido");
                 }
             }
+        } else {
+            System.out.println("DEBUG: Proponente NO tiene propuestas (null)");
         }
+        System.out.println("DEBUG: Total filas en tabla: " + dtm.getRowCount());
         jTable2.setModel(dtm);
 
     }
 
     private void mostrarColaboradores() {
         int filaSelec = jTable2.getSelectedRow();
-        if (filaSelec >= 0) {
+        if (filaSelec >= 0 && proponenteActual != null) {
             String tituloProp = (String) jTable2.getValueAt(filaSelec, 0);
-            DTPropuesta propuesta = controlador.getDTPropuesta(tituloProp);
 
-            ArrayList<String> nomColab = propuesta.getNomColaboradores();
-
-            DefaultListModel dlm = new DefaultListModel();
-            if (nomColab.isEmpty()) {
-                dlm.addElement("Sin Colaboradores");
-            } else {
-                for (String n : nomColab) {
-                    dlm.addElement(n);
+            // Buscar la propuesta en el proponente actual (no en la BD)
+            DTPropuesta propuesta = null;
+            if (proponenteActual.getPropuestas() != null) {
+                for (DTPropuesta p : proponenteActual.getPropuestas()) {
+                    if (p.getTitulo().equals(tituloProp)) {
+                        propuesta = p;
+                        break;
+                    }
                 }
             }
-            jlColab.setModel(dlm);
+
+            if (propuesta != null) {
+                ArrayList<String> nomColab = propuesta.getNomColaboradores();
+
+                DefaultListModel dlm = new DefaultListModel();
+                if (nomColab.isEmpty()) {
+                    dlm.addElement("Sin Colaboradores");
+                } else {
+                    for (String n : nomColab) {
+                        dlm.addElement(n);
+                    }
+                }
+                jlColab.setModel(dlm);
+            }
         }
     }
 

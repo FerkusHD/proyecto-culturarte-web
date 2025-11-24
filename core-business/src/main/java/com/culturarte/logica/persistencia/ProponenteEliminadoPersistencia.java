@@ -97,6 +97,13 @@ public class ProponenteEliminadoPersistencia {
             for (File archivo : archivos) {
                 try {
                     ProponenteEliminadoData data = objectMapper.readValue(archivo, ProponenteEliminadoData.class);
+                    logger.info("Proponente leído: {}, propuestas: {}", data.getNickname(),
+                            data.getPropuestas() != null ? data.getPropuestas().size() : 0);
+                    if (data.getPropuestas() != null && !data.getPropuestas().isEmpty()) {
+                        DTPropuesta primera = data.getPropuestas().get(0);
+                        logger.info("Primera propuesta: titulo={}, estado={}",
+                                primera.getTitulo(), primera.getEstadoActual());
+                    }
                     DTProponente dtp = convertirADTProponente(data);
                     resultado.add(dtp);
                 } catch (IOException e) {

@@ -126,19 +126,34 @@ public class ManejadorUsuario {
 
         if (p.getPropuestas() != null) {
             for (Propuesta prop : p.getPropuestas()) {
-                com.culturarte.logica.datatypes.DTPropuesta dtProp = new com.culturarte.logica.datatypes.DTPropuesta(
-                        prop.getTitulo(),
-                        prop.getDescripcion(),
-                        prop.getLugar(),
-                        prop.getFechaPrevista(),
-                        prop.getPrecioEntrada(),
-                        prop.getMontoNecesario());
+                // Obtener monto recaudado usando el método de la propuesta
+                float montoRecaudado = prop.getMontoRecaudado();
 
+                // Obtener estado actual usando el método de la propuesta
+                com.culturarte.logica.enums.TipoEstado estadoActual = null;
+                try {
+                    if (prop.getHistorialEstados() != null && !prop.getHistorialEstados().isEmpty()) {
+                        estadoActual = prop.getEstadoActual().getEstado();
+                    }
+                } catch (Exception e) {
+                    // Si no hay estados, estadoActual quedará null
+                }
+
+                // Crear lista de colaboradores
+                ArrayList<String> colaboradores = new ArrayList<>();
                 if (prop.getColaboraciones() != null) {
                     for (Colaboracion colab : prop.getColaboraciones()) {
-                        dtProp.addColaborador(colab.getColaborador().getNickname());
+                        colaboradores.add(colab.getColaborador().getNickname());
                     }
                 }
+
+                // Crear DTPropuesta con toda la información
+                com.culturarte.logica.datatypes.DTPropuesta dtProp = new com.culturarte.logica.datatypes.DTPropuesta(
+                        prop.getTitulo(),
+                        estadoActual,
+                        colaboradores,
+                        montoRecaudado,
+                        prop.getMontoNecesario());
 
                 dtp.addPropuesta(dtProp);
             }

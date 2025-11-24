@@ -42,4 +42,11 @@ if [ -f "web.log" ]; then
     > web.log
 fi
 
+# Limpiar JSONs de proponentes eliminados
+PROPONENTES_DIR="$HOME/.Culturarte/proponentes_eliminados"
+if [ -d "$PROPONENTES_DIR" ]; then
+    echo "🗑️  Eliminando JSONs de proponentes eliminados en $PROPONENTES_DIR..."
+    rm -f "$PROPONENTES_DIR"/*.json
+fi
+
 echo "✅ Limpieza completada. Ahora puedes ejecutar ./open-jar.sh"
