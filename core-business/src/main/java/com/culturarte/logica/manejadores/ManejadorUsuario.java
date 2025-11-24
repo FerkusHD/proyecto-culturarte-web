@@ -1,15 +1,16 @@
 package com.culturarte.logica.manejadores;
+
 import com.culturarte.logica.clases.Proponente;
-import com.culturarte.logica.clases.Propuesta;
+
 import jakarta.persistence.*;
 import com.culturarte.logica.clases.Usuario;
 import java.util.List;
 import java.util.ArrayList;
+import com.culturarte.logica.clases.Proponente;
+import com.culturarte.logica.clases.Colaboracion;
+import com.culturarte.logica.clases.Colaborador;
+import com.culturarte.logica.clases.Propuesta;
 import com.culturarte.logica.datatypes.DTProponente;
-import com.culturarte.logica.datatypes.DTPropuesta;
-import java.time.LocalDateTime;
-import java.time.LocalDate;
-
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +21,17 @@ public class ManejadorUsuario {
     @PersistenceContext
     private EntityManager em;
 
+    private final com.culturarte.logica.persistencia.ProponenteEliminadoPersistencia persistencia;
+
+    public ManejadorUsuario(com.culturarte.logica.persistencia.ProponenteEliminadoPersistencia persistencia) {
+        this.persistencia = persistencia;
+    }
+
     @Transactional
     public void agregarUsuario(Usuario usuario) {
         em.persist(usuario);
     }
-    
+
     @Transactional
     public Usuario buscarUsuario(String nick) {
         Usuario u = em.find(Usuario.class, nick);
@@ -39,7 +46,6 @@ public class ManejadorUsuario {
             Usuario u = em.createQuery("SELECT u FROM Usuario u WHERE u.email = :email", Usuario.class)
                     .setParameter("email", email)
                     .getSingleResult();
-            // Inicializar la colección si es lazy
             if (u != null) {
                 u.getUsuariosSeguidos().size();
             }
@@ -49,14 +55,10 @@ public class ManejadorUsuario {
         }
     }
 
-
-    
     public Proponente getProponenteConPropuestas(String nick) {
         Proponente p = em.find(Proponente.class, nick);
         if (p != null) {
-            p.getPropuestas().forEach(propuesta ->
-                    propuesta.getColaboraciones().size()
-            );
+            p.getPropuestas().forEach(propuesta -> propuesta.getColaboraciones().size());
         }
         return p;
     }
@@ -64,8 +66,7 @@ public class ManejadorUsuario {
     @Transactional
     public List<Usuario> listarUsuarios() {
         List<Usuario> usuarios = em.createQuery("SELECT u FROM Usuario u", Usuario.class)
-                                   .getResultList();
-        // inicializar lazy si querés:
+                .getResultList();
         usuarios.forEach(u -> u.getUsuariosSeguidos().size());
         return usuarios;
     }
@@ -103,59 +104,98 @@ public class ManejadorUsuario {
             throw new IllegalArgumentException("No existe proponente: " + nick);
         }
 
-        p.setEliminado(true);
-        p.setFechaEliminacion(LocalDate.now());
+        if (p.getPropuestas() != null) {
+            p.getPropuestas().forEach(propuesta -> {
+                if (propuesta.getColaboraciones() != null) {
+                    propuesta.getColaboraciones().size();
+                }
+            });
+        }
 
-        em.merge(p);
-    }
+        DTProponente dtp = new DTProponente();
+        dtp.setNickname(p.getNickname());
+        dtp.setNombre(p.getNombre());
+        dtp.setApellido(p.getApellido());
+        dtp.setEmail(p.getEmail());
+        dtp.setFechaNacimiento(p.getFechaNacimiento());
+        dtp.setImagen(p.getImagen());
+        dtp.setDireccion(p.getDireccion());
+        dtp.setLinkWeb(p.getLinkWeb());
+        dtp.setBiografia(p.getBiografia());
+        dtp.setPropuestas(new ArrayList<>());
 
-    @Transactional
-    public ArrayList<DTProponente> listarProponentesEliminados() {
-        List<Proponente> eliminados = em.createQuery(
-                "SELECT p FROM Proponente p WHERE p.eliminado = true",
-                Proponente.class
-        ).getResultList();
-
-        ArrayList<DTProponente> dtProponentes = new ArrayList<>();
-
-        for (Proponente p : eliminados) {
-            p.getPropuestas().forEach(prop -> prop.getColaboraciones().size());
-
-            DTProponente dtp = new DTProponente();
-            dtp.setNickname(p.getNickname());
-            dtp.setNombre(p.getNombre());
-            dtp.setApellido(p.getApellido());
-            dtp.setEmail(p.getEmail());
-            dtp.setFechaNacimiento(p.getFechaNacimiento());
-            dtp.setImagen(p.getImagen());
-            dtp.setDireccion(p.getDireccion());
-            dtp.setLinkWeb(p.getLinkWeb());
-            dtp.setBiografia(p.getBiografia());
-            dtp.setPropuestas(new ArrayList());
+        if (p.getPropuestas() != null) {
             for (Propuesta prop : p.getPropuestas()) {
-                DTPropuesta dtProp = new DTPropuesta(
+                com.culturarte.logica.datatypes.DTPropuesta dtProp = new com.culturarte.logica.datatypes.DTPropuesta(
                         prop.getTitulo(),
                         prop.getDescripcion(),
                         prop.getLugar(),
                         prop.getFechaPrevista(),
                         prop.getPrecioEntrada(),
-                        prop.getMontoNecesario()
-                );
+                        prop.getMontoNecesario());
+
+                if (prop.getColaboraciones() != null) {
+                    for (Colaboracion colab : prop.getColaboraciones()) {
+                        dtProp.addColaborador(colab.getColaborador().getNickname());
+                    }
+                }
+
                 dtp.addPropuesta(dtProp);
             }
-
-            dtp.setFechaEliminacion(p.getFechaEliminacion());
-
-            dtProponentes.add(dtp);
         }
 
-        return dtProponentes;
+        try {
+            persistencia.guardarProponenteEliminado(dtp);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al persistir proponente eliminado en disco: " + e.getMessage(), e);
+        }
+
+        if (p.getPropuestas() != null) {
+            List<Propuesta> propuestas = new ArrayList<>(p.getPropuestas());
+            for (Propuesta prop : propuestas) {
+                if (prop.getColaboraciones() != null) {
+                    List<Colaboracion> colaboraciones = new ArrayList<>(
+                            prop.getColaboraciones());
+                    for (Colaboracion colab : colaboraciones) {
+                        if (colab.getColaborador() != null) {
+                            colab.getColaborador().getColaboraciones().remove(colab);
+                            em.merge(colab.getColaborador());
+                        }
+                        em.remove(colab);
+                    }
+                    prop.getColaboraciones().clear();
+                }
+                em.remove(prop);
+            }
+            p.getPropuestas().clear();
+        }
+
+        if (p.getUsuariosSeguidos() != null) {
+            for (Usuario seguido : new ArrayList<>(p.getUsuariosSeguidos())) {
+                seguido.getUsuariosSeguidores().remove(p);
+            }
+            p.getUsuariosSeguidos().clear();
+        }
+
+        if (p.getUsuariosSeguidores() != null) {
+            for (Usuario seguidor : new ArrayList<>(p.getUsuariosSeguidores())) {
+                seguidor.getUsuariosSeguidos().remove(p);
+            }
+            p.getUsuariosSeguidores().clear();
+        }
+
+        if (p.getPropuestasSeguidas() != null) {
+            p.getPropuestasSeguidas().clear();
+        }
+
+        em.flush();
+
+        em.remove(p);
     }
 
-
+    @Transactional
+    public ArrayList<DTProponente> listarProponentesEliminados() {
+        return persistencia.listarProponentesEliminados();
+    }
 
 }
-
-
-
-   

@@ -13,14 +13,15 @@ public class Proponente extends Usuario {
     @Column(length = 3000)
     private String biografia;
     private String linkWeb;
-    @OneToMany(mappedBy="proponente", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "proponente", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Propuesta> propuestas;
-    private boolean eliminado=false;
-    private LocalDate fechaEliminacion=null;
-    
-    public Proponente() {}
+    private LocalDate fechaEliminacion = null;
 
-    public Proponente(String nickname, String password, String nombre, String apellido, String email, LocalDate fechaNacimiento, String imagen, String direccion, String linkWeb, String biografia) {
+    public Proponente() {
+    }
+
+    public Proponente(String nickname, String password, String nombre, String apellido, String email,
+            LocalDate fechaNacimiento, String imagen, String direccion, String linkWeb, String biografia) {
         super(nickname, password, nombre, apellido, email, fechaNacimiento, imagen);
         this.direccion = direccion;
         this.linkWeb = linkWeb;
@@ -65,23 +66,12 @@ public class Proponente extends Usuario {
     public void addPropuestas(Propuesta propuesta) {
         this.propuestas.add(propuesta);
     }
-    
+
     public void removePropuesta(Propuesta propuesta) {
         this.propuestas.remove(propuesta);
     }
 
-    public void setEliminado(boolean eliminado) {
-        this.eliminado = eliminado;
-    }
-    public boolean getEliminado() {
-        return eliminado;
-    }
-
-    public boolean isEliminado() {
-        return eliminado;
-    }
-
-    public void setFechaEliminacion(LocalDate fechaEliminacion){
+    public void setFechaEliminacion(LocalDate fechaEliminacion) {
         this.fechaEliminacion = fechaEliminacion;
     }
 

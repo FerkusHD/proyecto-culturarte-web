@@ -898,7 +898,6 @@ public class Controlador implements IControlador {
             System.out.println("DEBUG: El colaborador no tiene colaboraciones cargadas.");
         }
 
-        // Primera pasada: buscar colaboración sin pago
         for (Colaboracion colab : colaborador.getColaboraciones()) {
             if (colab.getPropuesta().getTitulo().equals(tituloPropuesta) && !colab.tienePago()) {
                 colaboracion = colab;
@@ -906,8 +905,6 @@ public class Controlador implements IControlador {
             }
         }
 
-        // Segunda pasada: si no se encontró sin pago, buscar cualquiera (para reportar
-        // el error correcto)
         if (colaboracion == null) {
             for (Colaboracion colab : colaborador.getColaboraciones()) {
                 if (colab.getPropuesta().getTitulo().equals(tituloPropuesta)) {

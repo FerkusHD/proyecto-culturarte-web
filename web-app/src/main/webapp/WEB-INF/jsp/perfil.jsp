@@ -201,7 +201,7 @@
                                         </button>
                                     </div>
 
-                                    <c:if test="${esMiPropioPerfil}">
+                                    <c:if test="${esMiPropioPerfil && perfilVisitado.tipo eq 'proponente'}">
                                         <div class="text-center mt-4 border-top pt-3">
                                             <form
                                                 action="${pageContext.request.contextPath}/usuarios/eliminarProponente"
