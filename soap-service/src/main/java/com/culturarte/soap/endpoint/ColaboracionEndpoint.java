@@ -4,9 +4,11 @@ import com.culturarte.logica.IControlador;
 import com.culturarte.logica.datatypes.DTColaboracion;
 import com.culturarte.logica.datatypes.DTColaborador;
 import com.culturarte.logica.datatypes.DTPago;
+import com.culturarte.logica.datatypes.DTProponente;
 import com.culturarte.logica.enums.TipoPago;
 import com.culturarte.logica.enums.TipoTarjeta;
 import com.culturarte.soap.gen.*;
+import com.culturarte.soap.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.ws.server.endpoint.annotation.*;
@@ -25,6 +27,8 @@ public class ColaboracionEndpoint {
     private IControlador ctrl;
     @Autowired
     private PropuestasEndpoint propuestasEndpoint;
+    @Autowired
+    private EmailService emailService;
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getColaboracionesPorUsuarioRequest")
     @ResponsePayload
@@ -87,6 +91,44 @@ public class ColaboracionEndpoint {
 
             // Registrar el pago
             ctrl.registrarPago(pago, request.getNickColaborador(), request.getTituloPropuesta());
+
+            // Enviar emails de confirmación
+            try {
+                // Obtener datos del colaborador
+                DTColaborador colaborador = ctrl.getDTColaborador(request.getNickColaborador());
+
+                // Obtener datos de la colaboración
+                DTColaboracion colaboracion = ctrl.getDTColaboracionPropuesta(
+                        request.getNickColaborador(),
+                        request.getTituloPropuesta());
+
+                if (colaborador != null && colaboracion != null) {
+                    // Enviar email al colaborador
+                    emailService.enviarEmailConfirmacionColaborador(
+                            colaborador.getEmail(),
+                            colaborador.getNombre() + " " + colaborador.getApellido(),
+                            colaboracion,
+                            pago);
+
+                    // Obtener datos del proponente
+                    DTProponente proponente = ctrl.getDTProponente(
+                            colaboracion.getPropuesta().getProponente());
+
+                    if (proponente != null) {
+                        // Enviar email al proponente
+                        emailService.enviarEmailNotificacionProponente(
+                                proponente.getEmail(),
+                                proponente.getNombre() + " " + proponente.getApellido(),
+                                colaborador.getNombre() + " " + colaborador.getApellido(),
+                                colaboracion,
+                                pago);
+                    }
+                }
+            } catch (Exception emailEx) {
+                // Log error but don't fail the payment
+                System.err.println("Error al enviar emails de confirmación: " + emailEx.getMessage());
+                emailEx.printStackTrace();
+            }
 
             response.setExito(true);
             response.setMensaje("Pago registrado exitosamente");
