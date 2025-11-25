@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ public abstract class Usuario {
     private String apellido;
     private String email;
     private LocalDate fechaNacimiento;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
     private List<Propuesta> propuestasSeguidas;
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Usuario> usuariosSeguidos;

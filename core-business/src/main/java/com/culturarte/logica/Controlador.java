@@ -825,6 +825,8 @@ public class Controlador implements IControlador {
         }
         u.agregarPropuestaFavorita(p);
         mu.actualizarUsuario(u);
+        p.setUsrqsiguen(u);
+        mp.actualizarPropuesta(p);
     }
 
     @Override

@@ -44,6 +44,9 @@ public class Propuesta {
     @ManyToOne
     private Categoria categoria;
 
+    @ManyToOne
+    private List<Usuario> usrqsiguen;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comentario> comentarios;
 
@@ -66,6 +69,7 @@ public class Propuesta {
         this.colaboraciones = new ArrayList<>();
         this.historialEstados = new ArrayList<>();
         this.comentarios = new ArrayList<>();
+        this.usrqsiguen = new ArrayList<>();
 
     }
 
@@ -205,5 +209,13 @@ public class Propuesta {
 
     public List<Comentario> getComentarios() {
         return comentarios;
+    }
+
+    public List<Usuario> getUsrqsiguen() {
+        return usrqsiguen;
+    }
+
+    public void setUsrqsiguen(Usuario usrqsiguen) {
+        this.usrqsiguen.add(usrqsiguen);
     }
 }

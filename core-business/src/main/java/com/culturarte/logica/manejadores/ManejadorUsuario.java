@@ -175,6 +175,7 @@ public class ManejadorUsuario {
                     }
                     prop.getColaboraciones().clear();
                 }
+
                 em.remove(prop);
             }
             p.getPropuestas().clear();
